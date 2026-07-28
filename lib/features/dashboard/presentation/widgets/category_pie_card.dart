@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_shadow.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../core/utils/currency_formatter.dart';
-import '../../../../shared/components/charts/donut_chart.dart';
-import '../../../transactions/domain/entities/dashboard_summary.dart';
-import '../../../transactions/presentation/mappers/chart_category_group_ui.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_shadow.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/core/theme/app_typography.dart';
+import 'package:spendly_app/core/utils/currency_formatter.dart';
+import 'package:spendly_app/shared/components/charts/donut_chart.dart';
+import 'package:spendly_app/features/transactions/domain/entities/dashboard_summary.dart';
+import 'package:spendly_app/features/transactions/presentation/mappers/chart_category_group_ui.dart';
 
 /// Title + donut (category breakdown) + legend list, per Dashboard layout row 4.
 class CategoryPieCard extends StatelessWidget {
-  const CategoryPieCard({required this.breakdown, required this.total, super.key});
+  const CategoryPieCard(
+      {required this.breakdown, required this.total, super.key});
 
   final List<CategoryShare> breakdown;
   final double total;
@@ -32,7 +34,8 @@ class CategoryPieCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Chi tiêu theo danh mục', style: Theme.of(context).textTheme.titleSmall),
+          Text(context.l10n.dashboardCategoryPieTitle,
+              style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: AppSpacing.mdLg),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -42,7 +45,8 @@ class CategoryPieCard extends StatelessWidget {
                 strokeWidth: 20,
                 slices: [
                   for (final share in breakdown)
-                    DonutSlice(color: share.group.color, percent: share.percent),
+                    DonutSlice(
+                        color: share.group.color, percent: share.percent),
                 ],
                 centerLabel: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -50,10 +54,18 @@ class CategoryPieCard extends StatelessWidget {
                     Text(
                       CurrencyFormatter.formatCompact(total),
                       style: AppTypography.mono(
-                        fontSize: 15, fontWeight: FontWeight.w800, color: colors.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: colors.textPrimary,
                       ),
                     ),
-                    Text('tổng chi', style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 10)),
+                    Text(
+                      context.l10n.dashboardCategoryPieCenterLabel,
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelSmall
+                          ?.copyWith(fontSize: 10),
+                    ),
                   ],
                 ),
               ),
@@ -87,18 +99,18 @@ class _LegendRow extends StatelessWidget {
           Container(
             height: 8,
             width: 8,
-            decoration: BoxDecoration(color: share.group.color, shape: BoxShape.circle),
+            decoration:
+                BoxDecoration(color: share.group.color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(share.group.label, style: Theme.of(context).textTheme.bodySmall),
+            child: Text(share.group.labelText(context),
+                style: Theme.of(context).textTheme.bodySmall),
           ),
           Text(
-            '${share.percent.round()}%',
-            style: Theme.of(context)
-                .textTheme
-                .labelMedium
-                ?.copyWith(color: colors.textPrimary, fontWeight: FontWeight.w700),
+            context.l10n.percentValue(share.percent.round().toString()),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: colors.textPrimary, fontWeight: FontWeight.w700),
           ),
         ],
       ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
 
 /// Error state: message + retry button.
 class AppErrorView extends StatelessWidget {
@@ -30,7 +31,8 @@ class AppErrorView extends StatelessWidget {
                   ?.copyWith(color: colors.textSecondary),
             ),
             const SizedBox(height: AppSpacing.mdLg),
-            OutlinedButton(onPressed: onRetry, child: const Text('Thử lại')),
+            OutlinedButton(
+                onPressed: onRetry, child: Text(context.l10n.commonRetry)),
           ],
         ),
       ),

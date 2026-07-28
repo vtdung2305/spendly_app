@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_shadow.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/components/charts/donut_chart.dart';
-import '../../../transactions/domain/entities/dashboard_summary.dart';
-import '../../../transactions/presentation/mappers/chart_category_group_ui.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_shadow.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/shared/components/charts/donut_chart.dart';
+import 'package:spendly_app/features/transactions/domain/entities/dashboard_summary.dart';
+import 'package:spendly_app/features/transactions/presentation/mappers/chart_category_group_ui.dart';
 
 /// "Theo danh mục" donut + legend, per Reports layout (104px donut, tighter
 /// legend spacing than Dashboard's equivalent card).
@@ -29,7 +30,8 @@ class ReportPieCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Theo danh mục', style: Theme.of(context).textTheme.titleSmall),
+          Text(context.l10n.reportsPieCardTitle,
+              style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: AppSpacing.md),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -39,7 +41,8 @@ class ReportPieCard extends StatelessWidget {
                 strokeWidth: 18,
                 slices: [
                   for (final share in breakdown)
-                    DonutSlice(color: share.group.color, percent: share.percent),
+                    DonutSlice(
+                        color: share.group.color, percent: share.percent),
                 ],
               ),
               const SizedBox(width: AppSpacing.lgXl),
@@ -54,21 +57,29 @@ class ReportPieCard extends StatelessWidget {
                             Container(
                               height: 7,
                               width: 7,
-                              decoration: BoxDecoration(color: share.group.color, shape: BoxShape.circle),
+                              decoration: BoxDecoration(
+                                  color: share.group.color,
+                                  shape: BoxShape.circle),
                             ),
                             const SizedBox(width: AppSpacing.xs),
                             Expanded(
                               child: Text(
-                                share.group.label,
+                                share.group.labelText(context),
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(color: colors.textSecondary, fontSize: 11.5),
+                                    ?.copyWith(
+                                        color: colors.textSecondary,
+                                        fontSize: 11.5),
                               ),
                             ),
                             Text(
-                              '${share.percent.round()}%',
-                              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              context.l10n.percentValue(
+                                  share.percent.round().toString()),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium
+                                  ?.copyWith(
                                     color: colors.textPrimary,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 11.5,

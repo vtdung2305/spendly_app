@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../core/utils/currency_formatter.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/core/theme/app_typography.dart';
+import 'package:spendly_app/core/utils/currency_formatter.dart';
 
 /// Gradient Primary→accent hero card — "TIẾT KIỆM THÁNG NÀY" + big amount +
 /// 2-up Thu nhập/Chi tiêu mini stats, per Dashboard layout row 2.
@@ -38,7 +39,7 @@ class HeroSavingsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TIẾT KIỆM THÁNG NÀY',
+            context.l10n.dashboardSavingsCardTitle,
             style: AppTypography.mono(
               fontSize: 11,
               fontWeight: FontWeight.w500,
@@ -49,14 +50,21 @@ class HeroSavingsCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             CurrencyFormatter.format(savings),
-            style: AppTypography.mono(fontSize: 30, fontWeight: FontWeight.w800, color: Colors.white),
+            style: AppTypography.mono(
+                fontSize: 30, fontWeight: FontWeight.w800, color: Colors.white),
           ),
           const SizedBox(height: 18),
           Row(
             children: [
-              Expanded(child: _MiniStat(label: 'Thu nhập', amount: income)),
+              Expanded(
+                  child: _MiniStat(
+                      label: context.l10n.dashboardIncomeLabel,
+                      amount: income)),
               const SizedBox(width: 12),
-              Expanded(child: _MiniStat(label: 'Chi tiêu', amount: expense)),
+              Expanded(
+                  child: _MiniStat(
+                      label: context.l10n.dashboardExpenseLabel,
+                      amount: expense)),
             ],
           ),
         ],
@@ -82,11 +90,14 @@ class _MiniStat extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.85))),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 12, color: Colors.white.withValues(alpha: 0.85))),
           const SizedBox(height: 2),
           Text(
             CurrencyFormatter.formatPlain(amount),
-            style: AppTypography.mono(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
+            style: AppTypography.mono(
+                fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white),
           ),
         ],
       ),

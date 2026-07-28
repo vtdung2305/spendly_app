@@ -1,6 +1,6 @@
-import '../../domain/entities/expense_category.dart';
-import '../../domain/entities/income_source.dart';
-import '../../domain/entities/transaction.dart';
+import 'package:spendly_app/features/transactions/domain/entities/expense_category.dart';
+import 'package:spendly_app/features/transactions/domain/entities/income_source.dart';
+import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
 
 /// DTO for the Supabase `transactions` table row.
 class TransactionModel {
@@ -51,9 +51,16 @@ class TransactionModel {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        ...toInsertJson(),
+      };
+
+  /// Excludes `id` — the DB generates it via `gen_random_uuid()` default.
+  Map<String, dynamic> toInsertJson() => {
         'type': type.name,
         'amount': amount,
-        'date': date.toIso8601String(),
+        'date': '${date.year.toString().padLeft(4, '0')}-'
+            '${date.month.toString().padLeft(2, '0')}-'
+            '${date.day.toString().padLeft(2, '0')}',
         'expense_category': expenseCategory?.name,
         'income_source': incomeSource?.name,
         'note': note,

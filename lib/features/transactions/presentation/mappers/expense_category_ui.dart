@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/entities/expense_category.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/features/transactions/domain/entities/expense_category.dart';
 
-/// Icon for each [ExpenseCategory] — kept out of domain since it depends on
-/// Flutter.
+/// Icon/label for each [ExpenseCategory] — kept out of domain since they
+/// depend on Flutter/localization.
 extension ExpenseCategoryUi on ExpenseCategory {
+  String labelText(BuildContext context) => switch (this) {
+        ExpenseCategory.anUong => context.l10n.categoryFood,
+        ExpenseCategory.shopping => context.l10n.categoryShopping,
+        ExpenseCategory.diLai => context.l10n.categoryTransport,
+        ExpenseCategory.giaiTri => context.l10n.categoryEntertainment,
+        ExpenseCategory.yTe => context.l10n.categoryHealth,
+        ExpenseCategory.giaDinh => context.l10n.categoryFamily,
+        ExpenseCategory.duLich => context.l10n.categoryTravel,
+        ExpenseCategory.thuCung => context.l10n.categoryPets,
+      };
+
   IconData get icon => switch (this) {
         ExpenseCategory.anUong => Icons.restaurant_rounded,
         ExpenseCategory.shopping => Icons.shopping_bag_rounded,

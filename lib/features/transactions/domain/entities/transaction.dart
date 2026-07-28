@@ -24,6 +24,7 @@ class Transaction {
   final IncomeSource? incomeSource;
   final String? note;
 
-  String get displayLabel =>
-      type == TransactionType.expense ? expenseCategory!.label : incomeSource!.label;
+  String get displayLabel => type == TransactionType.expense
+      ? expenseCategory!.label
+      : incomeSource!.label;
 }

@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/failure.dart';
-import '../entities/app_user.dart';
-import '../repositories/i_auth_repository.dart';
+import 'package:spendly_app/core/error/failure.dart';
+import 'package:spendly_app/features/authentication/domain/entities/app_user.dart';
+import 'package:spendly_app/features/authentication/domain/repositories/i_auth_repository.dart';
 
 /// Used by Splash to decide whether to route to Login or Dashboard.
 class GetCurrentUserUseCase {

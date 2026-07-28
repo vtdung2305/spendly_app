@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../transactions/domain/entities/expense_category.dart';
-import '../../../transactions/presentation/mappers/expense_category_ui.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/features/transactions/domain/entities/expense_category.dart';
+import 'package:spendly_app/features/transactions/presentation/mappers/expense_category_ui.dart';
 
 /// 4-column grid of 8 category cards; selected = 2px colored border + tint
 /// bg, per Add Transaction "Chi tiêu" tab layout.
 class ExpenseCategoryGrid extends StatelessWidget {
-  const ExpenseCategoryGrid({required this.selected, required this.onSelected, super.key});
+  const ExpenseCategoryGrid(
+      {required this.selected, required this.onSelected, super.key});
 
   final ExpenseCategory? selected;
   final ValueChanged<ExpenseCategory> onSelected;
@@ -21,7 +22,7 @@ class ExpenseCategoryGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
-      childAspectRatio: 0.85,
+      childAspectRatio: 1,
       children: [
         for (final category in ExpenseCategory.values)
           _CategoryCard(
@@ -35,7 +36,8 @@ class ExpenseCategoryGrid extends StatelessWidget {
 }
 
 class _CategoryCard extends StatelessWidget {
-  const _CategoryCard({required this.category, required this.isSelected, required this.onTap});
+  const _CategoryCard(
+      {required this.category, required this.isSelected, required this.onTap});
 
   final ExpenseCategory category;
   final bool isSelected;
@@ -52,6 +54,7 @@ class _CategoryCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.lg),
       child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected ? colors.primaryTint : colors.surface,
           borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -66,7 +69,7 @@ class _CategoryCard extends StatelessWidget {
             Icon(category.icon, size: 22, color: accentColor),
             const SizedBox(height: 6),
             Text(
-              category.label,
+              category.labelText(context),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

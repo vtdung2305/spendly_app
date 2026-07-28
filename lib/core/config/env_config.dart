@@ -10,7 +10,12 @@ abstract class EnvConfig {
 
   static String _require(String key) {
     final value = dotenv.env[key];
-    if (value == null || value.isEmpty || value.startsWith('your-')) {
+    final isPlaceholder = value == null ||
+        value.isEmpty ||
+        value.contains('your-project-ref') ||
+        value.contains('your-anon-public-key') ||
+        value.startsWith('your-');
+    if (isPlaceholder) {
       throw StateError(
         'Missing $key in .env — copy .env.example to .env and fill in your '
         'Supabase project values (Project Settings → API).',

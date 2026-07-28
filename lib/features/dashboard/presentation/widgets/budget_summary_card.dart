@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_shadow.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/utils/currency_formatter.dart';
-import '../../../../shared/components/charts/progress_ring.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_shadow.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/core/utils/currency_formatter.dart';
+import 'package:spendly_app/shared/components/charts/progress_ring.dart';
 
 /// Tappable row: budget ring + "Đã dùng X% · còn Y ₫" + chevron, per
 /// Dashboard layout row 3 (navigates to Budget screen).
@@ -35,6 +36,7 @@ class BudgetSummaryCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
+            color: colors.surface,
             borderRadius: BorderRadius.circular(AppRadius.card),
             border: Border.all(color: colors.border),
             boxShadow: AppShadow.card,
@@ -48,8 +50,9 @@ class BudgetSummaryCard extends StatelessWidget {
                 size: 52,
                 strokeWidth: 6,
                 centerLabel: Text(
-                  '$usedPercent%',
-                  style: textTheme.labelLarge?.copyWith(fontSize: 12, fontWeight: FontWeight.w800),
+                  context.l10n.percentValue(usedPercent.toString()),
+                  style: textTheme.labelLarge
+                      ?.copyWith(fontSize: 12, fontWeight: FontWeight.w800),
                 ),
               ),
               const SizedBox(width: 14),
@@ -57,11 +60,16 @@ class BudgetSummaryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Ngân sách tháng', style: textTheme.titleSmall),
+                    Text(context.l10n.dashboardBudgetCardTitle,
+                        style: textTheme.titleSmall),
                     const SizedBox(height: 4),
                     Text(
-                      'Đã dùng $usedPercent% · còn ${CurrencyFormatter.format(remaining)}',
-                      style: textTheme.bodySmall?.copyWith(color: colors.textSecondary),
+                      context.l10n.dashboardBudgetUsedSummary(
+                        usedPercent.toString(),
+                        CurrencyFormatter.format(remaining),
+                      ),
+                      style: textTheme.bodySmall
+                          ?.copyWith(color: colors.textSecondary),
                     ),
                   ],
                 ),

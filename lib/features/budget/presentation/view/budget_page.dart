@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/utils/currency_formatter.dart';
-import '../../../../shared/components/empty/app_empty_view.dart';
-import '../../../../shared/components/error/app_error_view.dart';
-import '../../../../shared/components/loading/app_loading_indicator.dart';
-import '../viewmodel/budget_cubit.dart';
-import '../viewmodel/budget_state.dart';
-import '../widgets/budget_item_card.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/core/utils/currency_formatter.dart';
+import 'package:spendly_app/shared/components/empty/app_empty_view.dart';
+import 'package:spendly_app/shared/components/error/app_error_view.dart';
+import 'package:spendly_app/shared/components/loading/app_loading_indicator.dart';
+import 'package:spendly_app/shared/components/navigation/app_bottom_nav_bar.dart';
+import 'package:spendly_app/shared/components/navigation/app_fab.dart';
+import 'package:spendly_app/features/budget/domain/entities/budget_item.dart';
+import 'package:spendly_app/features/budget/presentation/viewmodel/budget_cubit.dart';
+import 'package:spendly_app/features/budget/presentation/viewmodel/budget_state.dart';
+import 'package:spendly_app/features/budget/presentation/widgets/budget_item_card.dart';
 
 /// Screen 9 — no back arrow in the design (reached via Dashboard's budget
 /// row or Profile menu; the platform back gesture/button returns).
@@ -27,6 +32,11 @@ class _BudgetPageState extends State<BudgetPage> {
     context.read<BudgetCubit>().load();
   }
 
+  Future<void> _editBudget(BuildContext context, BudgetItem item) async {
+    await context.push('/edit-budget', extra: item);
+    if (context.mounted) context.read<BudgetCubit>().load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -35,7 +45,8 @@ class _BudgetPageState extends State<BudgetPage> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenHorizontal),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.screenHorizontal),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -43,46 +54,117 @@ class _BudgetPageState extends State<BudgetPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Ngân sách', style: textTheme.titleLarge),
-                  Icon(Icons.add_circle_rounded, size: 22, color: colors.primary),
+                  Text(context.l10n.budgetPageTitle,
+                      style: textTheme.titleLarge),
+                  InkWell(
+                    onTap: () async {
+                      await context.push('/add-budget');
+                      if (context.mounted) context.read<BudgetCubit>().load();
+                    },
+                    borderRadius: BorderRadius.circular(100),
+                    child: Icon(Icons.add_circle_rounded,
+                        size: 22, color: colors.primary),
+                  ),
                 ],
               ),
               Expanded(
-                child: BlocBuilder<BudgetCubit, BudgetState>(
-                  builder: (context, state) {
-                    return switch (state) {
-                      BudgetLoading() => const AppLoadingIndicator(),
-                      BudgetError(:final message) => AppErrorView(
-                          message: message,
-                          onRetry: () => context.read<BudgetCubit>().load(),
-                        ),
-                      BudgetLoaded(items: []) => const AppEmptyView(
-                          icon: Icons.account_balance_wallet_rounded,
-                          message: 'Chưa có ngân sách nào.\nNhấn + để thiết lập ngân sách đầu tiên.',
-                        ),
-                      BudgetLoaded(:final items, :final totalBudget, :final totalUsedPercent) =>
-                        ListView(
-                          children: [
-                            const SizedBox(height: 2),
-                            Text(
-                              'Tổng ngân sách: ${CurrencyFormatter.format(totalBudget)} · Đã dùng $totalUsedPercent%',
-                              style: textTheme.bodySmall?.copyWith(color: colors.textSecondary),
-                            ),
-                            const SizedBox(height: AppSpacing.mdLg),
-                            for (final item in items) ...[
-                              BudgetItemCard(item: item),
-                              const SizedBox(height: AppSpacing.smMd),
+                child: RefreshIndicator(
+                  onRefresh: () => context.read<BudgetCubit>().load(),
+                  child: BlocBuilder<BudgetCubit, BudgetState>(
+                    builder: (context, state) {
+                      return switch (state) {
+                        BudgetLoading() => ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: const [
+                              Padding(
+                                padding: EdgeInsets.only(top: AppSpacing.xxl2),
+                                child: AppLoadingIndicator(),
+                              ),
                             ],
-                          ],
-                        ),
-                    };
-                  },
+                          ),
+                        BudgetError(:final message) => ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              AppErrorView(
+                                message: message,
+                                onRetry: () =>
+                                    context.read<BudgetCubit>().load(),
+                              ),
+                            ],
+                          ),
+                        BudgetLoaded(items: []) => LayoutBuilder(
+                            builder: (context, constraints) => ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                SizedBox(
+                                  height: constraints.maxHeight,
+                                  child: AppEmptyView(
+                                    icon: Icons.account_balance_wallet_rounded,
+                                    message: context.l10n.budgetEmptyMessage,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        BudgetLoaded(
+                          :final items,
+                          :final totalBudget,
+                          :final totalUsedPercent
+                        ) =>
+                          ListView(
+                            children: [
+                              const SizedBox(height: 2),
+                              Text(
+                                context.l10n.budgetSummaryLine(
+                                  CurrencyFormatter.format(totalBudget),
+                                  totalUsedPercent.toString(),
+                                ),
+                                style: textTheme.bodySmall
+                                    ?.copyWith(color: colors.textSecondary),
+                              ),
+                              const SizedBox(height: AppSpacing.mdLg),
+                              for (final item in items) ...[
+                                BudgetItemCard(
+                                  item: item,
+                                  onTap: () => _editBudget(context, item),
+                                ),
+                                const SizedBox(height: AppSpacing.smMd),
+                              ],
+                            ],
+                          ),
+                      };
+                    },
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
+      floatingActionButton: AppFab(
+        onPressed: () async {
+          await context.push('/add-transaction');
+          if (context.mounted) context.read<BudgetCubit>().load();
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 2,
+        onTabSelected: (index) => _handleTabSelected(context, index),
+      ),
     );
+  }
+
+  void _handleTabSelected(BuildContext context, int index) {
+    switch (index) {
+      case 0:
+        context.go('/dashboard');
+      case 1:
+        context.go('/calendar');
+      case 3:
+        context.go('/reports');
+      case 4:
+        context.go('/profile');
+    }
   }
 }

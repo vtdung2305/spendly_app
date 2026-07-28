@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../transactions/domain/entities/transaction.dart';
-import '../../../transactions/presentation/widgets/transaction_row.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
+import 'package:spendly_app/features/transactions/presentation/widgets/transaction_row.dart';
 
 /// "Giao dịch gần đây" header + "Xem tất cả" link + up-to-10 [TransactionRow]s,
 /// per Dashboard layout row 6.
@@ -27,14 +28,21 @@ class RecentTransactionsSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Giao dịch gần đây', style: textTheme.titleSmall),
+            Text(context.l10n.dashboardRecentTransactionsTitle,
+                style: textTheme.titleSmall),
             TextButton(
               onPressed: onSeeAll,
-              child: Text('Xem tất cả', style: TextStyle(color: colors.primary, fontSize: 13)),
+              child: Text(
+                context.l10n.dashboardSeeAllButton,
+                style: TextStyle(color: colors.primary, fontSize: 13),
+              ),
             ),
           ],
         ),
-        for (final transaction in transactions) TransactionRow(transaction: transaction),
+        for (final transaction in transactions) ...[
+          TransactionRow(transaction: transaction),
+          const SizedBox(height: 12),
+        ],
       ],
     );
   }

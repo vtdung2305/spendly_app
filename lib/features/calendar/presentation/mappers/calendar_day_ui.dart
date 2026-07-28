@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
 
 enum CalendarDayTone { neutral, low, mid, high }
 
@@ -18,13 +18,13 @@ extension CalendarDayToneUi on CalendarDayTone {
         CalendarDayTone.high => colors.dangerTint,
         CalendarDayTone.low => colors.successTint,
         CalendarDayTone.mid => colors.primaryTint,
-        CalendarDayTone.neutral => colors.surface,
+        CalendarDayTone.neutral => colors.surfaceAlt,
       };
 
   Color foreground(AppColorsExtension colors) => switch (this) {
         CalendarDayTone.high => colors.danger,
         CalendarDayTone.low => colors.success,
         CalendarDayTone.mid => colors.primary,
-        CalendarDayTone.neutral => colors.textSecondary,
+        CalendarDayTone.neutral => colors.textTertiary,
       };
 }

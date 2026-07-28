@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/failure.dart';
-import '../entities/dashboard_summary.dart';
-import '../repositories/i_transaction_repository.dart';
+import 'package:spendly_app/core/error/failure.dart';
+import 'package:spendly_app/features/transactions/domain/entities/dashboard_summary.dart';
+import 'package:spendly_app/features/transactions/domain/repositories/i_transaction_repository.dart';
 
 class GetDashboardSummaryUseCase {
   const GetDashboardSummaryUseCase(this._repository);

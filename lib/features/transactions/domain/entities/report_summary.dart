@@ -1,3 +1,4 @@
+import 'chart_category_group.dart';
 import 'dashboard_summary.dart';
 
 class WeekBar {
@@ -10,7 +11,7 @@ class WeekBar {
 /// pie, and weekly bar chart.
 class ReportSummary {
   const ReportSummary({
-    required this.topCategoryLabel,
+    required this.topCategoryGroup,
     required this.avgPerDay,
     required this.maxSpendDay,
     required this.savingsRatePercent,
@@ -18,7 +19,10 @@ class ReportSummary {
     required this.weekBars,
   });
 
-  final String topCategoryLabel;
+  /// Null when there's no expense data for the period — presentation maps
+  /// this to a localized label (or a "—" placeholder) via
+  /// `ChartCategoryGroupUi.labelText`.
+  final ChartCategoryGroup? topCategoryGroup;
   final double avgPerDay;
   final double maxSpendDay;
   final double savingsRatePercent;

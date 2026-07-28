@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
 
-const _kMonthLabels = ['Th.7', 'Th.6', 'Th.5', 'Th.4'];
+/// Reference "current month" for the mock data — matches the hardcoded
+/// July 2026 used elsewhere (Dashboard/Calendar).
+final _kReferenceMonth = DateTime(2026, 7);
 
 /// Horizontal scrollable month chips; active = Primary fill. Per design
 /// handoff, these are decorative — selecting one doesn't refilter the list.
 class MonthChipsRow extends StatelessWidget {
-  const MonthChipsRow({required this.selectedIndex, required this.onSelected, super.key});
+  const MonthChipsRow(
+      {required this.selectedIndex, required this.onSelected, super.key});
 
   final int selectedIndex;
   final ValueChanged<int> onSelected;
@@ -16,11 +20,17 @@ class MonthChipsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final locale = Localizations.localeOf(context).languageCode;
+    final monthLabels = [
+      for (var i = 0; i < 4; i++)
+        DateFormat.MMM(locale).format(
+            DateTime(_kReferenceMonth.year, _kReferenceMonth.month - i)),
+    ];
     return SizedBox(
       height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: _kMonthLabels.length,
+        itemCount: monthLabels.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final isActive = index == selectedIndex;
@@ -34,7 +44,7 @@ class MonthChipsRow extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                _kMonthLabels[index],
+                monthLabels[index],
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       fontSize: 12,
                       color: isActive ? Colors.white : colors.textSecondary,

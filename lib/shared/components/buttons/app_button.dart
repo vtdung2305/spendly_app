@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_animation.dart';
-import '../../../core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_animation.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
 
 /// Primary filled CTA button — 52px height, radius 16, spinner while
 /// [isLoading], 45% opacity when [onPressed] is null (disabled).
@@ -70,7 +70,8 @@ class _AppButtonState extends State<AppButton> {
                     )
                   : Text(
                       widget.label,
-                      style: theme.textTheme.titleSmall?.copyWith(color: foreground),
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(color: foreground),
                     ),
             ),
           ),

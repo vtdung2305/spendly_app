@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../transactions/domain/entities/expense_category.dart';
-import '../../../transactions/domain/entities/income_source.dart';
-import '../../../transactions/domain/entities/transaction.dart';
+import 'package:spendly_app/features/transactions/domain/entities/expense_category.dart';
+import 'package:spendly_app/features/transactions/domain/entities/income_source.dart';
+import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
 
 /// Form state for the unified Add Expense/Income screen. Save button is
 /// enabled only once [isValid] — category/source AND amount set, per design.
@@ -31,7 +31,9 @@ class AddTransactionState extends Equatable {
 
   bool get isValid =>
       amount > 0 &&
-      (type == TransactionType.expense ? expenseCategory != null : incomeSource != null);
+      (type == TransactionType.expense
+          ? expenseCategory != null
+          : incomeSource != null);
 
   AddTransactionState copyWith({
     TransactionType? type,
@@ -54,7 +56,8 @@ class AddTransactionState extends Equatable {
       note: note ?? this.note,
       isSaving: isSaving ?? this.isSaving,
       saved: saved ?? this.saved,
-      errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+      errorMessage:
+          clearErrorMessage ? null : errorMessage ?? this.errorMessage,
     );
   }
 

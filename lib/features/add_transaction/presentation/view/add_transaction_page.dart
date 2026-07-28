@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/components/buttons/app_button.dart';
-import '../../../../shared/components/buttons/bordered_icon_button.dart';
-import '../../../../shared/components/dialogs/app_snackbar.dart';
-import '../../../transactions/domain/entities/transaction.dart';
-import '../viewmodel/add_transaction_cubit.dart';
-import '../viewmodel/add_transaction_state.dart';
-import '../widgets/amount_input.dart';
-import '../widgets/date_row.dart';
-import '../widgets/expense_category_grid.dart';
-import '../widgets/income_source_list.dart';
-import '../widgets/transaction_type_segmented_control.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/shared/components/buttons/app_button.dart';
+import 'package:spendly_app/shared/components/buttons/bordered_icon_button.dart';
+import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
+import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
+import 'package:spendly_app/features/add_transaction/presentation/viewmodel/add_transaction_cubit.dart';
+import 'package:spendly_app/features/add_transaction/presentation/viewmodel/add_transaction_state.dart';
+import 'package:spendly_app/features/add_transaction/presentation/widgets/date_note_card.dart';
+import 'package:spendly_app/features/add_transaction/presentation/widgets/date_picker_sheet.dart';
+import 'package:spendly_app/features/add_transaction/presentation/widgets/expense_category_grid.dart';
+import 'package:spendly_app/features/add_transaction/presentation/widgets/income_source_list.dart';
+import 'package:spendly_app/features/add_transaction/presentation/widgets/transaction_amount_card.dart';
+import 'package:spendly_app/features/add_transaction/presentation/widgets/transaction_type_segmented_control.dart';
+import 'package:spendly_app/features/transactions/presentation/mappers/expense_category_ui.dart';
 
 /// Unified Add Expense/Income screen (screens 5 & 6 in the design handoff) —
 /// entry point sets the default tab via [AddTransactionCubit]'s initialTab.
@@ -25,15 +28,31 @@ class AddTransactionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return BlocListener<AddTransactionCubit, AddTransactionState>(
-      listenWhen: (previous, current) => !previous.saved && current.saved,
-      listener: (context, state) {
-        Navigator.of(context).pop();
-        AppSnackbar.showSuccess(
-          context,
-          state.type == TransactionType.expense ? 'Đã lưu khoản chi' : 'Đã lưu khoản thu',
-        );
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AddTransactionCubit, AddTransactionState>(
+          listenWhen: (previous, current) => !previous.saved && current.saved,
+          listener: (context, state) {
+            final cubit = context.read<AddTransactionCubit>();
+            Navigator.of(context).pop();
+            AppSnackbar.showSuccess(
+              context,
+              cubit.isEditing
+                  ? context.l10n.transactionUpdatedSnackbar
+                  : state.type == TransactionType.expense
+                      ? context.l10n.addTransactionSavedExpenseSnackbar
+                      : context.l10n.addTransactionSavedIncomeSnackbar,
+            );
+          },
+        ),
+        BlocListener<AddTransactionCubit, AddTransactionState>(
+          listenWhen: (previous, current) =>
+              current.errorMessage != null &&
+              current.errorMessage != previous.errorMessage,
+          listener: (context, state) =>
+              AppSnackbar.showError(context, state.errorMessage!),
+        ),
+      ],
       child: Scaffold(
         backgroundColor: colors.background,
         body: SafeArea(
@@ -44,7 +63,10 @@ class AddTransactionPage extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screenHorizontal, AppSpacing.mdLg, AppSpacing.screenHorizontal, 0,
+                      AppSpacing.screenHorizontal,
+                      AppSpacing.mdLg,
+                      AppSpacing.screenHorizontal,
+                      0,
                     ),
                     child: Row(
                       children: [
@@ -53,7 +75,12 @@ class AddTransactionPage extends StatelessWidget {
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                         const SizedBox(width: AppSpacing.md),
-                        Text('Thêm giao dịch', style: Theme.of(context).textTheme.titleMedium),
+                        Text(
+                          cubit.isEditing
+                              ? context.l10n.editTransactionPageTitle
+                              : context.l10n.addTransactionPageTitle,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                       ],
                     ),
                   ),
@@ -69,19 +96,20 @@ class AddTransactionPage extends StatelessWidget {
                           onChanged: cubit.selectTab,
                         ),
                         const SizedBox(height: AppSpacing.lgXl),
+                        TransactionAmountCard(
+                          type: state.type,
+                          initialAmount: cubit.initialAmount,
+                          onChanged: cubit.setAmount,
+                        ),
+                        const SizedBox(height: AppSpacing.lgXl),
                         _buildCategorySection(context, state, cubit),
-                        const SizedBox(height: AppSpacing.xl),
-                        Text('Số tiền', style: Theme.of(context).textTheme.titleSmall),
-                        const SizedBox(height: AppSpacing.xs),
-                        AmountInput(onChanged: cubit.setAmount),
-                        const SizedBox(height: AppSpacing.smMd),
-                        DateRow(date: state.date ?? DateTime.now(), onTap: () {}),
-                        const SizedBox(height: AppSpacing.smMd),
-                        Text('Ghi chú', style: Theme.of(context).textTheme.titleSmall),
-                        const SizedBox(height: AppSpacing.xs),
-                        TextField(
-                          onChanged: cubit.setNote,
-                          decoration: const InputDecoration(hintText: 'Thêm ghi chú (không bắt buộc)'),
+                        const SizedBox(height: AppSpacing.lgXl),
+                        DateNoteCard(
+                          date: state.date ?? DateTime.now(),
+                          onDateTap: () => _pickDate(
+                              context, cubit, state.date ?? DateTime.now()),
+                          initialNote: cubit.initialNote,
+                          onNoteChanged: cubit.setNote,
                         ),
                         const SizedBox(height: AppSpacing.xl),
                       ],
@@ -89,12 +117,30 @@ class AddTransactionPage extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screenHorizontal, 0, AppSpacing.screenHorizontal, AppSpacing.mdLg,
+                      AppSpacing.screenHorizontal,
+                      0,
+                      AppSpacing.screenHorizontal,
+                      AppSpacing.mdLg,
                     ),
-                    child: AppButton(
-                      label: 'Lưu giao dịch',
-                      isLoading: state.isSaving,
-                      onPressed: state.isValid ? cubit.save : null,
+                    child: Column(
+                      children: [
+                        AppButton(
+                          label: cubit.isEditing
+                              ? context.l10n.editTransactionSaveButton
+                              : context.l10n.addTransactionSaveButton,
+                          isLoading: state.isSaving,
+                          onPressed: state.isValid ? cubit.save : null,
+                        ),
+                        if (!state.isValid) ...[
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            _saveHint(context, state),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 11.5, color: colors.textTertiary),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ],
@@ -106,18 +152,61 @@ class AddTransactionPage extends StatelessWidget {
     );
   }
 
+  String _saveHint(BuildContext context, AddTransactionState state) {
+    final hasSelection = state.type == TransactionType.expense
+        ? state.expenseCategory != null
+        : state.incomeSource != null;
+    if (!hasSelection) {
+      return state.type == TransactionType.expense
+          ? context.l10n.addTransactionHintChooseCategory
+          : context.l10n.addTransactionHintChooseSource;
+    }
+    return context.l10n.addTransactionHintEnterAmount;
+  }
+
+  Future<void> _pickDate(
+    BuildContext context,
+    AddTransactionCubit cubit,
+    DateTime currentDate,
+  ) async {
+    final picked = await showModalBottomSheet<DateTime>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => DatePickerSheet(initialDate: currentDate),
+    );
+    if (picked != null) cubit.setDate(picked);
+  }
+
   Widget _buildCategorySection(
     BuildContext context,
     AddTransactionState state,
     AddTransactionCubit cubit,
   ) {
-    final label = state.type == TransactionType.expense ? 'Danh mục' : 'Nguồn thu';
+    final isExpense = state.type == TransactionType.expense;
+    final label = isExpense
+        ? context.l10n.addTransactionCategoryLabel
+        : context.l10n.addTransactionIncomeSourceLabel;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: Theme.of(context).textTheme.titleSmall),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: Theme.of(context).textTheme.titleSmall),
+            if (isExpense)
+              Text(
+                state.expenseCategory?.labelText(context) ??
+                    context.l10n.addTransactionCategoryUnselectedLabel,
+                style: TextStyle(
+                    fontSize: 11.5, color: context.colors.textTertiary),
+              ),
+          ],
+        ),
         const SizedBox(height: AppSpacing.smMd),
-        if (state.type == TransactionType.expense)
+        if (isExpense)
           ExpenseCategoryGrid(
             selected: state.expenseCategory,
             onSelected: cubit.selectExpenseCategory,

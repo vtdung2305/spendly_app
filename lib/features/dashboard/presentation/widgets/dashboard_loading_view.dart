@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/components/loading/app_loading_indicator.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/shared/components/loading/app_loading_indicator.dart';
 
 /// Shimmer blocks in place of chart cards and list rows, per Dashboard
 /// "Loading" state.

@@ -1,13 +1,36 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_animation.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_animation.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
 
 /// Bottom-anchored success confirmation, auto-dismiss after 2.5s — per
 /// design handoff Global Chrome ("Đã lưu khoản chi" / "Đã lưu khoản thu").
+/// Error/Warning/Info variants share the same dark-pill shape (per Messages
+/// & Feedback Kit catalog), swapping only the leading icon/color.
 abstract class AppSnackbar {
-  static void showSuccess(BuildContext context, String message) {
+  static void showSuccess(BuildContext context, String message) =>
+      _show(context, message,
+          icon: Icons.check_circle_rounded, iconColor: context.colors.success);
+
+  static void showError(BuildContext context, String message) =>
+      _show(context, message,
+          icon: Icons.error_rounded, iconColor: context.colors.danger);
+
+  static void showWarning(BuildContext context, String message) =>
+      _show(context, message,
+          icon: Icons.warning_rounded, iconColor: context.colors.warning);
+
+  static void showInfo(BuildContext context, String message) =>
+      _show(context, message,
+          icon: Icons.info_rounded, iconColor: context.colors.primary);
+
+  static void _show(
+    BuildContext context,
+    String message, {
+    required IconData icon,
+    required Color iconColor,
+  }) {
     final colors = context.colors;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -23,12 +46,13 @@ abstract class AppSnackbar {
           content: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.check_circle_rounded, color: colors.success, size: 20),
+              Icon(icon, color: iconColor, size: 20),
               const SizedBox(width: 10),
               Flexible(
                 child: Text(
                   message,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w600),
                 ),
               ),
             ],

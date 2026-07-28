@@ -18,7 +18,11 @@ abstract class AppColorsLight {
   static const textTertiary = Color(0xFF94A3B8);
   static const primaryTint = Color(0xFFEEF2FF);
   static const successTint = Color(0xFFECFDF5);
+  static const warningTint = Color(0xFFFFFBEB);
   static const dangerTint = Color(0xFFFEF2F2);
+
+  /// Bottom nav background — distinct from [surface] in dark mode only.
+  static const navBg = Color(0xFFFFFFFF);
 }
 
 abstract class AppColorsDark {
@@ -35,8 +39,13 @@ abstract class AppColorsDark {
   static const textSecondary = Color(0xFF94A3B8);
   static const textTertiary = Color(0xFF64748B);
   static const primaryTint = Color(0xFF252244);
-  static const successTint = Color(0x1A34D399);
-  static const dangerTint = Color(0x1AF87171);
+  static const successTint = Color(0xFF123024);
+  static const warningTint = Color(0xFF3A2A0A);
+  static const dangerTint = Color(0xFF3B1719);
+
+  /// Bottom nav background — deliberately darker than [surface] (#151c2b vs
+  /// #1F2937), per design handoff Global Chrome.
+  static const navBg = Color(0xFF151C2B);
 }
 
 /// Fixed-hue category chart palette — same in light & dark (per design).
@@ -66,7 +75,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     required this.textTertiary,
     required this.primaryTint,
     required this.successTint,
+    required this.warningTint,
     required this.dangerTint,
+    required this.navBg,
   });
 
   factory AppColorsExtension.light() => const AppColorsExtension(
@@ -84,7 +95,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
         textTertiary: AppColorsLight.textTertiary,
         primaryTint: AppColorsLight.primaryTint,
         successTint: AppColorsLight.successTint,
+        warningTint: AppColorsLight.warningTint,
         dangerTint: AppColorsLight.dangerTint,
+        navBg: AppColorsLight.navBg,
       );
 
   factory AppColorsExtension.dark() => const AppColorsExtension(
@@ -102,7 +115,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
         textTertiary: AppColorsDark.textTertiary,
         primaryTint: AppColorsDark.primaryTint,
         successTint: AppColorsDark.successTint,
+        warningTint: AppColorsDark.warningTint,
         dangerTint: AppColorsDark.dangerTint,
+        navBg: AppColorsDark.navBg,
       );
 
   final Color primary;
@@ -119,7 +134,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   final Color textTertiary;
   final Color primaryTint;
   final Color successTint;
+  final Color warningTint;
   final Color dangerTint;
+  final Color navBg;
 
   @override
   AppColorsExtension copyWith({
@@ -137,7 +154,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     Color? textTertiary,
     Color? primaryTint,
     Color? successTint,
+    Color? warningTint,
     Color? dangerTint,
+    Color? navBg,
   }) {
     return AppColorsExtension(
       primary: primary ?? this.primary,
@@ -154,7 +173,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
       textTertiary: textTertiary ?? this.textTertiary,
       primaryTint: primaryTint ?? this.primaryTint,
       successTint: successTint ?? this.successTint,
+      warningTint: warningTint ?? this.warningTint,
       dangerTint: dangerTint ?? this.dangerTint,
+      navBg: navBg ?? this.navBg,
     );
   }
 
@@ -176,11 +197,14 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
       textTertiary: Color.lerp(textTertiary, other.textTertiary, t)!,
       primaryTint: Color.lerp(primaryTint, other.primaryTint, t)!,
       successTint: Color.lerp(successTint, other.successTint, t)!,
+      warningTint: Color.lerp(warningTint, other.warningTint, t)!,
       dangerTint: Color.lerp(dangerTint, other.dangerTint, t)!,
+      navBg: Color.lerp(navBg, other.navBg, t)!,
     );
   }
 }
 
 extension AppColorsContext on BuildContext {
-  AppColorsExtension get colors => Theme.of(this).extension<AppColorsExtension>()!;
+  AppColorsExtension get colors =>
+      Theme.of(this).extension<AppColorsExtension>()!;
 }

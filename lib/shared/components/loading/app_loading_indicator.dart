@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
 
 /// Standard first-load indicator — use in place of ad-hoc CircularProgressIndicator.
 class AppLoadingIndicator extends StatelessWidget {

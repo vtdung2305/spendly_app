@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../domain/entities/budget_item.dart';
+import 'package:spendly_app/features/budget/domain/entities/budget_item.dart';
 
 sealed class BudgetState extends Equatable {
   const BudgetState();
@@ -17,7 +17,8 @@ class BudgetLoaded extends BudgetState {
   const BudgetLoaded(this.items);
   final List<BudgetItem> items;
 
-  double get totalBudget => items.fold<double>(0, (sum, i) => sum + i.budgetAmount);
+  double get totalBudget =>
+      items.fold<double>(0, (sum, i) => sum + i.budgetAmount);
   double get totalUsed => items.fold<double>(0, (sum, i) => sum + i.usedAmount);
   int get totalUsedPercent =>
       totalBudget == 0 ? 0 : ((totalUsed / totalBudget) * 100).round();

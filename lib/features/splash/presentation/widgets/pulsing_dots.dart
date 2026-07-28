@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_animation.dart';
+import 'package:spendly_app/core/theme/app_animation.dart';
 
 /// 3 dots pulsing in sequence — Splash loading indicator per design handoff.
 class PulsingDots extends StatefulWidget {
@@ -10,7 +10,8 @@ class PulsingDots extends StatefulWidget {
   State<PulsingDots> createState() => _PulsingDotsState();
 }
 
-class _PulsingDotsState extends State<PulsingDots> with SingleTickerProviderStateMixin {
+class _PulsingDotsState extends State<PulsingDots>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: AppAnimation.dotsPulse,
@@ -31,7 +32,8 @@ class _PulsingDotsState extends State<PulsingDots> with SingleTickerProviderStat
           animation: _controller,
           builder: (context, _) {
             final t = (_controller.value - index * 0.2) % 1.0;
-            final opacity = 0.35 + 0.65 * (0.5 + 0.5 * (t < 0.5 ? t * 2 : (1 - t) * 2));
+            final opacity =
+                0.35 + 0.65 * (0.5 + 0.5 * (t < 0.5 ? t * 2 : (1 - t) * 2));
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Opacity(
@@ -39,7 +41,8 @@ class _PulsingDotsState extends State<PulsingDots> with SingleTickerProviderStat
                 child: Container(
                   height: 8,
                   width: 8,
-                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                  decoration: const BoxDecoration(
+                      color: Colors.white, shape: BoxShape.circle),
                 ),
               ),
             );

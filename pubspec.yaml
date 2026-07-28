@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # State management
   flutter_bloc: ^8.1.6
@@ -28,20 +30,43 @@ dependencies:
   google_fonts: ^6.2.1
 
   # Formatting (currency, date)
-  intl: ^0.19.0
+  intl: ^0.20.2
 
   # Environment config (Supabase URL/anon key) — loaded from .env, never
   # hardcoded or committed as real secrets.
   flutter_dotenv: ^5.1.0
 
+  # Backend: Auth + Postgres (transactions/budgets/profiles)
+  supabase_flutter: ^2.5.6
+
+  # Connectivity check (Splash offline state)
+  connectivity_plus: ^6.0.0
+
+  # Local persistence (locale choice, first-launch flag)
+  shared_preferences: ^2.2.0
+
   cupertino_icons: ^1.0.8
+  flutter_slidable: ^4.0.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.1
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - .env
+    - assets/icon/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  web:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
+  image_path: "assets/icon/app_icon.png"
+  remove_alpha_ios: true
+  min_sdk_android: 21

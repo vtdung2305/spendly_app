@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/failure.dart';
-import '../entities/app_user.dart';
-import '../repositories/i_auth_repository.dart';
+import 'package:spendly_app/core/error/failure.dart';
+import 'package:spendly_app/features/authentication/domain/entities/app_user.dart';
+import 'package:spendly_app/features/authentication/domain/repositories/i_auth_repository.dart';
 
 class RegisterWithEmailUseCase {
   const RegisterWithEmailUseCase(this._repository);
@@ -22,7 +22,8 @@ class RegisterWithEmailUseCase {
       );
     }
     if (password != confirmPassword) {
-      return Future.value(const Left(ValidationFailure('Mật khẩu xác nhận không khớp')));
+      return Future.value(
+          const Left(ValidationFailure('Mật khẩu xác nhận không khớp')));
     }
     return _repository.registerWithEmail(email: email, password: password);
   }

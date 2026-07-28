@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_animation.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../transactions/domain/entities/report_period.dart';
+import 'package:spendly_app/core/theme/app_animation.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/features/reports/presentation/mappers/report_period_ui.dart';
+import 'package:spendly_app/features/transactions/domain/entities/report_period.dart';
 
 /// "Tuần / Tháng / Năm" segmented control, per Reports layout.
 class ReportPeriodTabs extends StatelessWidget {
-  const ReportPeriodTabs({required this.selected, required this.onChanged, super.key});
+  const ReportPeriodTabs(
+      {required this.selected, required this.onChanged, super.key});
 
   final ReportPeriod selected;
   final ValueChanged<ReportPeriod> onChanged;
@@ -32,13 +34,17 @@ class ReportPeriodTabs extends StatelessWidget {
                   duration: AppAnimation.fast,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: period == selected ? colors.surface : Colors.transparent,
+                    color: period == selected
+                        ? colors.surface
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(AppRadius.sm - 1),
                   ),
                   child: Text(
-                    period.label,
+                    period.labelText(context),
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: period == selected ? colors.primary : colors.textSecondary,
+                          color: period == selected
+                              ? colors.primary
+                              : colors.textSecondary,
                         ),
                   ),
                 ),

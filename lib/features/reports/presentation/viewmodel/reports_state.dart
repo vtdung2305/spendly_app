@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../transactions/domain/entities/report_period.dart';
-import '../../../transactions/domain/entities/report_summary.dart';
+import 'package:spendly_app/features/transactions/domain/entities/report_period.dart';
+import 'package:spendly_app/features/transactions/domain/entities/report_summary.dart';
 
 sealed class ReportsState extends Equatable {
   const ReportsState();

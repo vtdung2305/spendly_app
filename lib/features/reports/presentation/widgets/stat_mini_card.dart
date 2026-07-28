@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_spacing.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
 
 /// `statMini` card — bg Surface, radius16, 1px border, per design handoff.
 class StatMiniCard extends StatelessWidget {
-  const StatMiniCard({required this.label, required this.value, super.key, this.valueColor});
+  const StatMiniCard(
+      {required this.label, required this.value, super.key, this.valueColor});
 
   final String label;
   final String value;
@@ -25,7 +26,11 @@ class StatMiniCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 11)),
+          Text(label,
+              style: Theme.of(context)
+                  .textTheme
+                  .labelSmall
+                  ?.copyWith(fontSize: 11)),
           const SizedBox(height: 4),
           Text(
             value,

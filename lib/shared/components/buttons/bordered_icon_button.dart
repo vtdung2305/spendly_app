@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
 
 /// 38×38 bordered Surface square with radius 12 — the back/close icon
 /// button style used on Register and Add Transaction headers (per design
 /// handoff, e.g. `width:38px;height:38px;border-radius:12px;background:{{
 /// c.surface }};border:1px solid {{ c.border }}`).
 class BorderedIconButton extends StatelessWidget {
-  const BorderedIconButton({required this.icon, required this.onPressed, super.key});
+  const BorderedIconButton(
+      {required this.icon, required this.onPressed, super.key});
 
   final IconData icon;
   final VoidCallback onPressed;

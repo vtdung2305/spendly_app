@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
 
 /// Outlined input field — 50px height, radius 14, Surface bg, leading icon.
 /// Shows inline error text + red border when [errorText] is set.
@@ -56,25 +56,45 @@ class AppTextField extends StatelessWidget {
               contentPadding: const EdgeInsets.symmetric(horizontal: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.md),
-                borderSide: BorderSide(color: hasError ? colors.danger : colors.border),
+                borderSide: BorderSide(
+                  color: hasError ? colors.danger : colors.border,
+                  width: hasError ? 1.5 : 1,
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.md),
-                borderSide: BorderSide(color: hasError ? colors.danger : colors.border),
+                borderSide: BorderSide(
+                  color: hasError ? colors.danger : colors.border,
+                  width: hasError ? 1.5 : 1,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.md),
-                borderSide: BorderSide(color: hasError ? colors.danger : colors.primary, width: 1.5),
+                borderSide: BorderSide(
+                    color: hasError ? colors.danger : colors.primary,
+                    width: 1.5),
               ),
             ),
           ),
         ),
         if (hasError)
           Padding(
-            padding: const EdgeInsets.only(top: 6, left: 4),
-            child: Text(
-              errorText!,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.danger),
+            padding: const EdgeInsets.only(top: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.error_rounded, size: 14, color: colors.danger),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    errorText!,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colors.danger,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
             ),
           ),
       ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
 
 /// Centered empty-state: icon + message + optional CTA.
 class AppEmptyView extends StatelessWidget {

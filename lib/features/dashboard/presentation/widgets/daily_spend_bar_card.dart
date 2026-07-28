@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_animation.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_shadow.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../transactions/domain/entities/dashboard_summary.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_animation.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_shadow.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/features/transactions/domain/entities/dashboard_summary.dart';
 
 const _kLowSpendThreshold = 300000.0;
 const _kHighSpendThreshold = 1000000.0;
@@ -20,7 +21,8 @@ class DailySpendBarCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final maxValue = points.fold<double>(1, (m, p) => p.total > m ? p.total : m);
+    final maxValue =
+        points.fold<double>(1, (m, p) => p.total > m ? p.total : m);
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -33,7 +35,8 @@ class DailySpendBarCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Chi tiêu theo ngày', style: Theme.of(context).textTheme.titleSmall),
+          Text(context.l10n.dashboardDailySpendTitle,
+              style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: AppSpacing.mdLg),
           SizedBox(
             height: 90,
@@ -55,7 +58,8 @@ class DailySpendBarCard extends StatelessWidget {
                             child: Container(
                               decoration: BoxDecoration(
                                 color: _colorFor(point.total, colors),
-                                borderRadius: BorderRadius.circular(AppRadius.sm / 3),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.sm / 3),
                               ),
                             ),
                           );

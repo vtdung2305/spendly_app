@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../domain/usecases/get_budgets_usecase.dart';
+import 'package:spendly_app/features/budget/domain/usecases/get_budgets_usecase.dart';
 import 'budget_state.dart';
 
 class BudgetCubit extends Cubit<BudgetState> {

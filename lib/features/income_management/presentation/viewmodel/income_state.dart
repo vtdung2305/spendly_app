@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../transactions/domain/entities/transaction.dart';
+import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
 
 sealed class IncomeState extends Equatable {
   const IncomeState();

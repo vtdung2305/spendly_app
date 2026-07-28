@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/failure.dart';
-import '../repositories/i_auth_repository.dart';
+import 'package:spendly_app/core/error/failure.dart';
+import 'package:spendly_app/features/authentication/domain/repositories/i_auth_repository.dart';
 
 class SignOutUseCase {
   const SignOutUseCase(this._repository);

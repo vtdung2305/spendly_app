@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
 
 /// Icon + label + optional trailing value + chevron — the settings-style
 /// row shared by Profile and Settings menu cards.
@@ -29,13 +29,18 @@ class MenuRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.smMd),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xs, vertical: AppSpacing.smMd),
         child: Row(
           children: [
             Icon(icon, size: 20, color: colors.textSecondary),
             const SizedBox(width: AppSpacing.smMd),
             Expanded(
-              child: Text(label, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+              child: Text(label,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.w600)),
             ),
             if (trailing != null)
               trailing!
@@ -43,10 +48,14 @@ class MenuRow extends StatelessWidget {
               if (value != null && value!.isNotEmpty)
                 Text(
                   value!,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colors.textTertiary),
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: colors.textTertiary),
                 ),
               const SizedBox(width: AppSpacing.xxs),
-              Icon(Icons.chevron_right_rounded, size: 18, color: colors.textTertiary),
+              Icon(Icons.chevron_right_rounded,
+                  size: 18, color: colors.textTertiary),
             ],
           ],
         ),

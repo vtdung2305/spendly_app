@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_animation.dart';
+import 'package:spendly_app/core/theme/app_animation.dart';
 
 /// Single-value conic progress ring — used by the Dashboard budget summary
 /// row ("62%" centered in a Primary-colored arc over a track).

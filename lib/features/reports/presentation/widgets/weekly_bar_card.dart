@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_animation.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_shadow.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../transactions/domain/entities/report_summary.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_animation.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_shadow.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/features/transactions/domain/entities/report_summary.dart';
 
 /// "Chi tiêu theo tuần" — 4 labeled bars (T1-T4), per Reports layout.
 class WeeklyBarCard extends StatelessWidget {
@@ -27,7 +28,8 @@ class WeeklyBarCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Chi tiêu theo tuần', style: Theme.of(context).textTheme.titleSmall),
+          Text(context.l10n.reportsWeeklyBarCardTitle,
+              style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: AppSpacing.mdLg),
           SizedBox(
             height: 90,
@@ -55,7 +57,8 @@ class WeeklyBarCard extends StatelessWidget {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         color: colors.primary,
-                                        borderRadius: BorderRadius.circular(AppRadius.sm / 2),
+                                        borderRadius: BorderRadius.circular(
+                                            AppRadius.sm / 2),
                                       ),
                                     ),
                                   );
@@ -67,7 +70,10 @@ class WeeklyBarCard extends StatelessWidget {
                           Text(
                             bar.label,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 10),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(fontSize: 10),
                           ),
                         ],
                       ),

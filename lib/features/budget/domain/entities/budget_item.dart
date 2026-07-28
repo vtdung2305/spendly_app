@@ -1,4 +1,4 @@
-import '../../../transactions/domain/entities/expense_category.dart';
+import 'package:spendly_app/features/transactions/domain/entities/expense_category.dart';
 
 /// One category's monthly budget vs. actual spend, for the Budget screen.
 class BudgetItem {

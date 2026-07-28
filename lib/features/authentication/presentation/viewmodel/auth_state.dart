@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../domain/entities/app_user.dart';
+import 'package:spendly_app/features/authentication/domain/entities/app_user.dart';
 
 /// Global auth/session state — read by Splash (routing decision) and Profile
 /// (sign out). Distinct from [AuthFormStatus] which tracks a single form's
@@ -34,4 +34,10 @@ class AuthCheckFailed extends AuthState {
 
   @override
   List<Object?> get props => [message];
+}
+
+/// Distinct from [AuthCheckFailed] (server/unknown error) — device has no
+/// network connection at all, detected via `connectivity_plus`.
+class AuthOffline extends AuthState {
+  const AuthOffline();
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_animation.dart';
+import 'package:spendly_app/core/theme/app_animation.dart';
 
 class DonutSlice {
   const DonutSlice({required this.color, required this.percent});
@@ -86,5 +86,6 @@ class _DonutChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DonutChartPainter oldDelegate) =>
-      oldDelegate.slices != slices || oldDelegate.animationValue != animationValue;
+      oldDelegate.slices != slices ||
+      oldDelegate.animationValue != animationValue;
 }

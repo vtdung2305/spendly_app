@@ -2,19 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../shared/components/empty/app_empty_view.dart';
-import '../../../../shared/components/error/app_error_view.dart';
-import '../../../../shared/components/navigation/app_bottom_nav_bar.dart';
-import '../viewmodel/dashboard_cubit.dart';
-import '../viewmodel/dashboard_state.dart';
-import '../widgets/budget_summary_card.dart';
-import '../widgets/category_pie_card.dart';
-import '../widgets/daily_spend_bar_card.dart';
-import '../widgets/dashboard_header.dart';
-import '../widgets/dashboard_loading_view.dart';
-import '../widgets/hero_savings_card.dart';
-import '../widgets/recent_transactions_section.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/core/theme/app_shadow.dart';
+import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/shared/components/buttons/app_button.dart';
+import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
+import 'package:spendly_app/shared/components/empty/app_empty_view.dart';
+import 'package:spendly_app/shared/components/error/app_error_view.dart';
+import 'package:spendly_app/shared/components/navigation/app_bottom_nav_bar.dart';
+import 'package:spendly_app/shared/components/navigation/app_fab.dart';
+import 'package:spendly_app/features/add_transaction/presentation/widgets/amount_input.dart';
+import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_cubit.dart';
+import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_state.dart';
+import 'package:spendly_app/features/dashboard/presentation/viewmodel/dashboard_cubit.dart';
+import 'package:spendly_app/features/dashboard/presentation/viewmodel/dashboard_state.dart';
+import 'package:spendly_app/features/dashboard/presentation/widgets/budget_summary_card.dart';
+import 'package:spendly_app/features/dashboard/presentation/widgets/category_pie_card.dart';
+import 'package:spendly_app/features/dashboard/presentation/widgets/daily_spend_bar_card.dart';
+import 'package:spendly_app/features/dashboard/presentation/widgets/dashboard_header.dart';
+import 'package:spendly_app/features/dashboard/presentation/widgets/dashboard_loading_view.dart';
+import 'package:spendly_app/features/dashboard/presentation/widgets/hero_savings_card.dart';
+import 'package:spendly_app/features/dashboard/presentation/widgets/over_budget_banner.dart';
+import 'package:spendly_app/features/dashboard/presentation/widgets/quick_actions_row.dart';
+import 'package:spendly_app/features/dashboard/presentation/widgets/recent_transactions_section.dart';
+import 'package:spendly_app/features/dashboard/presentation/widgets/savings_goal_card.dart';
 
 /// Most important screen per design handoff — hero savings, budget summary,
 /// category pie, daily spend bars, recent transactions, FAB. Presentation
@@ -28,72 +41,188 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  final _month = DateTime(2026, 7);
+
   @override
   void initState() {
     super.initState();
-    context.read<DashboardCubit>().load(DateTime(2026, 7));
+    context.read<DashboardCubit>().load(_month);
+  }
+
+  Future<void> _editSavingsGoal(
+      BuildContext context, double currentGoal) async {
+    double amount = currentGoal;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: BoxDecoration(
+            color: dialogContext.colors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            border: Border.all(color: dialogContext.colors.border),
+            boxShadow: AppShadow.card,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                dialogContext.l10n.dashboardSavingsGoalEditTitle,
+                style: Theme.of(dialogContext).textTheme.titleSmall,
+              ),
+              const SizedBox(height: AppSpacing.smMd),
+              AmountInput(
+                  initialAmount: currentGoal,
+                  onChanged: (value) => amount = value),
+              const SizedBox(height: AppSpacing.mdLg),
+              AppButton(
+                label: dialogContext.l10n.editBudgetSaveButton,
+                onPressed: () async {
+                  Navigator.of(dialogContext).pop();
+                  final error =
+                      await context.read<AuthCubit>().updateSavingsGoal(amount);
+                  if (!context.mounted) return;
+                  if (error != null) {
+                    AppSnackbar.showError(context, error);
+                  } else {
+                    AppSnackbar.showSuccess(context,
+                        context.l10n.dashboardSavingsGoalUpdatedSnackbar);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.watch<AuthCubit>().state;
+    final userName = authState is AuthAuthenticated ? authState.user.name : '';
+    final savingsGoal =
+        authState is AuthAuthenticated ? authState.user.savingsGoalAmount : 0.0;
+
     return Scaffold(
       body: SafeArea(
-        child: BlocBuilder<DashboardCubit, DashboardState>(
-          builder: (context, state) {
-            return switch (state) {
-              DashboardLoading() => const DashboardLoadingView(),
-              DashboardError(:final message) => AppErrorView(
-                  message: message,
-                  onRetry: () => context.read<DashboardCubit>().load(DateTime(2026, 7)),
-                ),
-              DashboardLoaded(:final summary) => summary.recentTransactions.isEmpty &&
-                      summary.totalExpense == 0 &&
-                      summary.totalIncome == 0
-                  ? const AppEmptyView(
-                      icon: Icons.receipt_long_rounded,
-                      message: 'Chưa có giao dịch nào.\nNhấn nút + để thêm giao dịch đầu tiên.',
-                    )
-                  : ListView(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.screenHorizontal,
-                        vertical: AppSpacing.mdLg,
-                      ),
-                      children: [
-                        DashboardHeader(userName: 'Minh Anh', monthLabel: summary.monthLabel),
-                        const SizedBox(height: AppSpacing.mdLg),
-                        HeroSavingsCard(
-                          savings: summary.savings,
-                          income: summary.totalIncome,
-                          expense: summary.totalExpense,
+        child: RefreshIndicator(
+          onRefresh: () => context.read<DashboardCubit>().load(_month),
+          child: BlocBuilder<DashboardCubit, DashboardState>(
+            builder: (context, state) {
+              return switch (state) {
+                DashboardLoading() => const DashboardLoadingView(),
+                DashboardError(:final message) => AppErrorView(
+                    message: message,
+                    onRetry: () => context.read<DashboardCubit>().load(_month),
+                  ),
+                DashboardLoaded(
+                  :final summary,
+                  :final overBudgetItem,
+                  :final yearToDateSavings
+                ) =>
+                  summary.recentTransactions.isEmpty &&
+                          summary.totalExpense == 0 &&
+                          summary.totalIncome == 0
+                      ? LayoutBuilder(
+                          builder: (context, constraints) => ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(
+                                height: constraints.maxHeight,
+                                child: AppEmptyView(
+                                  icon: Icons.receipt_long_rounded,
+                                  message: context.l10n.dashboardEmptyMessage,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.screenHorizontal,
+                            vertical: AppSpacing.mdLg,
+                          ),
+                          children: [
+                            DashboardHeader(
+                                userName: userName,
+                                monthLabel: summary.monthLabel),
+                            if (overBudgetItem != null) ...[
+                              const SizedBox(height: AppSpacing.mdLg),
+                              OverBudgetBanner(
+                                item: overBudgetItem,
+                                onTap: () => context.push('/budget'),
+                              ),
+                            ],
+                            const SizedBox(height: AppSpacing.mdLg),
+                            HeroSavingsCard(
+                              savings: summary.savings,
+                              income: summary.totalIncome,
+                              expense: summary.totalExpense,
+                            ),
+                            const SizedBox(height: AppSpacing.cardGap),
+                            QuickActionsRow(
+                              onAddExpense: () async {
+                                await context.push('/add-transaction');
+                                if (context.mounted) {
+                                  context.read<DashboardCubit>().load(_month);
+                                }
+                              },
+                              onAddIncome: () async {
+                                await context
+                                    .push('/add-transaction?type=income');
+                                if (context.mounted) {
+                                  context.read<DashboardCubit>().load(_month);
+                                }
+                              },
+                              onHistory: () => context.push('/history'),
+                              onReports: () => context.go('/reports'),
+                            ),
+                            const SizedBox(height: AppSpacing.cardGap),
+                            BudgetSummaryCard(
+                              usedPercent: summary.budgetUsedPercent,
+                              remaining: summary.budgetRemaining,
+                              onTap: () => context.push('/budget'),
+                            ),
+                            const SizedBox(height: AppSpacing.cardGap),
+                            SavingsGoalCard(
+                              current: yearToDateSavings,
+                              goal: savingsGoal,
+                              onTap: () =>
+                                  _editSavingsGoal(context, savingsGoal),
+                            ),
+                            const SizedBox(height: AppSpacing.cardGap),
+                            CategoryPieCard(
+                              breakdown: summary.categoryBreakdown,
+                              total: summary.totalExpense,
+                            ),
+                            const SizedBox(height: AppSpacing.cardGap),
+                            DailySpendBarCard(points: summary.dailySpend),
+                            const SizedBox(height: AppSpacing.cardGap),
+                            RecentTransactionsSection(
+                              transactions: summary.recentTransactions,
+                              onSeeAll: () => context.push('/history'),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: AppSpacing.cardGap),
-                        BudgetSummaryCard(
-                          usedPercent: summary.budgetUsedPercent,
-                          remaining: summary.budgetRemaining,
-                          onTap: () => context.push('/budget'),
-                        ),
-                        const SizedBox(height: AppSpacing.cardGap),
-                        CategoryPieCard(
-                          breakdown: summary.categoryBreakdown,
-                          total: summary.totalExpense,
-                        ),
-                        const SizedBox(height: AppSpacing.cardGap),
-                        DailySpendBarCard(points: summary.dailySpend),
-                        const SizedBox(height: AppSpacing.cardGap),
-                        RecentTransactionsSection(
-                          transactions: summary.recentTransactions,
-                          onSeeAll: () => context.push('/history'),
-                        ),
-                      ],
-                    ),
-            };
-          },
+              };
+            },
+          ),
         ),
       ),
+      floatingActionButton: AppFab(
+        onPressed: () async {
+          await context.push('/add-transaction');
+          if (context.mounted) context.read<DashboardCubit>().load(_month);
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: 0,
         onTabSelected: (index) => _handleTabSelected(context, index),
-        onFabPressed: () => context.push('/add-transaction'),
       ),
     );
   }
@@ -101,11 +230,13 @@ class _DashboardPageState extends State<DashboardPage> {
   void _handleTabSelected(BuildContext context, int index) {
     switch (index) {
       case 1:
-        Navigator.of(context).pushReplacementNamed('/calendar');
+        context.go('/calendar');
       case 2:
-        Navigator.of(context).pushReplacementNamed('/reports');
+        context.go('/budget');
       case 3:
-        Navigator.of(context).pushReplacementNamed('/profile');
+        context.go('/reports');
+      case 4:
+        context.go('/profile');
     }
   }
 }

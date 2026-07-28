@@ -30,14 +30,16 @@ abstract class AppTheme {
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colors.background,
-      textTheme: AppTypography.textTheme(colors.textPrimary, colors.textSecondary),
+      textTheme:
+          AppTypography.textTheme(colors.textPrimary, colors.textSecondary),
       extensions: [colors],
       dividerColor: colors.border,
       splashFactory: InkRipple.splashFactory,
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colors.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: BorderSide(color: colors.border),

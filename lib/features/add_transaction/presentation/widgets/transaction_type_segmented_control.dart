@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_animation.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../transactions/domain/entities/transaction.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_animation.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/core/theme/app_radius.dart';
+import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
 
 /// "Chi tiêu / Thu nhập" segmented control — active segment is
 /// white/Surface with a colored label (danger for expense, success for
@@ -23,7 +24,6 @@ class TransactionTypeSegmentedControl extends StatelessWidget {
     final colors = context.colors;
 
     return Container(
-      height: 48,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: colors.surfaceAlt,
@@ -33,15 +33,16 @@ class TransactionTypeSegmentedControl extends StatelessWidget {
         children: [
           Expanded(
             child: _Segment(
-              label: 'Chi tiêu',
+              label: context.l10n.addTransactionTypeExpense,
               isActive: selected == TransactionType.expense,
               activeColor: colors.danger,
               onTap: () => onChanged(TransactionType.expense),
             ),
           ),
+          const SizedBox(width: 6),
           Expanded(
             child: _Segment(
-              label: 'Thu nhập',
+              label: context.l10n.addTransactionTypeIncome,
               isActive: selected == TransactionType.income,
               activeColor: colors.success,
               onTap: () => onChanged(TransactionType.income),
@@ -73,16 +74,19 @@ class _Segment extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: AppAnimation.fast,
+        padding: const EdgeInsets.symmetric(vertical: 9),
         decoration: BoxDecoration(
           color: isActive ? colors.surface : Colors.transparent,
-          borderRadius: BorderRadius.circular(AppRadius.sm),
+          borderRadius: BorderRadius.circular(11),
         ),
         alignment: Alignment.center,
         child: Text(
           label,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: isActive ? activeColor : colors.textSecondary,
-              ),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: isActive ? activeColor : colors.textSecondary,
+          ),
         ),
       ),
     );

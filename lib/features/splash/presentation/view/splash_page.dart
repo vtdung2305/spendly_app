@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../authentication/presentation/viewmodel/auth_cubit.dart';
-import '../../../authentication/presentation/viewmodel/auth_state.dart';
-import '../widgets/pulsing_dots.dart';
+import 'package:spendly_app/core/locale/locale_cubit.dart';
+import 'package:spendly_app/core/localization/app_localizations_x.dart';
+import 'package:spendly_app/core/theme/app_colors.dart';
+import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_cubit.dart';
+import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_state.dart';
+import 'package:spendly_app/features/splash/presentation/widgets/pulsing_dots.dart';
 
 /// Brand moment while Supabase session/auth state resolves. Auto-navigates
 /// to Login/Dashboard once [AuthCubit] resolves [AuthState] — this page
@@ -30,12 +32,14 @@ class _SplashPageState extends State<SplashPage> {
 
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
+        final needsLanguageSelect = context.read<LocaleCubit>().state == null;
         switch (state) {
           case AuthAuthenticated():
-            context.go('/dashboard');
+            context.go(needsLanguageSelect ? '/language-select' : '/dashboard');
           case AuthUnauthenticated():
-            context.go('/login');
+            context.go(needsLanguageSelect ? '/language-select' : '/login');
           case AuthCheckFailed():
+          case AuthOffline():
           case AuthInitial():
             break;
         }
@@ -62,35 +66,36 @@ class _SplashPageState extends State<SplashPage> {
                         color: Colors.white.withValues(alpha: 0.16),
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      child: const Icon(Icons.savings_rounded, color: Colors.white, size: 44),
+                      child: const Icon(Icons.savings_rounded,
+                          color: Colors.white, size: 44),
                     ),
                     const SizedBox(height: 18),
-                    const Text(
-                      'Spendly',
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white),
+                    Text(
+                      context.l10n.splashAppName,
+                      style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Quản lý chi tiêu thông minh',
-                      style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.75)),
+                      context.l10n.splashTagline,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withValues(alpha: 0.75)),
                     ),
                     const SizedBox(height: 18),
-                    if (state is AuthCheckFailed)
-                      Column(
-                        children: [
-                          Text(
-                            state.message,
-                            style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.85)),
-                          ),
-                          const SizedBox(height: 10),
-                          TextButton(
-                            onPressed: () => context.read<AuthCubit>().checkSession(),
-                            child: const Text('Thử lại', style: TextStyle(color: Colors.white)),
-                          ),
-                        ],
-                      )
-                    else
-                      const PulsingDots(),
+                    switch (state) {
+                      AuthCheckFailed() => _SplashRetry(
+                          icon: Icons.error,
+                          message: context.l10n.splashServerErrorMessage,
+                        ),
+                      AuthOffline() => _SplashRetry(
+                          icon: Icons.wifi_off,
+                          message: context.l10n.splashOfflineMessage,
+                        ),
+                      _ => const PulsingDots(),
+                    },
                   ],
                 ),
               );
@@ -98,6 +103,43 @@ class _SplashPageState extends State<SplashPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Error/Offline footer — icon + fixed copy + "Thử lại" retry button, shown
+/// in place of [PulsingDots] once [AuthCubit.checkSession] resolves to a
+/// non-loading failure state.
+class _SplashRetry extends StatelessWidget {
+  const _SplashRetry({required this.icon, required this.message});
+
+  final IconData icon;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, size: 28, color: Colors.white),
+        const SizedBox(height: 10),
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontSize: 13, color: Colors.white.withValues(alpha: 0.85)),
+        ),
+        const SizedBox(height: 10),
+        TextButton(
+          onPressed: () => context.read<AuthCubit>().checkSession(),
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.white.withValues(alpha: 0.16),
+            shape: const StadiumBorder(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ),
+          child: Text(context.l10n.commonRetry,
+              style: const TextStyle(color: Colors.white)),
+        ),
+      ],
     );
   }
 }

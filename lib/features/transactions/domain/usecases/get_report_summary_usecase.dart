@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/error/failure.dart';
-import '../entities/report_period.dart';
-import '../entities/report_summary.dart';
-import '../repositories/i_transaction_repository.dart';
+import 'package:spendly_app/core/error/failure.dart';
+import 'package:spendly_app/features/transactions/domain/entities/report_period.dart';
+import 'package:spendly_app/features/transactions/domain/entities/report_summary.dart';
+import 'package:spendly_app/features/transactions/domain/repositories/i_transaction_repository.dart';
 
 class GetReportSummaryUseCase {
   const GetReportSummaryUseCase(this._repository);
