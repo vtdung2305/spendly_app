@@ -12,7 +12,6 @@ class AppUser {
     this.phone,
     this.address,
     this.avatarUrl,
-    this.savingsGoalAmount = 0,
   });
 
   final String id;
@@ -22,9 +21,6 @@ class AppUser {
   final String? phone;
   final String? address;
   final String? avatarUrl;
-
-  /// User-set target for the Dashboard "Mục tiêu tiết kiệm" progress card.
-  final double savingsGoalAmount;
 
   String get name =>
       [firstName, lastName].where((part) => part.trim().isNotEmpty).join(' ');

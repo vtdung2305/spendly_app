@@ -6,8 +6,13 @@ import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_shadow.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/shared/components/charts/donut_chart.dart';
+import 'package:spendly_app/features/category_management/presentation/mappers/category_icon_ui.dart';
 import 'package:spendly_app/features/transactions/domain/entities/dashboard_summary.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/chart_category_group_ui.dart';
+
+Color _colorFor(AppColorsExtension colors, CategoryShare share) =>
+    share.isOther || share.category == null
+        ? colors.textTertiary
+        : categoryColorFromHex(share.category!.colorHex);
 
 /// "Theo danh mục" donut + legend, per Reports layout (104px donut, tighter
 /// legend spacing than Dashboard's equivalent card).
@@ -42,7 +47,8 @@ class ReportPieCard extends StatelessWidget {
                 slices: [
                   for (final share in breakdown)
                     DonutSlice(
-                        color: share.group.color, percent: share.percent),
+                        color: _colorFor(colors, share),
+                        percent: share.percent),
                 ],
               ),
               const SizedBox(width: AppSpacing.lgXl),
@@ -58,13 +64,15 @@ class ReportPieCard extends StatelessWidget {
                               height: 7,
                               width: 7,
                               decoration: BoxDecoration(
-                                  color: share.group.color,
+                                  color: _colorFor(colors, share),
                                   shape: BoxShape.circle),
                             ),
                             const SizedBox(width: AppSpacing.xs),
                             Expanded(
                               child: Text(
-                                share.group.labelText(context),
+                                share.isOther || share.category == null
+                                    ? context.l10n.categoryOther
+                                    : share.category!.label,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall

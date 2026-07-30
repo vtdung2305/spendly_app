@@ -50,7 +50,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _editSavingsGoal(
-      BuildContext context, double currentGoal) async {
+      BuildContext context, int year, double currentGoal) async {
     double amount = currentGoal;
     await showDialog<void>(
       context: context,
@@ -82,8 +82,9 @@ class _DashboardPageState extends State<DashboardPage> {
                 label: dialogContext.l10n.editBudgetSaveButton,
                 onPressed: () async {
                   Navigator.of(dialogContext).pop();
-                  final error =
-                      await context.read<AuthCubit>().updateSavingsGoal(amount);
+                  final error = await context
+                      .read<DashboardCubit>()
+                      .updateSavingsGoal(year, amount);
                   if (!context.mounted) return;
                   if (error != null) {
                     AppSnackbar.showError(context, error);
@@ -104,8 +105,6 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     final authState = context.watch<AuthCubit>().state;
     final userName = authState is AuthAuthenticated ? authState.user.name : '';
-    final savingsGoal =
-        authState is AuthAuthenticated ? authState.user.savingsGoalAmount : 0.0;
 
     return Scaffold(
       body: SafeArea(
@@ -122,7 +121,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 DashboardLoaded(
                   :final summary,
                   :final overBudgetItem,
-                  :final yearToDateSavings
+                  :final savingsGoal
                 ) =>
                   summary.recentTransactions.isEmpty &&
                           summary.totalExpense == 0 &&
@@ -189,10 +188,10 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                             const SizedBox(height: AppSpacing.cardGap),
                             SavingsGoalCard(
-                              current: yearToDateSavings,
-                              goal: savingsGoal,
-                              onTap: () =>
-                                  _editSavingsGoal(context, savingsGoal),
+                              current: savingsGoal.currentAmount,
+                              goal: savingsGoal.targetAmount,
+                              onTap: () => _editSavingsGoal(context,
+                                  savingsGoal.year, savingsGoal.targetAmount),
                             ),
                             const SizedBox(height: AppSpacing.cardGap),
                             CategoryPieCard(

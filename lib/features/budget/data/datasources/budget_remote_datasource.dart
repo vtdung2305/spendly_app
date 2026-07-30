@@ -1,8 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:spendly_app/features/transactions/domain/entities/expense_category.dart';
-
-typedef BudgetRow = ({ExpenseCategory category, double budgetAmount});
+typedef BudgetRow = ({String categoryId, double budgetAmount});
 
 /// Supabase Postgrest access to `public.budgets` — just the per-category
 /// budget ceilings. `used` amounts are computed by the repository from
@@ -23,24 +21,24 @@ class BudgetRemoteDataSource {
     return (rows as List).map((r) {
       final json = r as Map<String, dynamic>;
       return (
-        category: ExpenseCategory.values.byName(json['category'] as String),
+        categoryId: json['category_id'] as String,
         budgetAmount: (json['budget_amount'] as num).toDouble(),
       );
     }).toList();
   }
 
-  Future<void> upsertBudget(ExpenseCategory category, double amount) async {
+  Future<void> upsertBudget(String categoryId, double amount) async {
     await _client.from('budgets').upsert(
-      {'user_id': _userId, 'category': category.name, 'budget_amount': amount},
-      onConflict: 'user_id,category',
+      {'user_id': _userId, 'category_id': categoryId, 'budget_amount': amount},
+      onConflict: 'user_id,category_id',
     );
   }
 
-  Future<void> deleteBudget(ExpenseCategory category) async {
+  Future<void> deleteBudget(String categoryId) async {
     await _client
         .from('budgets')
         .delete()
         .eq('user_id', _userId)
-        .eq('category', category.name);
+        .eq('category_id', categoryId);
   }
 }

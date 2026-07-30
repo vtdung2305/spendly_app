@@ -1,4 +1,4 @@
-import 'package:spendly_app/features/transactions/domain/entities/expense_category.dart';
+import 'package:spendly_app/features/category_management/domain/entities/category.dart';
 
 /// One category's monthly budget vs. actual spend, for the Budget screen.
 class BudgetItem {
@@ -8,7 +8,7 @@ class BudgetItem {
     required this.usedAmount,
   });
 
-  final ExpenseCategory category;
+  final Category category;
   final double budgetAmount;
   final double usedAmount;
 

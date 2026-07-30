@@ -7,7 +7,7 @@ import 'package:spendly_app/core/theme/app_shadow.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/core/theme/app_typography.dart';
 import 'package:spendly_app/core/utils/currency_formatter.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/expense_category_ui.dart';
+import 'package:spendly_app/features/category_management/presentation/mappers/category_icon_ui.dart';
 import 'package:spendly_app/features/budget/domain/entities/budget_item.dart';
 
 /// Per-category budget row — flips to danger-tint bg + red border + red bar
@@ -23,7 +23,8 @@ class BudgetItemCard extends StatelessWidget {
     final colors = context.colors;
     final over = item.isOverBudget;
     final pctColor = over ? colors.danger : colors.textPrimary;
-    final barColor = over ? colors.danger : item.category.ownColor;
+    final barColor =
+        over ? colors.danger : categoryColorFromHex(item.category.colorHex);
 
     return InkWell(
       onTap: onTap,
@@ -41,12 +42,13 @@ class BudgetItemCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(item.category.icon,
-                    size: 20, color: item.category.ownColor),
+                Icon(categoryIconFor(item.category.iconName),
+                    size: 20,
+                    color: categoryColorFromHex(item.category.colorHex)),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    item.category.labelText(context),
+                    item.category.label,
                     style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w700),
                   ),

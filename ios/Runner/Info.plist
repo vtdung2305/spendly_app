@@ -26,6 +26,46 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Google Sign-In — supplementary; the actual fix is passing `clientId:`
+	     explicitly to GoogleSignIn(...) in Dart (see EnvConfig.googleIosClientId),
+	     since google_sign_in_ios does NOT read this key on its own. Kept for
+	     parity with the native GIDSignIn SDK's own Info.plist convention. -->
+	<key>GIDClientID</key>
+	<string>862962792937-7ce4f3o418ft0v171mp09e6rpihkjbhv.apps.googleusercontent.com</string>
+	<!-- Google Sign-In redirect — REVERSED_CLIENT_ID matching GIDClientID above. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.862962792937-7ce4f3o418ft0v171mp09e6rpihkjbhv</string>
+			</array>
+		</dict>
+		<!-- Facebook Login redirect. PLACEHOLDER: replace fbYOUR_FACEBOOK_APP_ID
+		     below with fb<your real Facebook App ID> once you have a Facebook
+		     Developer App, matching FacebookAppID further down. -->
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fbYOUR_FACEBOOK_APP_ID</string>
+			</array>
+		</dict>
+	</array>
+	<!-- Facebook Login SDK config. PLACEHOLDER — replace both values with your
+	     real Facebook Developer App's App ID / Client Token (Settings → Basic),
+	     and update the fbYOUR_FACEBOOK_APP_ID scheme above to match. -->
+	<key>FacebookAppID</key>
+	<string>YOUR_FACEBOOK_APP_ID</string>
+	<key>FacebookClientToken</key>
+	<string>YOUR_FACEBOOK_CLIENT_TOKEN</string>
+	<key>FacebookDisplayName</key>
+	<string>Spendly</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fbauth2</string>
+		<string>fb-messenger-share-api</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

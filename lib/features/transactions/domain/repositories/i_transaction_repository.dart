@@ -32,8 +32,4 @@ abstract class ITransactionRepository {
   Future<Either<Failure, Unit>> updateTransaction(Transaction transaction);
 
   Future<Either<Failure, Unit>> deleteTransaction(String id);
-
-  /// Net savings (income − expense) from Jan 1 of [year] through today —
-  /// backs the Dashboard "Mục tiêu tiết kiệm" progress card.
-  Future<Either<Failure, double>> getYearToDateSavings(int year);
 }

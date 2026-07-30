@@ -257,11 +257,50 @@
                 </div>
               </div>
 
-              <button onclick="{{ goDashboard }}" style="{{ btnPrimary }};margin-top:26px;">Đăng ký</button>
+              <button onclick="{{ goOtp }}" style="{{ btnPrimary }};margin-top:26px;">Đăng ký</button>
 
               <div style="flex:1;"></div>
               <div style="text-align:center;font-size:14px;color:{{ c.textSec }};">
                 Đã có tài khoản? <a onclick="{{ goLogin }}" style="color:{{ c.primary }};font-weight:700;text-decoration:none;cursor:pointer;">Đăng nhập</a>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- OTP VERIFICATION -->
+          <sc-if value="{{ isOtp }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:844px;background:{{ c.bg }};padding:90px 18px 36px;display:flex;flex-direction:column;">
+              <div style="width:56px;height:56px;border-radius:16px;background:{{ c.primary }};display:flex;align-items:center;justify-content:center;margin-bottom:24px;align-self:center;">
+                <span class="msr" style="font-size:30px;color:#fff;">mark_email_read</span>
+              </div>
+              <div style="font-size:26px;font-weight:800;color:{{ c.text }};text-align:center;">Xác thực email</div>
+              <div style="font-size:14px;color:{{ c.textSec }};margin-top:6px;text-align:center;line-height:1.5;">Chúng tôi đã gửi mã 6 số đến<br/><span style="font-weight:700;color:{{ c.text }};">minhanh@email.com</span></div>
+
+              <div style="position:relative;margin-top:32px;">
+                <input value="{{ otpValue }}" oninput="{{ onOtpInput }}" inputmode="numeric" maxlength="6" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;outline:none;background:transparent;font-size:16px;cursor:pointer;z-index:2;"/>
+                <div style="display:flex;gap:12px;justify-content:center;">
+                  <sc-for list="{{ otpCells }}" as="oc" hint-placeholder-count="6">
+                    <div style="{{ oc.style }}">{{ oc.char }}</div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <sc-if value="{{ authErr }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-top:12px;font-size:11.5px;font-weight:600;color:{{ c.danger }};">
+                  <span class="msr" style="font-size:14px;">error</span> Mã xác thực không đúng hoặc đã hết hạn
+                </div>
+              </sc-if>
+              <sc-if value="{{ authOk }}" hint-placeholder-val="{{ true }}">
+                <div style="text-align:center;font-size:12px;color:{{ c.textTert }};margin-top:14px;font-family:'IBM Plex Mono',monospace;">Mã hết hạn sau {{ otpCountdown }}</div>
+              </sc-if>
+
+              <button onclick="{{ verifyOtp }}" disabled="{{ otpDisabled }}" style="{{ otpBtnStyle }}">Xác thực</button>
+
+              <div style="flex:1;"></div>
+              <div style="text-align:center;font-size:14px;color:{{ c.textSec }};">
+                Không nhận được mã? <a onclick="{{ resendOtp }}" style="color:{{ c.primary }};font-weight:700;text-decoration:none;cursor:pointer;">Gửi lại</a>
+              </div>
+              <div style="text-align:center;font-size:13px;color:{{ c.textTert }};margin-top:10px;">
+                <a onclick="{{ goRegister }}" style="color:{{ c.textSec }};font-weight:600;text-decoration:none;cursor:pointer;">Đổi email khác</a>
               </div>
             </div>
           </sc-if>
@@ -481,6 +520,10 @@
                         <span style="font-size:10.5px;font-weight:600;color:{{ c.text }};text-align:center;">{{ cg.label }}</span>
                       </button>
                     </sc-for>
+                    <button onclick="{{ goCategoryCreate }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px;border-radius:16px;border:1px dashed {{ c.primary }};background:{{ c.primaryLight }};cursor:pointer;">
+                      <span class="msr" style="font-size:22px;color:{{ c.primary }};">add</span>
+                      <span style="font-size:10.5px;font-weight:600;color:{{ c.primary }};text-align:center;">Thêm</span>
+                    </button>
                   </div>
                 </div>
               </sc-if>
@@ -795,6 +838,110 @@
                 </div>
 
                 <button onclick="{{ saveEditProfile }}" disabled="{{ saveProfileDisabled }}" style="{{ saveProfileBtnStyle }}">Lưu thay đổi</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- CATEGORY MANAGEMENT -->
+          <sc-if value="{{ isCategoryList }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:844px;background:{{ c.bg }};padding:56px 16px 116px;">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div onclick="{{ goProfile }}" style="width:38px;height:38px;border-radius:12px;background:{{ c.surface }};border:1px solid {{ c.border }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                  <span class="msr" style="font-size:20px;color:{{ c.text }};">arrow_back</span>
+                </div>
+                <div style="flex:1;font-size:19px;font-weight:700;color:{{ c.text }};">Danh mục</div>
+                <button onclick="{{ goCategoryCreate }}" style="background:none;border:none;padding:0;cursor:pointer;display:flex;">
+                  <span class="msr" style="font-size:22px;color:{{ c.primary }};">add_circle</span>
+                </button>
+              </div>
+              <div style="font-size:12px;color:{{ c.textSec }};margin-top:2px;">{{ categoryCountStr }}</div>
+
+              <div style="{{ cardStyle }};margin-top:16px;padding:2px 4px;">
+                <sc-for list="{{ categoryRows }}" as="cr" hint-placeholder-count="8">
+                  <div onclick="{{ cr.edit }}" style="{{ cr.rowStyle }}">
+                    <div style="width:38px;height:38px;border-radius:11px;background:{{ cr.tintBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                      <span class="msr" style="font-size:19px;color:{{ cr.color }};">{{ cr.icon }}</span>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:14px;font-weight:600;color:{{ c.text }};">{{ cr.label }}</div>
+                      <div style="font-size:11px;color:{{ c.textTert }};margin-top:1px;">{{ cr.usageStr }}</div>
+                    </div>
+                    <span class="msr" style="font-size:18px;color:{{ c.textTert }};">chevron_right</span>
+                  </div>
+                </sc-for>
+              </div>
+
+              <button onclick="{{ goCategoryCreate }}" style="{{ btnPrimary }};margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <span class="msr" style="font-size:20px;">add</span> Thêm danh mục mới
+              </button>
+            </div>
+          </sc-if>
+
+          <!-- CREATE / EDIT CATEGORY -->
+          <sc-if value="{{ isCategoryEdit }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:844px;background:{{ c.bg }};padding-bottom:40px;">
+              <div style="padding:56px 16px 0;display:flex;align-items:center;gap:14px;">
+                <div onclick="{{ goCategoryList }}" style="width:38px;height:38px;border-radius:12px;background:{{ c.surface }};border:1px solid {{ c.border }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                  <span class="msr" style="font-size:20px;color:{{ c.text }};">close</span>
+                </div>
+                <div style="font-size:17px;font-weight:700;color:{{ c.text }};">{{ categoryEditTitle }}</div>
+              </div>
+
+              <div style="padding:16px;">
+                <div style="{{ cardStyle }};display:flex;flex-direction:column;align-items:center;padding:22px 18px;">
+                  <div style="{{ catPreviewTileStyle }}">
+                    <span class="msr" style="font-size:32px;color:{{ catFormColor }};">{{ catFormIcon }}</span>
+                  </div>
+                  <div style="font-size:15px;font-weight:700;color:{{ c.text }};margin-top:12px;">{{ catFormNamePreview }}</div>
+                  <div style="font-size:11px;color:{{ c.textTert }};margin-top:2px;">Xem trước</div>
+                </div>
+
+                <div style="margin-top:18px;">
+                  <div style="{{ fieldLabelStyle }}">Tên danh mục</div>
+                  <input value="{{ catFormName }}" oninput="{{ onCatNameInput }}" placeholder="Ví dụ: Cà phê" style="{{ catNameInputStyle }}"/>
+                  <sc-if value="{{ catNameError }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ errTextStyle }}"><span class="msr" style="font-size:14px;">error</span> Tên danh mục này đã tồn tại</div>
+                  </sc-if>
+                </div>
+
+                <div style="margin-top:18px;">
+                  <div style="{{ fieldLabelStyle }}">Màu nhận diện</div>
+                  <div style="display:flex;gap:10px;">
+                    <sc-for list="{{ catColorOptions }}" as="co" hint-placeholder-count="6">
+                      <button onclick="{{ co.select }}" style="{{ co.style }}">
+                        <sc-if value="{{ co.selected }}" hint-placeholder-val="{{ false }}">
+                          <span class="msr" style="font-size:16px;color:#fff;">check</span>
+                        </sc-if>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <div style="margin-top:18px;">
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;">
+                    <div style="{{ fieldLabelStyle }};margin-bottom:0;">Biểu tượng</div>
+                    <div style="font-size:11.5px;color:{{ c.textTert }};">{{ iconGroupCountStr }}</div>
+                  </div>
+                  <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;">
+                    <sc-for list="{{ iconGroups }}" as="ig" hint-placeholder-count="4">
+                      <button onclick="{{ ig.select }}" style="{{ ig.style }}">{{ ig.label }}</button>
+                    </sc-for>
+                  </div>
+                  <div style="{{ cardStyle }};margin-top:10px;padding:12px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+                    <sc-for list="{{ iconOptions }}" as="io" hint-placeholder-count="20">
+                      <button onclick="{{ io.select }}" style="{{ io.style }}">
+                        <span class="msr" style="font-size:21px;color:{{ io.color }};">{{ io.icon }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <button onclick="{{ saveCategory }}" disabled="{{ saveCategoryDisabled }}" style="{{ saveCategoryBtnStyle }}">{{ categoryEditSaveLabel }}</button>
+                <sc-if value="{{ isCategoryEditing }}" hint-placeholder-val="{{ false }}">
+                  <button onclick="{{ requestDeleteCategory }}" style="width:100%;height:48px;margin-top:10px;border-radius:16px;background:{{ c.dangerLight }};color:{{ c.danger }};border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+                    <span class="msr" style="font-size:19px;">delete</span> Xóa danh mục này
+                  </button>
+                </sc-if>
               </div>
             </div>
           </sc-if>
@@ -1300,11 +1447,13 @@ class Component extends DCLogic {
     splashState: 'loading', selectedBudgetCategory: null, budgetAmount: '',
     language: 'vi', themeExpanded: false, langExpanded: false, authErr: false,
     editBudgetCat: null, editBudgetAmount: '', budgetOverrides: {}, deletedBudgetCats: [],
+    categories: null, catFormId: null, catFormName: '', catFormIcon: 'restaurant', catFormColor: '#4F46E5', iconGroup: 'Ăn uống',
+    otp: '',
     profile: {ho:'Nguyễn', ten:'Minh Anh', phone:'0901234567', email:'minhanh@email.com', address:''},
     editProfileForm: {ho:'Nguyễn', ten:'Minh Anh', phone:'0901234567', email:'minhanh@email.com', address:''},
   };
 
-  categories = [
+  static DEFAULT_CATEGORIES = [
     {id:'food', icon:'restaurant', label:'Ăn uống', color:'#4F46E5'},
     {id:'shopping', icon:'shopping_bag', label:'Shopping', color:'#F59E0B'},
     {id:'transport', icon:'directions_car', label:'Đi lại', color:'#22C55E'},
@@ -1314,6 +1463,16 @@ class Component extends DCLogic {
     {id:'travel', icon:'flight', label:'Du lịch', color:'#14B8A6'},
     {id:'pet', icon:'pets', label:'Thú cưng', color:'#EAB308'},
   ];
+  get categories(){ return this.state.categories || Component.DEFAULT_CATEGORIES; }
+
+  iconLibrary = {
+    'Ăn uống': ['restaurant','local_cafe','fastfood','local_bar','icecream','bakery_dining','ramen_dining','local_pizza','liquor','egg_alt'],
+    'Mua sắm': ['shopping_bag','shopping_cart','storefront','redeem','local_mall','apparel','diamond','watch','local_florist','card_giftcard'],
+    'Di chuyển': ['directions_car','two_wheeler','local_gas_station','flight','train','directions_bus','local_taxi','pedal_bike','local_parking','directions_boat'],
+    'Sinh hoạt': ['home','bolt','water_drop','wifi','cleaning_services','chair','tv','local_laundry_service','build','pets'],
+    'Khác': ['medical_services','school','sports_esports','fitness_center','savings','payments','favorite','celebration','work','more_horiz'],
+  };
+  categoryColorOptions = ['#4F46E5','#F59E0B','#22C55E','#F43F5E','#8B5CF6','#0EA5E9'];
   pieCategories = [
     {label:'Ăn uống', pct:32, color:'#4F46E5'}, {label:'Shopping', pct:22, color:'#F59E0B'},
     {label:'Đi lại', pct:16, color:'#22C55E'}, {label:'Giải trí', pct:12, color:'#F43F5E'},
@@ -1364,7 +1523,10 @@ class Component extends DCLogic {
     calendar: {num:7, title:'Calendar', purpose:'Xem nhanh ngày nào chi nhiều, ngày nào chi ít trong tháng.', flow:'Chạm một ngày → Bottom Sheet hiện danh sách giao dịch ngày đó → có thể Sửa/Xoá từng giao dịch.', components:'Calendar Day Cell (màu theo mức chi), Bottom Sheet, Transaction Item compact.', states:'Loading: toàn bộ lưới ngày dùng skeleton. Ngày không có giao dịch hiển thị "0" trung tính.', notes:'Sheet có scrim mờ dần, đóng khi chạm ra ngoài. Màu nền ô ngày đổi rõ ràng ở Dark mode (đỏ/xanh đậm hơn, chữ sáng).'},
     reports: {num:8, title:'Reports', purpose:'Phân tích chi tiêu sâu hơn Dashboard, theo Tuần/Tháng/Năm.', flow:'Chọn tab thời gian → xem lại Pie/Bar chart & các chỉ số nổi bật (top category, TB/ngày, ngày cao/thấp nhất, tỷ lệ tiết kiệm).', components:'Segment Control, Statistic Card mini x4, Pie Chart Card, Bar Chart Card.', states:'Loading dùng skeleton cho từng chart card. Empty khi kỳ đó chưa có dữ liệu (hiện illustration nhẹ).', notes:'Chart "vẽ" lại với animation grow 400ms khi đổi tab kỳ báo cáo.'},
     budget: {num:9, title:'Budget', purpose:'Thiết lập & theo dõi ngân sách theo từng danh mục để tránh chi vượt.', flow:'Xem progress từng danh mục → chạm để sửa hạn mức → nếu vượt 100%, card chuyển cảnh báo đỏ.', components:'Budget Progress Card, Progress Bar, Category icon badge.', states:'Card đổi sang nền đỏ nhạt + text đỏ khi used > budget (case "Giải trí" ở mock). Empty khi chưa thiết lập ngân sách nào.', notes:'Progress bar animate width khi vào màn hình (300ms ease-out).'},
+    otp: {num:'3b', title:'Verify OTP', purpose:'Xác thực email thật của người dùng ngay sau khi đăng ký bằng email/mật khẩu, trước khi vào app.', flow:'Register → Đăng ký → màn OTP → nhập 6 số bằng bàn phím số trong màn hình → Xác thực → Dashboard + snackbar. Có "Gửi lại" mã và "Đổi email khác" (quay lại Register).', components:'OTP cell x6 (auto-focus ô kế tiếp), Numeric keypad (0-9, clear, backspace), Primary Button (disabled tới khi đủ 6 số), Text Link, Countdown label.', states:'Nút Xác thực disabled khi chưa đủ 6 số. Error: toàn bộ 6 ô viền đỏ + chữ đỏ, kèm message "Mã xác thực không đúng hoặc đã hết hạn" (dùng bộ chọn Field validation ở sidebar để xem). Đang đếm ngược hiển thị thời hạn mã.', notes:'Bàn phím số riêng thay vì bật keyboard hệ thống để tránh nhảy layout và giữ ô OTP luôn trong tầm nhìn. Ô đang chờ nhập có viền Primary; ô đã có số nền Primary tint. Trong Flutter dùng Supabase Auth OTP/email confirmation.'},
     forgotPassword: {num:'2b', title:'Forgot Password', purpose:'Khôi phục quyền truy cập khi quên mật khẩu.', flow:'Từ Login → Quên mật khẩu → nhập email → Gửi liên kết đặt lại → email được gửi (snackbar xác nhận) → về Login.', components:'Filled TextField, Primary Button, Text Link.', states:'Error: email không tồn tại → inline error dưới field. Loading: spinner trên nút khi gửi.', notes:'Cùng phong cách Login/Register. Page transition slide-from-right.'},
+    categoryList: {num:14, title:'Category Management', purpose:'Xem và quản lý toàn bộ danh mục chi tiêu của người dùng.', flow:'Từ Profile → Danh mục → chạm một dòng để sửa, hoặc nút + / "Thêm danh mục mới" để tạo.', components:'Grouped list rows (icon tile màu danh mục + tên + số giao dịch + chevron), Dashed CTA button, Icon button (+).', states:'Empty khi người dùng xóa hết danh mục (chỉ còn CTA tạo mới).', notes:'Icon tile dùng màu danh mục ở 13% opacity làm nền — cùng công thức với transaction item để nhất quán.'},
+    categoryEdit: {num:'14b', title:'Create / Edit Category', purpose:'Tạo danh mục mới hoặc sửa tên, màu, biểu tượng của danh mục có sẵn.', flow:'Nhập tên → chọn màu (6 màu trong palette) → chọn nhóm biểu tượng (Ăn uống/Mua sắm/Di chuyển/Sinh hoạt/Khác) → chọn icon trong lưới 5 cột → Tạo danh mục / Cập nhật. Khi sửa có thêm "Xóa danh mục này" → dialog xác nhận.', components:'Live preview card, Filled TextField, Color swatches, Chip group (nhóm icon), Icon grid, Primary Button, Destructive Button, Delete Dialog (dùng lại).', states:'Nút lưu disabled khi chưa nhập tên. Inline error khi tên trùng danh mục khác. Preview cập nhật tức thì theo tên/màu/icon.', notes:'Bảng icon lấy từ Material Symbols Rounded, chia nhóm để tránh lưới dài vô tận. Chỉ cho chọn màu trong palette có sẵn, không dùng color picker tự do — giữ pie chart và biểu đồ luôn hài hòa.'},
     messagesKit: {num:'X', title:'Messages & Feedback Kit', purpose:'Bộ component chuẩn hóa cho toàn bộ thông báo, cảnh báo, xác nhận và phản hồi trạng thái trong app.', flow:'Không phải một luồng người dùng — đây là catalog tham chiếu cho Flutter dev: Push Notification, Snackbar (4 loại), Alert Banner (4 loại), Validation Messages, Confirmation Dialog, Notification Center item, Button feedback states.', components:'SnackBar, Notification Card, Dialog, Filled TextField (error/success), Primary Button (loading/success state).', states:'Chính bản thân màn này LÀ tập hợp các trạng thái (success/error/warning/info) dùng lại ở mọi màn hình khác.', notes:'Màu & icon: success=#22C55E check_circle, danger=#EF4444 error, warning=#F59E0B warning, info=Primary info. Toast luôn nền tối (giống Material Snackbar); Banner luôn nền tint nhạt theo màu ngữ nghĩa, không dùng viền trái màu (tránh mô-típ AI).'},
     editProfile: {num:'12b', title:'Edit Profile', purpose:'Cho phép người dùng cập nhật thông tin cá nhân và ảnh đại diện.', flow:'Từ Profile → chạm icon bút bên cạnh thẻ hồ sơ → chỉnh Họ/Tên/SĐT/Email/Địa chỉ (không bắt buộc) và đổi ảnh → Lưu thay đổi → về Profile với dữ liệu mới + snackbar xác nhận. Nút đóng (x) huỷ mọi thay đổi nháp.', components:'Avatar (editable, camera badge), Filled TextField x5, Primary Button (disabled tới khi Họ/Tên/SĐT/Email hợp lệ).', states:'Nút Lưu disabled khi thiếu trường bắt buộc. Địa chỉ là trường tuỳ chọn duy nhất.', notes:'Trình bày dạng full-screen push. Trong bản Flutter, đổi ảnh mở image picker (camera/thư viện) và tải lên Supabase Storage.'},
     budgetEdit: {num:'9c', title:'Edit Budget', purpose:'Điều chỉnh hoặc xóa hạn mức của một danh mục đã thiết lập.', flow:'Từ Budget → chạm vào card danh mục → sửa hạn mức (nhập tay hoặc chọn preset) → Cập nhật → về Budget, progress & màu card cập nhật ngay. Hoặc chạm "Xóa ngân sách này" → dialog xác nhận → danh mục biến mất khỏi danh sách.', components:'Category summary card (read-only), Filled TextField (số tiền), Chip presets, Primary Button, Destructive Button, Delete Dialog (dùng lại).', states:'Nút Cập nhật disabled khi hạn mức = 0. Cảnh báo inline khi hạn mức mới thấp hơn số đã chi (danh mục sẽ hiển thị vượt ngân sách).', notes:'Danh mục & số đã chi là read-only ở đây — muốn đổi danh mục thì xóa và tạo mới, tránh làm sai lệch dữ liệu chi tiêu đã ghi.'},
@@ -1397,8 +1559,41 @@ class Component extends DCLogic {
   goIncomeMgmt = () => this.setState({screen:'incomeMgmt'});
   goHistory = () => this.setState({screen:'history'});
   goForgotPassword = () => this.setState({screen:'forgotPassword'});
+  goOtp = () => this.setState({screen:'otp', otp:'', authErr:false});
+  onOtpInput = (e) => this.setState({otp:(e.target.value||'').replace(/[^0-9]/g,'').slice(0,6), authErr:false});
+  verifyOtp = () => {
+    this.setState({screen:'dashboard', otp:'', snackbar:'Xác thực thành công'});
+    clearTimeout(this._st);
+    this._st = setTimeout(()=>this.setState({snackbar:null}), 2500);
+  };
+  resendOtp = () => {
+    this.setState({otp:'', authErr:false, snackbar:'Đã gửi lại mã xác thực'});
+    clearTimeout(this._st);
+    this._st = setTimeout(()=>this.setState({snackbar:null}), 2500);
+  };
   goBudgetAdd = () => this.setState({screen:'budgetAdd', selectedBudgetCategory:null, budgetAmount:''});
   goMessagesKit = () => this.setState({screen:'messagesKit'});
+  goCategoryList = () => this.setState({screen:'categoryList'});
+  goCategoryCreate = () => this.setState({screen:'categoryEdit', catFormId:null, catFormName:'', catFormIcon:'restaurant', catFormColor:'#4F46E5', iconGroup:'Ăn uống'});
+  goCategoryEdit = (cg) => this.setState({screen:'categoryEdit', catFormId:cg.id, catFormName:cg.label, catFormIcon:cg.icon, catFormColor:cg.color, iconGroup:'Ăn uống'});
+  onCatNameInput = (e) => this.setState({catFormName:e.target.value});
+  setCatIcon = (icon) => this.setState({catFormIcon:icon});
+  setCatColor = (color) => this.setState({catFormColor:color});
+  setIconGroup = (g) => this.setState({iconGroup:g});
+  saveCategory = () => {
+    this.setState(s => {
+      const list = s.categories || Component.DEFAULT_CATEGORIES;
+      const editing = !!s.catFormId;
+      const next = editing
+        ? list.map(cg => cg.id===s.catFormId ? {...cg, label:s.catFormName.trim(), icon:s.catFormIcon, color:s.catFormColor} : cg)
+        : [...list, {id:'cat'+Date.now(), label:s.catFormName.trim(), icon:s.catFormIcon, color:s.catFormColor}];
+      return { categories: next, screen:'categoryList', catFormId:null, catFormName:'',
+        snackbar: editing ? 'Đã cập nhật danh mục' : 'Đã thêm danh mục mới' };
+    });
+    clearTimeout(this._st);
+    this._st = setTimeout(()=>this.setState({snackbar:null}), 2500);
+  };
+  requestDeleteCategory = () => this.setState({deleteRequest:{type:'category', id:this.state.catFormId}});
   goBudgetEdit = (b) => this.setState({screen:'budgetEdit', editBudgetCat:b.cat, editBudgetAmount:String(b.budget)});
   onEditBudgetAmountInput = (e) => this.setState({editBudgetAmount:(e.target.value||'').replace(/[^0-9]/g,'')});
   setBudgetPreset = (v) => this.setState({editBudgetAmount:String(v)});
@@ -1524,6 +1719,9 @@ class Component extends DCLogic {
       });
     } else if (req.type==='history') {
       this.setState(s => ({ deletedTxIds:[...s.deletedTxIds, req.id], deleteRequest:null, swipedRowId:null, snackbar:'Đã xóa giao dịch' }));
+    } else if (req.type==='category') {
+      this.setState(s => ({ categories: (s.categories || Component.DEFAULT_CATEGORIES).filter(cg => cg.id !== req.id),
+        deleteRequest:null, screen:'categoryList', catFormId:null, catFormName:'', snackbar:'Đã xóa danh mục' }));
     } else if (req.type==='budget') {
       this.setState(s => ({ deletedBudgetCats:[...s.deletedBudgetCats, req.id], deleteRequest:null, screen:'budget', editBudgetCat:null, editBudgetAmount:'', snackbar:'Đã xóa ngân sách' }));
     } else if (req.type==='income') {
@@ -1582,7 +1780,7 @@ class Component extends DCLogic {
     const c = this.theme(s.dark);
     const screen = s.screen;
     const isMainTab = ['dashboard','calendar','budget','reports','profile'].includes(screen);
-    const isAuthLike = ['splash','languageSelect','login','register','forgotPassword'].includes(screen);
+    const isAuthLike = ['splash','languageSelect','login','register','forgotPassword','otp'].includes(screen);
     const vs = s.viewState;
 
     const catStyle = (cg) => ({
@@ -1758,6 +1956,7 @@ class Component extends DCLogic {
       {icon:'attach_money', label:'Đơn vị tiền tệ', value:'VNĐ', go:()=>{}},
       {icon:'language', label:'Ngôn ngữ', value:'Tiếng Việt', go:()=>{}},
       {icon:'account_balance_wallet', label:'Ngân sách', value:'', go:this.goBudget},
+      {icon:'category', label:'Danh mục', value:'', go:this.goCategoryList},
       {icon:'savings', label:'Quản lý thu nhập', value:'', go:this.goIncomeMgmt},
       {icon:'settings', label:'Cài đặt', value:'', go:this.goSettings},
     ];
@@ -1802,6 +2001,35 @@ class Component extends DCLogic {
       {icon:'receipt_long', title:'Giao dịch mới: -85.000 ₫ tại Bún chả Hương Liên', time:'Hôm nay, 09:12', unread:false},
       {icon:'cloud_done', title:'Sao lưu dữ liệu thành công', time:'Hôm qua', unread:false},
     ].map((it,i)=>({...it, rowStyle:`display:flex;align-items:flex-start;gap:10px;padding:12px 10px;${i>0?`border-top:1px solid ${c.border}`:''}`}));
+    const catUsage = {};
+    this.txPool.forEach(t => { if(t.type==='expense') catUsage[t.cat] = (catUsage[t.cat]||0)+1; });
+    const categoryRows = this.categories.map((cg,i) => ({
+      ...cg, tintBg: cg.color + '22',
+      usageStr: (catUsage[cg.id]||0) > 0 ? `${catUsage[cg.id]} giao dịch tháng này` : 'Chưa có giao dịch',
+      rowStyle: `display:flex;align-items:center;gap:11px;padding:12px 10px;cursor:pointer;${i>0?`border-top:1px solid ${c.border}`:''}`,
+      edit: () => this.goCategoryEdit(cg),
+    }));
+    const categoryCountStr = `${this.categories.length} danh mục chi tiêu · chạm để sửa`;
+
+    const catNameTrim = (s.catFormName||'').trim();
+    const catNameError = !!catNameTrim && this.categories.some(cg => cg.id!==s.catFormId && cg.label.toLowerCase()===catNameTrim.toLowerCase());
+    const catColorOptions = this.categoryColorOptions.map(col => ({
+      selected: s.catFormColor===col,
+      select: () => this.setCatColor(col),
+      style: `width:44px;height:44px;border-radius:999px;background:${col};border:${s.catFormColor===col?`3px solid ${c.surface}`:'none'};box-shadow:${s.catFormColor===col?`0 0 0 2px ${col}`:'none'};display:flex;align-items:center;justify-content:center;cursor:pointer;`,
+    }));
+    const iconGroupNames = Object.keys(this.iconLibrary);
+    const iconGroups = iconGroupNames.map(g => ({
+      label: g, select: () => this.setIconGroup(g),
+      style: `flex-shrink:0;height:34px;padding:0 14px;border-radius:99px;border:1px solid ${s.iconGroup===g?c.primary:c.border};background:${s.iconGroup===g?c.primaryLight:c.surface};color:${s.iconGroup===g?c.primary:c.textSec};font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;`,
+    }));
+    const iconOptions = (this.iconLibrary[s.iconGroup] || []).map(ic => ({
+      icon: ic, color: s.catFormIcon===ic ? s.catFormColor : c.textSec,
+      select: () => this.setCatIcon(ic),
+      style: `aspect-ratio:1;border-radius:12px;border:${s.catFormIcon===ic?`2px solid ${s.catFormColor}`:`1px solid ${c.border}`};background:${s.catFormIcon===ic?s.catFormColor+'1a':c.surfaceAlt};display:flex;align-items:center;justify-content:center;cursor:pointer;`,
+    }));
+    const saveCategoryDisabled = !catNameTrim || catNameError;
+
     const languageOptions = [
       {key:'vi', code:'VI', label:'Tiếng Việt', sub:'Vietnamese'},
       {key:'en', code:'EN', label:'English', sub:'Tiếng Anh'},
@@ -1829,11 +2057,14 @@ class Component extends DCLogic {
       {num:12,label:'Profile',key:'profile',icon:screenIcons.profile,go:this.goProfile},
       {num:13,label:'Settings',key:'settings',icon:screenIcons.settings,go:this.goSettings},
       {num:'1b',label:'Language Select',key:'languageSelect',icon:'language',go:()=>this.goTo('languageSelect')},
+      {num:'3b',label:'Verify OTP',key:'otp',icon:'mark_email_read',go:this.goOtp},
       {num:'2b',label:'Forgot Password',key:'forgotPassword',icon:'lock_reset',go:this.goForgotPassword},
       {num:'9b',label:'Add Budget',key:'budgetAdd',icon:'add_circle',go:this.goBudgetAdd},
       {num:'X',label:'Messages Kit',key:'messagesKit',icon:'notifications',go:this.goMessagesKit},
       {num:'12b',label:'Edit Profile',key:'editProfile',icon:'edit',go:this.goEditProfile},
       {num:'9c',label:'Edit Budget',key:'budgetEdit',icon:'edit_note',go:()=>this.goBudgetEdit(this.budgets[0])},
+      {num:'14',label:'Categories',key:'categoryList',icon:'category',go:this.goCategoryList},
+      {num:'14b',label:'Create/Edit Category',key:'categoryEdit',icon:'add_circle',go:this.goCategoryCreate},
     ];
     const screenList = rawList.map(it=>({...it,
       style:`display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:12px;border:none;background:${screen===it.key?c.primaryLight:'transparent'};color:${screen===it.key?c.primary:c.text};font-size:13px;font-weight:600;cursor:pointer;text-align:left;`}));
@@ -1885,6 +2116,21 @@ class Component extends DCLogic {
       saveBudgetEditDisabled,
       saveBudgetEditBtnStyle: `${btnPrimary};margin-top:20px;opacity:${saveBudgetEditDisabled?0.45:1};`,
       isLanguageSelect: screen==='languageSelect', languageOptions, confirmLanguage:this.confirmLanguage,
+      isCategoryList: screen==='categoryList', isCategoryEdit: screen==='categoryEdit',
+      goCategoryList:this.goCategoryList, goCategoryCreate:this.goCategoryCreate,
+      onCatNameInput:this.onCatNameInput, saveCategory:this.saveCategory, requestDeleteCategory:this.requestDeleteCategory,
+      categoryRows, categoryCountStr, catColorOptions, iconGroups, iconOptions,
+      catFormName: s.catFormName, catFormIcon: s.catFormIcon, catFormColor: s.catFormColor,
+      catFormNamePreview: catNameTrim || 'Danh mục mới',
+      catPreviewTileStyle: `width:64px;height:64px;border-radius:18px;background:${s.catFormColor}1a;display:flex;align-items:center;justify-content:center;`,
+      catNameInputStyle: `width:100%;height:50px;border:${catNameError?`1.5px solid ${c.danger}`:`1px solid ${c.border}`};background:${c.surface};border-radius:14px;padding:0 14px;font-size:14px;color:${c.text};outline:none;`,
+      catNameError,
+      isCategoryEditing: !!s.catFormId,
+      categoryEditTitle: s.catFormId ? 'Sửa danh mục' : 'Thêm danh mục',
+      categoryEditSaveLabel: s.catFormId ? 'Cập nhật' : 'Tạo danh mục',
+      iconGroupCountStr: `${iconOptions.length} biểu tượng`,
+      saveCategoryDisabled,
+      saveCategoryBtnStyle: `${btnPrimary};margin-top:20px;opacity:${saveCategoryDisabled?0.45:1};`,
       isMessagesKit: screen==='messagesKit', toastExamples, bannerExamples, notificationItems, goMessagesKit:this.goMessagesKit,
       isEditProfile: screen==='editProfile', goEditProfile:this.goEditProfile,
       profile: s.profile, profileFullName: `${s.profile.ho} ${s.profile.ten}`.trim(),
@@ -1929,13 +2175,13 @@ class Component extends DCLogic {
       budgetSummaryStr, budgetRemainStr, budgetRingStyle, budgetUsedPctStr: budgetUsedPct + '%',
       hasOverBudget: !!overBudgetFirst,
       overBudgetText: overBudgetFirst ? `${overBudgetFirst.label} đã vượt ngân sách ${overBudgetFirst.overPct}%` : '',
-      deleteDialogTitle: s.deleteRequest?.type==='budget' ? 'Xóa ngân sách?' : s.deleteRequest?.type==='income' ? 'Xóa khoản thu?' : 'Xóa giao dịch?',
-      deleteDialogBody: s.deleteRequest?.type==='budget'
-        ? 'Danh mục này sẽ không còn được theo dõi hạn mức.'
-        : s.deleteRequest?.type==='income'
-          ? 'Hành động này không thể hoàn tác. Khoản thu sẽ bị xóa vĩnh viễn.'
-          : 'Hành động này không thể hoàn tác. Giao dịch sẽ bị xóa vĩnh viễn.',
-      deleteDialogIcon: s.deleteRequest?.type==='budget' ? 'wallet' : 'delete_forever',
+      deleteDialogTitle: {budget:'Xóa ngân sách?', income:'Xóa khoản thu?', category:'Xóa danh mục?'}[s.deleteRequest?.type] || 'Xóa giao dịch?',
+      deleteDialogBody: {
+        budget:'Danh mục này sẽ không còn được theo dõi hạn mức.',
+        income:'Hành động này không thể hoàn tác. Khoản thu sẽ bị xóa vĩnh viễn.',
+        category:'Các giao dịch cũ vẫn giữ nguyên nhưng sẽ chuyển sang nhóm "Khác".',
+      }[s.deleteRequest?.type] || 'Hành động này không thể hoàn tác. Giao dịch sẽ bị xóa vĩnh viễn.',
+      deleteDialogIcon: {budget:'wallet', category:'category'}[s.deleteRequest?.type] || 'delete_forever',
       prevMonth:this.prevMonth, nextMonth:this.nextMonth, calendarMonthLabel, calendarMonthTotal, calendarAvgStr, calendarMaxDayStr, topSpendingDays,
       setNormal:this.setNormal, setEmpty:this.setEmpty, setLoading:this.setLoading,
 
@@ -1944,7 +2190,19 @@ class Component extends DCLogic {
       inputStyle, btnPrimary, cardStyle, emptyStyle, monthChip, statMini, metaLabel, metaBody, filterBtnStyle,
       fieldLabelStyle, errTextStyle, hintTextStyle,
       authErr: s.authErr, authOk: !s.authErr,
-      isAuthScreen: ['login','register','forgotPassword'].includes(screen),
+      isAuthScreen: ['login','register','forgotPassword','otp'].includes(screen),
+      isOtp: screen==='otp', goOtp:this.goOtp, verifyOtp:this.verifyOtp, resendOtp:this.resendOtp,
+      otpValue: s.otp, onOtpInput:this.onOtpInput,
+      otpCountdown: '04:32',
+      otpCells: Array.from({length:6}, (_,i) => {
+        const char = s.otp[i] || '';
+        const active = s.otp.length===i;
+        const lineColor = s.authErr ? c.danger : char ? c.primary : active ? c.primary : c.border;
+        return { char,
+          style: `width:44px;height:52px;border-bottom:${(char||active||s.authErr)?'2.5px':'1.5px'} solid ${lineColor};display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:26px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:${s.authErr?c.danger:c.text};transition:border-color .2s;` };
+      }),
+      otpDisabled: s.otp.length < 6,
+      otpBtnStyle: `${btnPrimary};margin-top:20px;opacity:${s.otp.length<6?0.45:1};`,
       setAuthOk:this.setAuthOk, setAuthErr:this.setAuthErr,
       authOkBtnStyle: authBtn(!s.authErr), authErrBtnStyle: authBtn(s.authErr),
       loginEmailInputStyle: authFieldStyle, loginPassInputStyle: authFieldStyle,

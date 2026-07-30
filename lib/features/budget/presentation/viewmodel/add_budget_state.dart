@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import 'package:spendly_app/features/transactions/domain/entities/expense_category.dart';
+import 'package:spendly_app/features/category_management/domain/entities/category.dart';
 
 /// Form state for the Add Budget screen. Save button is enabled only once
 /// [isValid] — category set AND amount > 0, per design.
@@ -8,13 +8,15 @@ class AddBudgetState extends Equatable {
   const AddBudgetState({
     this.category,
     this.amount = 0,
+    this.categories = const [],
     this.isSaving = false,
     this.saved = false,
     this.errorMessage,
   });
 
-  final ExpenseCategory? category;
+  final Category? category;
   final double amount;
+  final List<Category> categories;
   final bool isSaving;
   final bool saved;
   final String? errorMessage;
@@ -22,8 +24,9 @@ class AddBudgetState extends Equatable {
   bool get isValid => category != null && amount > 0;
 
   AddBudgetState copyWith({
-    ExpenseCategory? category,
+    Category? category,
     double? amount,
+    List<Category>? categories,
     bool? isSaving,
     bool? saved,
     String? errorMessage,
@@ -32,6 +35,7 @@ class AddBudgetState extends Equatable {
     return AddBudgetState(
       category: category ?? this.category,
       amount: amount ?? this.amount,
+      categories: categories ?? this.categories,
       isSaving: isSaving ?? this.isSaving,
       saved: saved ?? this.saved,
       errorMessage:
@@ -40,5 +44,6 @@ class AddBudgetState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [category, amount, isSaving, saved, errorMessage];
+  List<Object?> get props =>
+      [category, amount, categories, isSaving, saved, errorMessage];
 }

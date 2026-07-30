@@ -10,10 +10,8 @@ import 'package:spendly_app/core/theme/app_typography.dart';
 import 'package:spendly_app/core/utils/currency_formatter.dart';
 import 'package:spendly_app/shared/components/dialogs/app_confirm_dialog.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
+import 'package:spendly_app/features/category_management/presentation/mappers/category_icon_ui.dart';
 import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/expense_category_ui.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/income_source_ui.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/transaction_ui.dart';
 import 'package:spendly_app/features/calendar/presentation/viewmodel/calendar_cubit.dart';
 import 'package:spendly_app/features/calendar/presentation/viewmodel/calendar_state.dart';
 
@@ -109,6 +107,7 @@ class _DayTransactionsSheetState extends State<DayTransactionsSheet> {
                   top: Radius.circular(AppRadius.sheet)),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
@@ -194,58 +193,80 @@ class _DayTransactionsSheetState extends State<DayTransactionsSheet> {
                   ),
                 const SizedBox(height: AppSpacing.xs),
                 Flexible(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: colors.surfaceAlt,
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                  child: ConstrainedBox(
+                    // A `Flexible` (loose fit) only grows to fill available
+                    // space when its content needs it — for short content
+                    // (empty day, 1-2 transactions) it would otherwise
+                    // shrink-wrap tightly, leaving the whole sheet far
+                    // short of the design's 38%-of-screen floor. Giving
+                    // this region its own floor keeps the sheet looking
+                    // "full" the way the design's `min-height:38%` +
+                    // `flex:1` middle section does.
+                    constraints: BoxConstraints(
+                      minHeight:
+                          (MediaQuery.of(context).size.height * 0.38 - 170)
+                              .clamp(150, double.infinity),
                     ),
-                    child: transactions == null
-                        ? const Padding(
-                            padding:
-                                EdgeInsets.symmetric(vertical: AppSpacing.mdLg),
-                            child: Center(
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2)),
-                          )
-                        : transactions.isEmpty
-                            ? Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: AppSpacing.xxl),
-                                child: Column(
-                                  children: [
-                                    Icon(Icons.receipt_long_rounded,
-                                        size: 34, color: colors.textTertiary),
-                                    const SizedBox(height: AppSpacing.smMd),
-                                    Text(
-                                      context.l10n.calendarDayEmptyMessage,
-                                      style: const TextStyle(
-                                          fontSize: 13.5,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      context.l10n.calendarDayEmptySubtitle,
-                                      style: TextStyle(
-                                          fontSize: 11.5,
-                                          color: colors.textSecondary),
-                                    ),
-                                  ],
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: colors.surfaceAlt,
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                      ),
+                      child: transactions == null
+                          ? const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: AppSpacing.mdLg),
+                              child: Center(
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2)),
+                            )
+                          : transactions.isEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: AppSpacing.xxl,
+                                      horizontal: AppSpacing.lgXl),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.receipt_long_rounded,
+                                          size: 34, color: colors.textTertiary),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        context.l10n.calendarDayEmptyMessage,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 13.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: colors.textPrimary),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        context.l10n.calendarDayEmptySubtitle,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 11.5,
+                                            color: colors.textSecondary),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.separated(
+                                  shrinkWrap: true,
+                                  padding: EdgeInsets.zero,
+                                  itemCount: transactions.length,
+                                  separatorBuilder: (context, index) =>
+                                      Divider(height: 1, color: colors.border),
+                                  itemBuilder: (context, index) => _DayTxRow(
+                                    transaction: transactions[index],
+                                    onEdit: () =>
+                                        _editTransaction(transactions[index]),
+                                    onDelete: () =>
+                                        _confirmDelete(transactions[index]),
+                                  ),
                                 ),
-                              )
-                            : ListView.separated(
-                                shrinkWrap: true,
-                                padding: EdgeInsets.zero,
-                                itemCount: transactions.length,
-                                separatorBuilder: (context, index) =>
-                                    Divider(height: 1, color: colors.border),
-                                itemBuilder: (context, index) => _DayTxRow(
-                                  transaction: transactions[index],
-                                  onEdit: () =>
-                                      _editTransaction(transactions[index]),
-                                  onDelete: () =>
-                                      _confirmDelete(transactions[index]),
-                                ),
-                              ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.smMd),
@@ -293,13 +314,16 @@ class _DayTxRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final isIncome = transaction.type == TransactionType.income;
+    // Per design: the amount text uses success/danger, but the row's icon
+    // tile uses success/primary — expense rows are NOT red here.
     final amountColor = isIncome ? colors.success : colors.danger;
-    final icon = isIncome
-        ? transaction.incomeSource!.icon
-        : transaction.expenseCategory!.icon;
+    final iconColor = isIncome ? colors.success : colors.primary;
+    final icon = transaction.category == null
+        ? Icons.category_rounded
+        : categoryIconFor(transaction.category!.iconName);
     final label = transaction.note?.isNotEmpty == true
         ? transaction.note!
-        : transaction.displayLabelText(context);
+        : transaction.displayLabel;
 
     return Row(
       children: [
@@ -319,7 +343,7 @@ class _DayTxRow extends StatelessWidget {
                       color: colors.surface,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(icon, size: 17, color: amountColor),
+                    child: Icon(icon, size: 17, color: iconColor),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
@@ -335,7 +359,7 @@ class _DayTxRow extends StatelessWidget {
                         ),
                         const SizedBox(height: 1),
                         Text(
-                          transaction.displayLabelText(context),
+                          transaction.displayLabel,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

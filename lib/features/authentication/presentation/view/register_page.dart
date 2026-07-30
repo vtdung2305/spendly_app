@@ -10,6 +10,7 @@ import 'package:spendly_app/shared/components/buttons/app_button.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
 import 'package:spendly_app/shared/components/textfields/app_text_field.dart';
 import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_cubit.dart';
+import 'package:spendly_app/features/authentication/presentation/viewmodel/verify_otp_args.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -42,15 +43,22 @@ class _RegisterPageState extends State<RegisterPage> {
       _passwordError = null;
       _confirmPasswordError = null;
     });
-    final error = await context.read<AuthCubit>().registerWithEmail(
+    final result = await context.read<AuthCubit>().registerWithEmail(
           _emailController.text,
           _passwordController.text,
           _confirmPasswordController.text,
         );
     if (!mounted) return;
+    if (result.otpEmail != null) {
+      setState(() => _submitting = false);
+      context.push('/verify-otp',
+          extra: VerifyOtpArgs(email: result.otpEmail!));
+      return;
+    }
     // Client-side validation errors are field-specific and shown inline
     // under the relevant field; anything else (server/network) isn't tied
     // to one field, so it goes to a snackbar instead.
+    final error = result.errorMessage;
     final isConfirmError = error != null && error.contains('xác nhận');
     final isPasswordError =
         error != null && !isConfirmError && error.contains('Mật khẩu');
@@ -61,10 +69,10 @@ class _RegisterPageState extends State<RegisterPage> {
       _passwordError = isPasswordError ? error : null;
       _confirmPasswordError = isConfirmError ? error : null;
     });
-    if (error == null) {
+    if (result.success) {
       context.go('/dashboard');
     } else if (!isEmailError && !isPasswordError && !isConfirmError) {
-      AppSnackbar.showError(context, error);
+      AppSnackbar.showError(context, error!);
     }
   }
 

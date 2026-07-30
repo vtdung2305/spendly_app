@@ -1,14 +1,14 @@
 import 'package:dartz/dartz.dart';
 
 import 'package:spendly_app/core/error/failure.dart';
-import 'package:spendly_app/features/authentication/domain/entities/app_user.dart';
+import 'package:spendly_app/features/authentication/domain/entities/register_outcome.dart';
 import 'package:spendly_app/features/authentication/domain/repositories/i_auth_repository.dart';
 
 class RegisterWithEmailUseCase {
   const RegisterWithEmailUseCase(this._repository);
   final IAuthRepository _repository;
 
-  Future<Either<Failure, AppUser>> call({
+  Future<Either<Failure, RegisterOutcome>> call({
     required String email,
     required String password,
     required String confirmPassword,

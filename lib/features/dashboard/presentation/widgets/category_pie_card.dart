@@ -8,8 +8,8 @@ import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/core/theme/app_typography.dart';
 import 'package:spendly_app/core/utils/currency_formatter.dart';
 import 'package:spendly_app/shared/components/charts/donut_chart.dart';
+import 'package:spendly_app/features/category_management/presentation/mappers/category_icon_ui.dart';
 import 'package:spendly_app/features/transactions/domain/entities/dashboard_summary.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/chart_category_group_ui.dart';
 
 /// Title + donut (category breakdown) + legend list, per Dashboard layout row 4.
 class CategoryPieCard extends StatelessWidget {
@@ -46,7 +46,8 @@ class CategoryPieCard extends StatelessWidget {
                 slices: [
                   for (final share in breakdown)
                     DonutSlice(
-                        color: share.group.color, percent: share.percent),
+                        color: _colorFor(colors, share),
+                        percent: share.percent),
                 ],
                 centerLabel: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -85,6 +86,11 @@ class CategoryPieCard extends StatelessWidget {
   }
 }
 
+Color _colorFor(AppColorsExtension colors, CategoryShare share) =>
+    share.isOther || share.category == null
+        ? colors.textTertiary
+        : categoryColorFromHex(share.category!.colorHex);
+
 class _LegendRow extends StatelessWidget {
   const _LegendRow({required this.share});
   final CategoryShare share;
@@ -92,6 +98,10 @@ class _LegendRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final color = _colorFor(colors, share);
+    final label = share.isOther || share.category == null
+        ? context.l10n.categoryOther
+        : share.category!.label;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
@@ -99,13 +109,11 @@ class _LegendRow extends StatelessWidget {
           Container(
             height: 8,
             width: 8,
-            decoration:
-                BoxDecoration(color: share.group.color, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(share.group.labelText(context),
-                style: Theme.of(context).textTheme.bodySmall),
+            child: Text(label, style: Theme.of(context).textTheme.bodySmall),
           ),
           Text(
             context.l10n.percentValue(share.percent.round().toString()),

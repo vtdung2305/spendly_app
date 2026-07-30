@@ -76,7 +76,7 @@ class _TransactionAmountCardState extends State<TransactionAmountCard> {
         : colors.textTertiary;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.card),
@@ -114,15 +114,15 @@ class _TransactionAmountCardState extends State<TransactionAmountCard> {
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   onChanged: _handleChanged,
-                  strutStyle: const StrutStyle(fontSize: 30, height: 1.0),
+                  strutStyle: const StrutStyle(fontSize: 24, height: 1.0),
                   style: AppTypography.mono(
-                      fontSize: 32,
+                      fontSize: 24,
                       fontWeight: FontWeight.w800,
                       color: amountColor),
                   decoration: InputDecoration(
                     hintText: '0',
                     hintStyle: AppTypography.mono(
-                        fontSize: 32,
+                        fontSize: 24,
                         fontWeight: FontWeight.w800,
                         color: colors.textTertiary),
                     border: InputBorder.none,

@@ -3,8 +3,10 @@ import 'package:intl/intl.dart';
 
 import 'package:spendly_app/core/error/failure.dart';
 import 'package:spendly_app/features/budget/data/datasources/budget_remote_datasource.dart';
+import 'package:spendly_app/features/category_management/data/datasources/category_remote_datasource.dart';
+import 'package:spendly_app/features/category_management/domain/entities/category.dart';
+import 'package:spendly_app/features/transactions/data/category_breakdown_utils.dart';
 import 'package:spendly_app/features/transactions/domain/entities/calendar_day.dart';
-import 'package:spendly_app/features/transactions/domain/entities/chart_category_group.dart';
 import 'package:spendly_app/features/transactions/domain/entities/dashboard_summary.dart';
 import 'package:spendly_app/features/transactions/domain/entities/report_period.dart';
 import 'package:spendly_app/features/transactions/domain/entities/report_summary.dart';
@@ -14,10 +16,25 @@ import 'package:spendly_app/features/transactions/data/datasources/transaction_r
 import 'package:spendly_app/features/transactions/data/models/transaction_model.dart';
 
 class TransactionRepository implements ITransactionRepository {
-  const TransactionRepository(this._dataSource, this._budgetDataSource);
+  const TransactionRepository(
+      this._dataSource, this._budgetDataSource, this._categoryDataSource);
 
   final TransactionRemoteDataSource _dataSource;
   final BudgetRemoteDataSource _budgetDataSource;
+  final CategoryRemoteDataSource _categoryDataSource;
+
+  Future<Map<String, Category>> _categoryMap() async {
+    final categories = await _categoryDataSource.getCategories();
+    return {for (final c in categories) c.id: c.toEntity()};
+  }
+
+  Future<List<Transaction>> _resolve(
+      List<TransactionModel> rows, Map<String, Category> categoryMap) async {
+    return rows
+        .map((r) =>
+            r.toEntity(r.categoryId == null ? null : categoryMap[r.categoryId]))
+        .toList();
+  }
 
   @override
   Future<Either<Failure, DashboardSummary>> getDashboardSummary(
@@ -25,10 +42,10 @@ class TransactionRepository implements ITransactionRepository {
     try {
       final monthStart = DateTime(month.year, month.month);
       final monthEnd = DateTime(month.year, month.month + 1);
-      final transactions =
-          (await _dataSource.getTransactionsInRange(monthStart, monthEnd))
-              .map((r) => r.toEntity())
-              .toList();
+      final categoryMap = await _categoryMap();
+      final transactions = await _resolve(
+          await _dataSource.getTransactionsInRange(monthStart, monthEnd),
+          categoryMap);
 
       final income =
           transactions.where((t) => t.type == TransactionType.income);
@@ -37,7 +54,7 @@ class TransactionRepository implements ITransactionRepository {
       final totalIncome = income.fold<double>(0, (sum, t) => sum + t.amount);
       final totalExpense = expenses.fold<double>(0, (sum, t) => sum + t.amount);
 
-      final breakdown = _categoryBreakdown(expenses, totalExpense);
+      final breakdown = _breakdownFor(expenses, totalExpense);
 
       final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
       final dailyTotals = <int, double>{
@@ -56,11 +73,13 @@ class TransactionRepository implements ITransactionRepository {
         ..sort((a, b) => b.date.compareTo(a.date));
 
       final budgetRows = await _budgetDataSource.getBudgetRows();
-      final budgetedCategories = budgetRows.map((r) => r.category).toSet();
+      final budgetedCategoryIds = budgetRows.map((r) => r.categoryId).toSet();
       final budgetTotal =
           budgetRows.fold<double>(0, (sum, r) => sum + r.budgetAmount);
       final budgetUsed = expenses
-          .where((t) => budgetedCategories.contains(t.expenseCategory))
+          .where((t) =>
+              t.category != null &&
+              budgetedCategoryIds.contains(t.category!.id))
           .fold<double>(0, (sum, t) => sum + t.amount);
 
       return Right(DashboardSummary(
@@ -84,7 +103,7 @@ class TransactionRepository implements ITransactionRepository {
     try {
       final model = TransactionModel.fromEntity(transaction);
       final saved = await _dataSource.addTransaction(model);
-      return Right(saved.toEntity());
+      return Right(saved.toEntity(transaction.category));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
@@ -96,9 +115,9 @@ class TransactionRepository implements ITransactionRepository {
     String? searchQuery,
   }) async {
     try {
-      var transactions = (await _dataSource.getAllTransactions())
-          .map((r) => r.toEntity())
-          .toList();
+      final categoryMap = await _categoryMap();
+      var transactions =
+          await _resolve(await _dataSource.getAllTransactions(), categoryMap);
 
       if (type != null) {
         transactions = transactions.where((t) => t.type == type).toList();
@@ -128,9 +147,8 @@ class TransactionRepository implements ITransactionRepository {
       final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
       final totals = List<double>.filled(daysInMonth, 0);
       for (final r in rows) {
-        final entity = r.toEntity();
-        if (entity.type != TransactionType.expense) continue;
-        totals[entity.date.day - 1] += entity.amount;
+        if (r.type != TransactionType.expense) continue;
+        totals[r.date.day - 1] += r.amount;
       }
       final days = List.generate(
           daysInMonth, (i) => CalendarDay(day: i + 1, amount: totals[i]));
@@ -157,10 +175,9 @@ class TransactionRepository implements ITransactionRepository {
         ReportPeriod.year => (DateTime(now.year), DateTime(now.year + 1)),
       };
 
-      final transactions =
-          (await _dataSource.getTransactionsInRange(start, end))
-              .map((r) => r.toEntity())
-              .toList();
+      final categoryMap = await _categoryMap();
+      final transactions = await _resolve(
+          await _dataSource.getTransactionsInRange(start, end), categoryMap);
       final expenses =
           transactions.where((t) => t.type == TransactionType.expense).toList();
       final totalIncome = transactions
@@ -168,8 +185,8 @@ class TransactionRepository implements ITransactionRepository {
           .fold<double>(0, (s, t) => s + t.amount);
       final totalExpense = expenses.fold<double>(0, (s, t) => s + t.amount);
 
-      final breakdown = _categoryBreakdown(expenses, totalExpense);
-      final topCategoryGroup = breakdown.isEmpty ? null : breakdown.first.group;
+      final breakdown = _breakdownFor(expenses, totalExpense);
+      final topCategory = breakdown.isEmpty ? null : breakdown.first;
 
       final daySpan = end.difference(start).inDays.clamp(1, 366);
       final avgPerDay = totalExpense / daySpan;
@@ -188,7 +205,7 @@ class TransactionRepository implements ITransactionRepository {
       final weekBars = _weeklyBars(expenses, start, end);
 
       return Right(ReportSummary(
-        topCategoryGroup: topCategoryGroup,
+        topCategory: topCategory,
         avgPerDay: avgPerDay,
         maxSpendDay: maxSpendDay,
         savingsRatePercent: double.parse(savingsRatePercent.toStringAsFixed(1)),
@@ -206,8 +223,9 @@ class TransactionRepository implements ITransactionRepository {
     try {
       final dayStart = DateTime(day.year, day.month, day.day);
       final dayEnd = dayStart.add(const Duration(days: 1));
+      final categoryMap = await _categoryMap();
       final rows = await _dataSource.getTransactionsInRange(dayStart, dayEnd);
-      return Right(rows.map((r) => r.toEntity()).toList());
+      return Right(await _resolve(rows, categoryMap));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
@@ -235,41 +253,17 @@ class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, double>> getYearToDateSavings(int year) async {
-    try {
-      final start = DateTime(year);
-      final now = DateTime.now();
-      final end = now.add(const Duration(days: 1));
-      final rows = await _dataSource.getTransactionsInRange(start, end);
-
-      var savings = 0.0;
-      for (final row in rows) {
-        final entity = row.toEntity();
-        savings += entity.type == TransactionType.income
-            ? entity.amount
-            : -entity.amount;
-      }
-      return Right(savings);
-    } catch (e) {
-      return Left(UnknownFailure(e.toString()));
-    }
-  }
-
-  List<CategoryShare> _categoryBreakdown(
+  List<CategoryShare> _breakdownFor(
       List<Transaction> expenses, double totalExpense) {
-    final byGroup = <ChartCategoryGroup, double>{};
+    final byCategory = <String, double>{};
+    final categoryById = <String, Category>{};
     for (final t in expenses) {
-      final group = t.expenseCategory!.chartGroup;
-      byGroup[group] = (byGroup[group] ?? 0) + t.amount;
+      final category = t.category;
+      if (category == null) continue;
+      byCategory[category.id] = (byCategory[category.id] ?? 0) + t.amount;
+      categoryById[category.id] = category;
     }
-    return byGroup.entries
-        .map((e) => CategoryShare(
-              group: e.key,
-              percent: totalExpense == 0 ? 0 : (e.value / totalExpense) * 100,
-            ))
-        .toList()
-      ..sort((a, b) => b.percent.compareTo(a.percent));
+    return foldCategoryBreakdown(byCategory, categoryById, totalExpense);
   }
 
   /// Splits [start, end) into 4 equal buckets labeled T1-T4, summing expense

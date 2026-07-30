@@ -5,9 +5,8 @@ import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_typography.dart';
 import 'package:spendly_app/core/utils/currency_formatter.dart';
+import 'package:spendly_app/features/category_management/presentation/mappers/category_icon_ui.dart';
 import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/income_source_ui.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/transaction_ui.dart';
 
 /// 42px rounded-12 success-tint icon tile + label + date, amount `+X` green,
 /// per Income Management layout — no category label (unlike TransactionRow).
@@ -38,8 +37,12 @@ class IncomeRow extends StatelessWidget {
               color: colors.successTint,
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
-            child: Icon(transaction.incomeSource!.icon,
-                size: 20, color: colors.success),
+            child: Icon(
+                transaction.category == null
+                    ? Icons.category_rounded
+                    : categoryIconFor(transaction.category!.iconName),
+                size: 20,
+                color: colors.success),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -47,7 +50,7 @@ class IncomeRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  transaction.note ?? transaction.displayLabelText(context),
+                  transaction.note ?? transaction.displayLabel,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.bodyLarge

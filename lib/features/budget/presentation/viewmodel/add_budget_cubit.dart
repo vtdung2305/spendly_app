@@ -1,15 +1,25 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:spendly_app/features/budget/domain/usecases/add_budget_usecase.dart';
-import 'package:spendly_app/features/transactions/domain/entities/expense_category.dart';
+import 'package:spendly_app/features/category_management/domain/entities/category.dart';
+import 'package:spendly_app/features/category_management/domain/usecases/get_categories_usecase.dart';
 import 'add_budget_state.dart';
 
 class AddBudgetCubit extends Cubit<AddBudgetState> {
-  AddBudgetCubit(this._addBudgetUseCase) : super(const AddBudgetState());
+  AddBudgetCubit(this._getCategoriesUseCase, this._addBudgetUseCase)
+      : super(const AddBudgetState());
 
+  final GetCategoriesUseCase _getCategoriesUseCase;
   final AddBudgetUseCase _addBudgetUseCase;
 
-  void selectCategory(ExpenseCategory category) {
+  Future<void> loadCategories() async {
+    final result = await _getCategoriesUseCase(type: CategoryType.expense);
+    result.fold((_) {}, (categories) {
+      emit(state.copyWith(categories: categories));
+    });
+  }
+
+  void selectCategory(Category category) {
     emit(state.copyWith(category: category));
   }
 

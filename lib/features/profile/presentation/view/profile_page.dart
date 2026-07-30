@@ -150,6 +150,11 @@ class ProfilePage extends StatelessWidget {
                       onTap: () => context.push('/income'),
                     ),
                     MenuRow(
+                      icon: Icons.category_rounded,
+                      label: context.l10n.profileCategoryManagementLabel,
+                      onTap: () => context.push('/categories'),
+                    ),
+                    MenuRow(
                       icon: Icons.settings_rounded,
                       label: context.l10n.profileSettingsLabel,
                       onTap: () => context.push('/settings'),

@@ -225,6 +225,43 @@ class AppLocalizationsVi extends AppLocalizations {
   String get forgotPasswordLoginLink => 'Đăng nhập';
 
   @override
+  String get verifyOtpTitle => 'Xác thực email';
+
+  @override
+  String get verifyOtpSubtitle => 'Chúng tôi đã gửi mã 6 số đến';
+
+  @override
+  String get verifyOtpCodeInvalidError =>
+      'Mã xác thực không đúng hoặc đã hết hạn';
+
+  @override
+  String get verifyOtpTooManyAttemptsError =>
+      'Bạn đã nhập sai quá nhiều lần. Vui lòng gửi lại mã mới.';
+
+  @override
+  String verifyOtpExpiresInLabel(String time) {
+    return 'Mã hết hạn sau $time';
+  }
+
+  @override
+  String get verifyOtpSubmitButton => 'Xác thực';
+
+  @override
+  String get verifyOtpResendPrompt => 'Không nhận được mã?';
+
+  @override
+  String get verifyOtpResendLink => 'Gửi lại';
+
+  @override
+  String get verifyOtpChangeEmailLink => 'Đổi email khác';
+
+  @override
+  String get verifyOtpResentSnackbar => 'Đã gửi lại mã xác thực';
+
+  @override
+  String get verifyOtpVerifiedSnackbar => 'Xác thực thành công';
+
+  @override
   String get authInvalidEmail => 'Email không hợp lệ';
 
   @override
@@ -364,6 +401,9 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get addTransactionCategoryUnselectedLabel => 'Chưa chọn';
+
+  @override
+  String get addTransactionAddCategoryTile => 'Thêm';
 
   @override
   String get addTransactionHintChooseCategory =>
@@ -626,6 +666,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get profileIncomeManagementLabel => 'Quản lý thu nhập';
 
   @override
+  String get profileCategoryManagementLabel => 'Danh mục';
+
+  @override
   String get profileSettingsLabel => 'Cài đặt';
 
   @override
@@ -842,4 +885,99 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get feedbackKitButtonSuccess => 'Đã lưu';
+
+  @override
+  String get categoryListPageTitle => 'Danh mục';
+
+  @override
+  String categoryCountLabel(int count) {
+    return '$count danh mục chi tiêu · chạm để sửa';
+  }
+
+  @override
+  String categoryUsageCount(int count) {
+    return '$count giao dịch tháng này';
+  }
+
+  @override
+  String get categoryUsageNone => 'Chưa có giao dịch';
+
+  @override
+  String get categoryAddNewButton => 'Thêm danh mục mới';
+
+  @override
+  String get categoryListEmptyMessage =>
+      'Chưa có danh mục nào.\nNhấn \"Thêm danh mục mới\" để tạo danh mục đầu tiên.';
+
+  @override
+  String get categoryEditPageTitleCreate => 'Thêm danh mục';
+
+  @override
+  String get categoryEditPageTitleEdit => 'Sửa danh mục';
+
+  @override
+  String get categoryPreviewLabel => 'Xem trước';
+
+  @override
+  String get categoryPreviewPlaceholder => 'Danh mục mới';
+
+  @override
+  String get categoryNameLabel => 'Tên danh mục';
+
+  @override
+  String get categoryNameHint => 'Ví dụ: Cà phê';
+
+  @override
+  String get categoryNameDuplicateError => 'Tên danh mục này đã tồn tại';
+
+  @override
+  String get categoryColorLabel => 'Màu nhận diện';
+
+  @override
+  String get categoryIconLabel => 'Biểu tượng';
+
+  @override
+  String categoryIconCountLabel(int count) {
+    return '$count biểu tượng';
+  }
+
+  @override
+  String get categoryIconGroupFood => 'Ăn uống';
+
+  @override
+  String get categoryIconGroupShopping => 'Mua sắm';
+
+  @override
+  String get categoryIconGroupTransport => 'Di chuyển';
+
+  @override
+  String get categoryIconGroupHome => 'Sinh hoạt';
+
+  @override
+  String get categoryIconGroupOther => 'Khác';
+
+  @override
+  String get categorySaveButtonCreate => 'Tạo danh mục';
+
+  @override
+  String get categorySaveButtonUpdate => 'Cập nhật';
+
+  @override
+  String get categoryDeleteButton => 'Xóa danh mục này';
+
+  @override
+  String get categoryDeleteConfirmTitle => 'Xóa danh mục?';
+
+  @override
+  String get categoryDeleteConfirmDesc =>
+      'Hành động này không thể hoàn tác. Danh mục sẽ bị xóa vĩnh viễn.';
+
+  @override
+  String get categoryCreatedSnackbar => 'Đã thêm danh mục mới';
+
+  @override
+  String get categoryUpdatedSnackbar => 'Đã cập nhật danh mục';
+
+  @override
+  String get categoryDeletedSnackbar => 'Đã xóa danh mục';
 }

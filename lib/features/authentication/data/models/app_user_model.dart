@@ -11,7 +11,6 @@ class AppUserModel {
     this.phone,
     this.address,
     this.avatarUrl,
-    this.savingsGoalAmount = 0,
   });
 
   /// Maps a `public.profiles` row (id, first_name, last_name, email, phone,
@@ -33,7 +32,20 @@ class AppUserModel {
       phone: json['phone'] as String?,
       address: json['address'] as String?,
       avatarUrl: json['avatar_url'] as String?,
-      savingsGoalAmount: (json['savings_goal_amount'] as num?)?.toDouble() ?? 0,
+    );
+  }
+
+  /// Maps the backend's `GET/PATCH /users/me` response (camelCase,
+  /// `firstName`/`lastName` always present).
+  factory AppUserModel.fromBackendJson(Map<String, dynamic> json) {
+    return AppUserModel(
+      id: json['id'] as String,
+      firstName: json['firstName'] as String? ?? '',
+      lastName: json['lastName'] as String? ?? '',
+      email: json['email'] as String,
+      phone: json['phone'] as String?,
+      address: json['address'] as String?,
+      avatarUrl: json['avatarUrl'] as String?,
     );
   }
 
@@ -44,7 +56,6 @@ class AppUserModel {
   final String? phone;
   final String? address;
   final String? avatarUrl;
-  final double savingsGoalAmount;
 
   /// `full_name` is included so it stays in sync for any code that still
   /// reads that column directly.
@@ -69,6 +80,5 @@ class AppUserModel {
         phone: phone,
         address: address,
         avatarUrl: avatarUrl,
-        savingsGoalAmount: savingsGoalAmount,
       );
 }

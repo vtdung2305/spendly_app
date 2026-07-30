@@ -512,6 +512,72 @@ abstract class AppLocalizations {
   /// **'Đăng nhập'**
   String get forgotPasswordLoginLink;
 
+  /// No description provided for @verifyOtpTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xác thực email'**
+  String get verifyOtpTitle;
+
+  /// No description provided for @verifyOtpSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chúng tôi đã gửi mã 6 số đến'**
+  String get verifyOtpSubtitle;
+
+  /// No description provided for @verifyOtpCodeInvalidError.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mã xác thực không đúng hoặc đã hết hạn'**
+  String get verifyOtpCodeInvalidError;
+
+  /// No description provided for @verifyOtpTooManyAttemptsError.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bạn đã nhập sai quá nhiều lần. Vui lòng gửi lại mã mới.'**
+  String get verifyOtpTooManyAttemptsError;
+
+  /// No description provided for @verifyOtpExpiresInLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mã hết hạn sau {time}'**
+  String verifyOtpExpiresInLabel(String time);
+
+  /// No description provided for @verifyOtpSubmitButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xác thực'**
+  String get verifyOtpSubmitButton;
+
+  /// No description provided for @verifyOtpResendPrompt.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không nhận được mã?'**
+  String get verifyOtpResendPrompt;
+
+  /// No description provided for @verifyOtpResendLink.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gửi lại'**
+  String get verifyOtpResendLink;
+
+  /// No description provided for @verifyOtpChangeEmailLink.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đổi email khác'**
+  String get verifyOtpChangeEmailLink;
+
+  /// No description provided for @verifyOtpResentSnackbar.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã gửi lại mã xác thực'**
+  String get verifyOtpResentSnackbar;
+
+  /// No description provided for @verifyOtpVerifiedSnackbar.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xác thực thành công'**
+  String get verifyOtpVerifiedSnackbar;
+
   /// No description provided for @authInvalidEmail.
   ///
   /// In vi, this message translates to:
@@ -769,6 +835,12 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Chưa chọn'**
   String get addTransactionCategoryUnselectedLabel;
+
+  /// No description provided for @addTransactionAddCategoryTile.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm'**
+  String get addTransactionAddCategoryTile;
 
   /// No description provided for @addTransactionHintChooseCategory.
   ///
@@ -1232,6 +1304,12 @@ abstract class AppLocalizations {
   /// **'Quản lý thu nhập'**
   String get profileIncomeManagementLabel;
 
+  /// No description provided for @profileCategoryManagementLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh mục'**
+  String get profileCategoryManagementLabel;
+
   /// No description provided for @profileSettingsLabel.
   ///
   /// In vi, this message translates to:
@@ -1645,6 +1723,180 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Đã lưu'**
   String get feedbackKitButtonSuccess;
+
+  /// No description provided for @categoryListPageTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh mục'**
+  String get categoryListPageTitle;
+
+  /// No description provided for @categoryCountLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} danh mục chi tiêu · chạm để sửa'**
+  String categoryCountLabel(int count);
+
+  /// No description provided for @categoryUsageCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} giao dịch tháng này'**
+  String categoryUsageCount(int count);
+
+  /// No description provided for @categoryUsageNone.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có giao dịch'**
+  String get categoryUsageNone;
+
+  /// No description provided for @categoryAddNewButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm danh mục mới'**
+  String get categoryAddNewButton;
+
+  /// No description provided for @categoryListEmptyMessage.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có danh mục nào.\nNhấn \"Thêm danh mục mới\" để tạo danh mục đầu tiên.'**
+  String get categoryListEmptyMessage;
+
+  /// No description provided for @categoryEditPageTitleCreate.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm danh mục'**
+  String get categoryEditPageTitleCreate;
+
+  /// No description provided for @categoryEditPageTitleEdit.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sửa danh mục'**
+  String get categoryEditPageTitleEdit;
+
+  /// No description provided for @categoryPreviewLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xem trước'**
+  String get categoryPreviewLabel;
+
+  /// No description provided for @categoryPreviewPlaceholder.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh mục mới'**
+  String get categoryPreviewPlaceholder;
+
+  /// No description provided for @categoryNameLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tên danh mục'**
+  String get categoryNameLabel;
+
+  /// No description provided for @categoryNameHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ví dụ: Cà phê'**
+  String get categoryNameHint;
+
+  /// No description provided for @categoryNameDuplicateError.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tên danh mục này đã tồn tại'**
+  String get categoryNameDuplicateError;
+
+  /// No description provided for @categoryColorLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Màu nhận diện'**
+  String get categoryColorLabel;
+
+  /// No description provided for @categoryIconLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Biểu tượng'**
+  String get categoryIconLabel;
+
+  /// No description provided for @categoryIconCountLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} biểu tượng'**
+  String categoryIconCountLabel(int count);
+
+  /// No description provided for @categoryIconGroupFood.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ăn uống'**
+  String get categoryIconGroupFood;
+
+  /// No description provided for @categoryIconGroupShopping.
+  ///
+  /// In vi, this message translates to:
+  /// **'Mua sắm'**
+  String get categoryIconGroupShopping;
+
+  /// No description provided for @categoryIconGroupTransport.
+  ///
+  /// In vi, this message translates to:
+  /// **'Di chuyển'**
+  String get categoryIconGroupTransport;
+
+  /// No description provided for @categoryIconGroupHome.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sinh hoạt'**
+  String get categoryIconGroupHome;
+
+  /// No description provided for @categoryIconGroupOther.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khác'**
+  String get categoryIconGroupOther;
+
+  /// No description provided for @categorySaveButtonCreate.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tạo danh mục'**
+  String get categorySaveButtonCreate;
+
+  /// No description provided for @categorySaveButtonUpdate.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cập nhật'**
+  String get categorySaveButtonUpdate;
+
+  /// No description provided for @categoryDeleteButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xóa danh mục này'**
+  String get categoryDeleteButton;
+
+  /// No description provided for @categoryDeleteConfirmTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xóa danh mục?'**
+  String get categoryDeleteConfirmTitle;
+
+  /// No description provided for @categoryDeleteConfirmDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hành động này không thể hoàn tác. Danh mục sẽ bị xóa vĩnh viễn.'**
+  String get categoryDeleteConfirmDesc;
+
+  /// No description provided for @categoryCreatedSnackbar.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã thêm danh mục mới'**
+  String get categoryCreatedSnackbar;
+
+  /// No description provided for @categoryUpdatedSnackbar.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã cập nhật danh mục'**
+  String get categoryUpdatedSnackbar;
+
+  /// No description provided for @categoryDeletedSnackbar.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã xóa danh mục'**
+  String get categoryDeletedSnackbar;
 }
 
 class _AppLocalizationsDelegate

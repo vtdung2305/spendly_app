@@ -8,14 +8,25 @@ import 'package:spendly_app/shared/components/buttons/app_button.dart';
 import 'package:spendly_app/shared/components/buttons/bordered_icon_button.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
 import 'package:spendly_app/features/add_transaction/presentation/widgets/amount_input.dart';
-import 'package:spendly_app/features/add_transaction/presentation/widgets/expense_category_grid.dart';
+import 'package:spendly_app/features/add_transaction/presentation/widgets/category_picker_grid.dart';
 import 'package:spendly_app/features/budget/presentation/viewmodel/add_budget_cubit.dart';
 import 'package:spendly_app/features/budget/presentation/viewmodel/add_budget_state.dart';
 
 /// Screen 9b — set a new monthly limit for a category without one yet.
 /// Presented as a full-screen push (not a bottom sheet), per design handoff.
-class AddBudgetPage extends StatelessWidget {
+class AddBudgetPage extends StatefulWidget {
   const AddBudgetPage({super.key});
+
+  @override
+  State<AddBudgetPage> createState() => _AddBudgetPageState();
+}
+
+class _AddBudgetPageState extends State<AddBudgetPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<AddBudgetCubit>().loadCategories();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +92,8 @@ class AddBudgetPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.smMd),
-                        ExpenseCategoryGrid(
+                        CategoryPickerGrid(
+                          categories: state.categories,
                           selected: state.category,
                           onSelected: cubit.selectCategory,
                         ),

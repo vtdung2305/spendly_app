@@ -5,10 +5,8 @@ import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_typography.dart';
 import 'package:spendly_app/core/utils/currency_formatter.dart';
+import 'package:spendly_app/features/category_management/presentation/mappers/category_icon_ui.dart';
 import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/expense_category_ui.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/income_source_ui.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/transaction_ui.dart';
 
 /// Shared list row for Dashboard "Recent Transactions" and Transaction
 /// History — 42px rounded-12 icon tile + name + "category · date" + amount.
@@ -25,9 +23,9 @@ class TransactionRow extends StatelessWidget {
     final isIncome = transaction.type == TransactionType.income;
     final tintColor = isIncome ? colors.successTint : colors.primaryTint;
     final iconColor = isIncome ? colors.success : colors.primary;
-    final icon = isIncome
-        ? transaction.incomeSource!.icon
-        : transaction.expenseCategory!.icon;
+    final icon = transaction.category == null
+        ? Icons.category_rounded
+        : categoryIconFor(transaction.category!.iconName);
     final amountColor = isIncome ? colors.success : colors.danger;
     final amountPrefix = isIncome ? '+' : '-';
 
@@ -57,14 +55,14 @@ class TransactionRow extends StatelessWidget {
                 Text(
                   transaction.note?.isNotEmpty == true
                       ? transaction.note!
-                      : transaction.displayLabelText(context),
+                      : transaction.displayLabel,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${transaction.displayLabelText(context)} · ${DateFormat('dd/MM').format(transaction.date)}',
+                  '${transaction.displayLabel} · ${DateFormat('dd/MM').format(transaction.date)}',
                   style: textTheme.bodySmall
                       ?.copyWith(color: colors.textTertiary, fontSize: 11.5),
                 ),

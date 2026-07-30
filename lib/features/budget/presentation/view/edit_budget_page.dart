@@ -13,7 +13,7 @@ import 'package:spendly_app/shared/components/buttons/app_button.dart';
 import 'package:spendly_app/shared/components/buttons/bordered_icon_button.dart';
 import 'package:spendly_app/shared/components/dialogs/app_confirm_dialog.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/expense_category_ui.dart';
+import 'package:spendly_app/features/category_management/presentation/mappers/category_icon_ui.dart';
 import 'package:spendly_app/features/budget/presentation/viewmodel/edit_budget_cubit.dart';
 import 'package:spendly_app/features/budget/presentation/viewmodel/edit_budget_state.dart';
 
@@ -122,8 +122,11 @@ class EditBudgetPage extends StatelessWidget {
                                   color: colors.surfaceAlt,
                                   borderRadius: BorderRadius.circular(13),
                                 ),
-                                child: Icon(item.category.icon,
-                                    size: 21, color: item.category.ownColor),
+                                child: Icon(
+                                    categoryIconFor(item.category.iconName),
+                                    size: 21,
+                                    color: categoryColorFromHex(
+                                        item.category.colorHex)),
                               ),
                               const SizedBox(width: AppSpacing.smMd),
                               Expanded(
@@ -131,7 +134,7 @@ class EditBudgetPage extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      item.category.labelText(context),
+                                      item.category.label,
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleSmall

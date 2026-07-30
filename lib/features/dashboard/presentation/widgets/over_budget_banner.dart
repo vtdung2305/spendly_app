@@ -4,7 +4,6 @@ import 'package:spendly_app/core/localization/app_localizations_x.dart';
 import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/expense_category_ui.dart';
 import 'package:spendly_app/features/budget/domain/entities/budget_item.dart';
 
 /// Over-budget warning row shown on Dashboard when a category exceeds its
@@ -39,7 +38,7 @@ class OverBudgetBanner extends StatelessWidget {
                 children: [
                   Text(
                     context.l10n.dashboardOverBudgetText(
-                      item.category.labelText(context),
+                      item.category.label,
                       (item.usedPercent - 100).toString(),
                     ),
                     style: Theme.of(context)

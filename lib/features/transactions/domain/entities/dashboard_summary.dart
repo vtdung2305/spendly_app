@@ -1,9 +1,19 @@
-import 'chart_category_group.dart';
+import 'package:spendly_app/features/category_management/domain/entities/category.dart';
 import 'transaction.dart';
 
+/// One slice of a category breakdown pie/legend. [category] is null only
+/// when [isOther] — the aggregated remainder past the top-N real categories.
 class CategoryShare {
-  const CategoryShare({required this.group, required this.percent});
-  final ChartCategoryGroup group;
+  const CategoryShare({
+    this.category,
+    this.isOther = false,
+    required this.amount,
+    required this.percent,
+  });
+
+  final Category? category;
+  final bool isOther;
+  final double amount;
   final double percent;
 }
 

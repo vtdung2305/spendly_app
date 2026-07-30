@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:spendly_app/features/transactions/domain/entities/expense_category.dart';
-import 'package:spendly_app/features/transactions/domain/entities/income_source.dart';
+import 'package:spendly_app/features/category_management/domain/entities/category.dart';
+import 'package:spendly_app/features/category_management/domain/usecases/get_categories_usecase.dart';
 import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
 import 'package:spendly_app/features/transactions/domain/usecases/add_transaction_usecase.dart';
 import 'package:spendly_app/features/transactions/domain/usecases/update_transaction_usecase.dart';
@@ -9,6 +9,7 @@ import 'add_transaction_state.dart';
 
 class AddTransactionCubit extends Cubit<AddTransactionState> {
   AddTransactionCubit(
+    this._getCategoriesUseCase,
     this._addTransactionUseCase,
     this._updateTransactionUseCase, {
     TransactionType initialTab = TransactionType.expense,
@@ -18,8 +19,7 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
           existingTransaction != null
               ? AddTransactionState(
                   type: existingTransaction.type,
-                  expenseCategory: existingTransaction.expenseCategory,
-                  incomeSource: existingTransaction.incomeSource,
+                  category: existingTransaction.category,
                   amount: existingTransaction.amount,
                   date: existingTransaction.date,
                   note: existingTransaction.note ?? '',
@@ -27,6 +27,7 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
               : AddTransactionState(type: initialTab, date: DateTime.now()),
         );
 
+  final GetCategoriesUseCase _getCategoriesUseCase;
   final AddTransactionUseCase _addTransactionUseCase;
   final UpdateTransactionUseCase _updateTransactionUseCase;
   final Transaction? _existingTransaction;
@@ -35,16 +36,24 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
   double get initialAmount => _existingTransaction?.amount ?? 0;
   String get initialNote => _existingTransaction?.note ?? '';
 
+  Future<void> loadCategories() async {
+    final expenseResult =
+        await _getCategoriesUseCase(type: CategoryType.expense);
+    final incomeResult = await _getCategoriesUseCase(type: CategoryType.income);
+    final expenseCategories = expenseResult.fold((_) => <Category>[], (c) => c);
+    final incomeCategories = incomeResult.fold((_) => <Category>[], (c) => c);
+    emit(state.copyWith(
+      expenseCategories: expenseCategories,
+      incomeCategories: incomeCategories,
+    ));
+  }
+
   void selectTab(TransactionType type) {
-    emit(state.copyWith(type: type));
+    emit(state.copyWith(type: type, clearCategory: true));
   }
 
-  void selectExpenseCategory(ExpenseCategory category) {
-    emit(state.copyWith(expenseCategory: category));
-  }
-
-  void selectIncomeSource(IncomeSource source) {
-    emit(state.copyWith(incomeSource: source));
+  void selectCategory(Category category) {
+    emit(state.copyWith(category: category));
   }
 
   void setAmount(double amount) {
@@ -69,10 +78,7 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
       type: state.type,
       amount: state.amount,
       date: state.date ?? DateTime.now(),
-      expenseCategory:
-          state.type == TransactionType.expense ? state.expenseCategory : null,
-      incomeSource:
-          state.type == TransactionType.income ? state.incomeSource : null,
+      category: state.category,
       note: state.note.isEmpty ? null : state.note,
     );
 

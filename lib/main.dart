@@ -14,10 +14,12 @@ import 'l10n/app_localizations.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EnvConfig.load();
-  await Supabase.initialize(
-    url: EnvConfig.supabaseUrl,
-    publishableKey: EnvConfig.supabaseAnonKey,
-  );
+  if (EnvConfig.dataSource == DataSourceMode.supabase) {
+    await Supabase.initialize(
+      url: EnvConfig.supabaseUrl,
+      publishableKey: EnvConfig.supabaseAnonKey,
+    );
+  }
   await configureDependencies();
   runApp(const SpendlyApp());
 }

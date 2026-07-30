@@ -7,6 +7,8 @@ import 'package:spendly_app/features/add_transaction/presentation/viewmodel/add_
 import 'package:spendly_app/features/authentication/presentation/view/forgot_password_page.dart';
 import 'package:spendly_app/features/authentication/presentation/view/login_page.dart';
 import 'package:spendly_app/features/authentication/presentation/view/register_page.dart';
+import 'package:spendly_app/features/authentication/presentation/view/verify_otp_page.dart';
+import 'package:spendly_app/features/authentication/presentation/viewmodel/verify_otp_args.dart';
 import 'package:spendly_app/features/budget/presentation/view/add_budget_page.dart';
 import 'package:spendly_app/features/budget/presentation/view/budget_page.dart';
 import 'package:spendly_app/features/budget/domain/entities/budget_item.dart';
@@ -16,6 +18,11 @@ import 'package:spendly_app/features/budget/presentation/viewmodel/budget_cubit.
 import 'package:spendly_app/features/budget/presentation/viewmodel/edit_budget_cubit.dart';
 import 'package:spendly_app/features/calendar/presentation/view/calendar_page.dart';
 import 'package:spendly_app/features/calendar/presentation/viewmodel/calendar_cubit.dart';
+import 'package:spendly_app/features/category_management/presentation/view/category_edit_page.dart';
+import 'package:spendly_app/features/category_management/presentation/view/category_list_page.dart';
+import 'package:spendly_app/features/category_management/presentation/viewmodel/category_cubit.dart';
+import 'package:spendly_app/features/category_management/presentation/viewmodel/category_edit_args.dart';
+import 'package:spendly_app/features/category_management/presentation/viewmodel/category_edit_cubit.dart';
 import 'package:spendly_app/features/dashboard/presentation/view/dashboard_page.dart';
 import 'package:spendly_app/features/dashboard/presentation/viewmodel/dashboard_cubit.dart';
 import 'package:spendly_app/features/feedback_kit/presentation/view/feedback_kit_page.dart';
@@ -77,11 +84,16 @@ abstract class AppRouter {
             _fadePage(state, const ForgotPasswordPage()),
       ),
       GoRoute(
+        path: '/verify-otp',
+        pageBuilder: (context, state) =>
+            _fadePage(state, VerifyOtpPage(args: state.extra as VerifyOtpArgs)),
+      ),
+      GoRoute(
         path: '/dashboard',
         pageBuilder: (context, state) => _fadePage(
           state,
           BlocProvider(
-            create: (_) => DashboardCubit(getIt(), getIt(), getIt()),
+            create: (_) => DashboardCubit(getIt(), getIt(), getIt(), getIt()),
             child: const DashboardPage(),
           ),
         ),
@@ -96,6 +108,7 @@ abstract class AppRouter {
             state,
             BlocProvider(
               create: (_) => AddTransactionCubit(
+                getIt(),
                 getIt(),
                 getIt(),
                 initialTab: initialTab,
@@ -141,7 +154,7 @@ abstract class AppRouter {
         pageBuilder: (context, state) => _fadePage(
           state,
           BlocProvider(
-            create: (_) => AddBudgetCubit(getIt()),
+            create: (_) => AddBudgetCubit(getIt(), getIt()),
             child: const AddBudgetPage(),
           ),
         ),
@@ -180,6 +193,32 @@ abstract class AppRouter {
       GoRoute(
         path: '/profile',
         pageBuilder: (context, state) => _fadePage(state, const ProfilePage()),
+      ),
+      GoRoute(
+        path: '/categories',
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          BlocProvider(
+            create: (_) => CategoryCubit(getIt()),
+            child: const CategoryListPage(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/categories/edit',
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          BlocProvider(
+            create: (_) => CategoryEditCubit(
+              getIt(),
+              getIt(),
+              getIt(),
+              getIt(),
+              (state.extra as CategoryEditArgs?) ?? const CategoryEditArgs(),
+            ),
+            child: const CategoryEditPage(),
+          ),
+        ),
       ),
       GoRoute(
         path: '/profile/edit',

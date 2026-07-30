@@ -224,6 +224,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotPasswordLoginLink => 'Log in';
 
   @override
+  String get verifyOtpTitle => 'Verify email';
+
+  @override
+  String get verifyOtpSubtitle => 'We sent a 6-digit code to';
+
+  @override
+  String get verifyOtpCodeInvalidError => 'Incorrect or expired code';
+
+  @override
+  String get verifyOtpTooManyAttemptsError =>
+      'Too many incorrect attempts. Please request a new code.';
+
+  @override
+  String verifyOtpExpiresInLabel(String time) {
+    return 'Code expires in $time';
+  }
+
+  @override
+  String get verifyOtpSubmitButton => 'Verify';
+
+  @override
+  String get verifyOtpResendPrompt => 'Didn\'t receive a code?';
+
+  @override
+  String get verifyOtpResendLink => 'Resend';
+
+  @override
+  String get verifyOtpChangeEmailLink => 'Use a different email';
+
+  @override
+  String get verifyOtpResentSnackbar => 'A new code has been sent';
+
+  @override
+  String get verifyOtpVerifiedSnackbar => 'Verified successfully';
+
+  @override
   String get authInvalidEmail => 'Invalid email';
 
   @override
@@ -363,6 +399,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTransactionCategoryUnselectedLabel => 'Not selected';
+
+  @override
+  String get addTransactionAddCategoryTile => 'Add';
 
   @override
   String get addTransactionHintChooseCategory =>
@@ -624,6 +663,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileIncomeManagementLabel => 'Manage income';
 
   @override
+  String get profileCategoryManagementLabel => 'Categories';
+
+  @override
   String get profileSettingsLabel => 'Settings';
 
   @override
@@ -840,4 +882,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackKitButtonSuccess => 'Saved';
+
+  @override
+  String get categoryListPageTitle => 'Categories';
+
+  @override
+  String categoryCountLabel(int count) {
+    return '$count expense categories · tap to edit';
+  }
+
+  @override
+  String categoryUsageCount(int count) {
+    return '$count transactions this month';
+  }
+
+  @override
+  String get categoryUsageNone => 'No transactions yet';
+
+  @override
+  String get categoryAddNewButton => 'Add new category';
+
+  @override
+  String get categoryListEmptyMessage =>
+      'No categories yet.\nTap \"Add new category\" to create your first one.';
+
+  @override
+  String get categoryEditPageTitleCreate => 'Add category';
+
+  @override
+  String get categoryEditPageTitleEdit => 'Edit category';
+
+  @override
+  String get categoryPreviewLabel => 'Preview';
+
+  @override
+  String get categoryPreviewPlaceholder => 'New category';
+
+  @override
+  String get categoryNameLabel => 'Category name';
+
+  @override
+  String get categoryNameHint => 'e.g. Coffee';
+
+  @override
+  String get categoryNameDuplicateError => 'This category name already exists';
+
+  @override
+  String get categoryColorLabel => 'Color';
+
+  @override
+  String get categoryIconLabel => 'Icon';
+
+  @override
+  String categoryIconCountLabel(int count) {
+    return '$count icons';
+  }
+
+  @override
+  String get categoryIconGroupFood => 'Food & Drink';
+
+  @override
+  String get categoryIconGroupShopping => 'Shopping';
+
+  @override
+  String get categoryIconGroupTransport => 'Transport';
+
+  @override
+  String get categoryIconGroupHome => 'Home';
+
+  @override
+  String get categoryIconGroupOther => 'Other';
+
+  @override
+  String get categorySaveButtonCreate => 'Create category';
+
+  @override
+  String get categorySaveButtonUpdate => 'Update';
+
+  @override
+  String get categoryDeleteButton => 'Delete this category';
+
+  @override
+  String get categoryDeleteConfirmTitle => 'Delete category?';
+
+  @override
+  String get categoryDeleteConfirmDesc =>
+      'This action cannot be undone. The category will be permanently deleted.';
+
+  @override
+  String get categoryCreatedSnackbar => 'New category added';
+
+  @override
+  String get categoryUpdatedSnackbar => 'Category updated';
+
+  @override
+  String get categoryDeletedSnackbar => 'Category deleted';
 }

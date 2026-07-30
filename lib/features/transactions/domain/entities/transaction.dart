@@ -1,18 +1,16 @@
-import 'expense_category.dart';
-import 'income_source.dart';
+import 'package:spendly_app/features/category_management/domain/entities/category.dart';
 
 enum TransactionType { expense, income }
 
-/// A single income/expense entry. Exactly one of [expenseCategory] /
-/// [incomeSource] is non-null, matching [type].
+/// A single income/expense entry, categorized by a dynamic [Category]
+/// (expense-typed for [TransactionType.expense], income-typed otherwise).
 class Transaction {
   const Transaction({
     required this.id,
     required this.type,
     required this.amount,
     required this.date,
-    this.expenseCategory,
-    this.incomeSource,
+    this.category,
     this.note,
   });
 
@@ -20,11 +18,8 @@ class Transaction {
   final TransactionType type;
   final double amount;
   final DateTime date;
-  final ExpenseCategory? expenseCategory;
-  final IncomeSource? incomeSource;
+  final Category? category;
   final String? note;
 
-  String get displayLabel => type == TransactionType.expense
-      ? expenseCategory!.label
-      : incomeSource!.label;
+  String get displayLabel => category?.label ?? '';
 }

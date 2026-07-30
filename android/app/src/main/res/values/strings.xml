@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Facebook Login SDK config. PLACEHOLDER — replace all three values
+         with your real Facebook Developer App's App ID / Client Token
+         (Settings → Basic) once you have one; facebook_app_id and
+         fb_login_protocol_scheme must both encode the same App ID. -->
+    <string name="facebook_app_id">YOUR_FACEBOOK_APP_ID</string>
+    <string name="facebook_client_token">YOUR_FACEBOOK_CLIENT_TOKEN</string>
+    <string name="fb_login_protocol_scheme">fbYOUR_FACEBOOK_APP_ID</string>
+</resources>

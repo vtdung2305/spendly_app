@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
 import 'package:spendly_app/core/theme/app_colors.dart';
@@ -7,22 +8,33 @@ import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/shared/components/buttons/app_button.dart';
 import 'package:spendly_app/shared/components/buttons/bordered_icon_button.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
+import 'package:spendly_app/features/category_management/domain/entities/category.dart';
+import 'package:spendly_app/features/category_management/presentation/viewmodel/category_edit_args.dart';
 import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
 import 'package:spendly_app/features/add_transaction/presentation/viewmodel/add_transaction_cubit.dart';
 import 'package:spendly_app/features/add_transaction/presentation/viewmodel/add_transaction_state.dart';
+import 'package:spendly_app/features/add_transaction/presentation/widgets/category_picker_grid.dart';
 import 'package:spendly_app/features/add_transaction/presentation/widgets/date_note_card.dart';
 import 'package:spendly_app/features/add_transaction/presentation/widgets/date_picker_sheet.dart';
-import 'package:spendly_app/features/add_transaction/presentation/widgets/expense_category_grid.dart';
-import 'package:spendly_app/features/add_transaction/presentation/widgets/income_source_list.dart';
 import 'package:spendly_app/features/add_transaction/presentation/widgets/transaction_amount_card.dart';
 import 'package:spendly_app/features/add_transaction/presentation/widgets/transaction_type_segmented_control.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/expense_category_ui.dart';
 
 /// Unified Add Expense/Income screen (screens 5 & 6 in the design handoff) —
 /// entry point sets the default tab via [AddTransactionCubit]'s initialTab.
 /// Presented as a bottom-sheet-style push (slide-up) per design.
-class AddTransactionPage extends StatelessWidget {
+class AddTransactionPage extends StatefulWidget {
   const AddTransactionPage({super.key});
+
+  @override
+  State<AddTransactionPage> createState() => _AddTransactionPageState();
+}
+
+class _AddTransactionPageState extends State<AddTransactionPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<AddTransactionCubit>().loadCategories();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,10 +165,7 @@ class AddTransactionPage extends StatelessWidget {
   }
 
   String _saveHint(BuildContext context, AddTransactionState state) {
-    final hasSelection = state.type == TransactionType.expense
-        ? state.expenseCategory != null
-        : state.incomeSource != null;
-    if (!hasSelection) {
+    if (state.category == null) {
       return state.type == TransactionType.expense
           ? context.l10n.addTransactionHintChooseCategory
           : context.l10n.addTransactionHintChooseSource;
@@ -176,6 +185,13 @@ class AddTransactionPage extends StatelessWidget {
       builder: (_) => DatePickerSheet(initialDate: currentDate),
     );
     if (picked != null) cubit.setDate(picked);
+  }
+
+  Future<void> _openCreateCategory(BuildContext context,
+      AddTransactionCubit cubit, CategoryType type) async {
+    await context.push('/categories/edit',
+        extra: CategoryEditArgs(createType: type));
+    if (context.mounted) cubit.loadCategories();
   }
 
   Widget _buildCategorySection(
@@ -198,7 +214,7 @@ class AddTransactionPage extends StatelessWidget {
             Text(label, style: Theme.of(context).textTheme.titleSmall),
             if (isExpense)
               Text(
-                state.expenseCategory?.labelText(context) ??
+                state.category?.label ??
                     context.l10n.addTransactionCategoryUnselectedLabel,
                 style: TextStyle(
                     fontSize: 11.5, color: context.colors.textTertiary),
@@ -207,14 +223,19 @@ class AddTransactionPage extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.smMd),
         if (isExpense)
-          ExpenseCategoryGrid(
-            selected: state.expenseCategory,
-            onSelected: cubit.selectExpenseCategory,
+          CategoryPickerGrid(
+            categories: state.expenseCategories,
+            selected: state.category,
+            onSelected: cubit.selectCategory,
+            onAddCategory: () =>
+                _openCreateCategory(context, cubit, CategoryType.expense),
           )
         else
-          IncomeSourceList(
-            selected: state.incomeSource,
-            onSelected: cubit.selectIncomeSource,
+          CategoryPickerGrid(
+            categories: state.incomeCategories,
+            selected: state.category,
+            onSelected: cubit.selectCategory,
+            style: CategoryPickerStyle.list,
           ),
       ],
     );

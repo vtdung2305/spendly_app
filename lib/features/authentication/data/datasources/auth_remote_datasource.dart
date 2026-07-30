@@ -30,6 +30,11 @@ class AuthRemoteDataSource {
         'Đăng nhập Google chưa được hỗ trợ trong phiên bản này');
   }
 
+  Future<AppUserModel> signInWithFacebook() {
+    throw const AuthException(
+        'Đăng nhập Facebook chưa được hỗ trợ trong phiên bản này');
+  }
+
   Future<AppUserModel> registerWithEmail(String email, String password) async {
     final response =
         await _client.auth.signUp(email: email, password: password);
@@ -49,6 +54,18 @@ class AuthRemoteDataSource {
     // The `on_auth_user_created` trigger inserts the profiles row as part of
     // the same transaction as the auth.users insert, so it's already there.
     return _fetchProfile(user.id);
+  }
+
+  /// Supabase mode has no 6-digit OTP concept — email confirmation is a
+  /// link the user clicks (see [registerWithEmail]'s throw path below).
+  Future<AppUserModel> verifyOtp(String email, String code) {
+    throw const AuthException(
+        'Xác thực bằng mã OTP chưa được hỗ trợ ở chế độ Supabase');
+  }
+
+  Future<void> resendOtp(String email) {
+    throw const AuthException(
+        'Xác thực bằng mã OTP chưa được hỗ trợ ở chế độ Supabase');
   }
 
   Future<void> signOut() => _client.auth.signOut();
@@ -74,14 +91,6 @@ class AuthRemoteDataSource {
       'email': email,
       'address': address,
     }).eq('id', userId);
-    return _fetchProfile(userId);
-  }
-
-  Future<AppUserModel> updateSavingsGoal(double amount) async {
-    final userId = _client.auth.currentUser!.id;
-    await _client
-        .from('profiles')
-        .update({'savings_goal_amount': amount}).eq('id', userId);
     return _fetchProfile(userId);
   }
 

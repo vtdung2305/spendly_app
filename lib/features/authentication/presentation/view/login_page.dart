@@ -11,6 +11,8 @@ import 'package:spendly_app/shared/components/buttons/app_button.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
 import 'package:spendly_app/shared/components/textfields/app_text_field.dart';
 import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_cubit.dart';
+import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_state.dart';
+import 'package:spendly_app/features/authentication/presentation/viewmodel/verify_otp_args.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,12 +28,21 @@ class _LoginPageState extends State<LoginPage> {
   String? _passwordError;
   bool _submitting = false;
   bool _googleSubmitting = false;
+  bool _facebookSubmitting = false;
 
-  void _submitFacebookLogin() {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-          content: Text(context.l10n.loginFeatureInDevelopmentSnackbar)));
+  Future<void> _submitFacebookLogin() async {
+    setState(() => _facebookSubmitting = true);
+    final cubit = context.read<AuthCubit>();
+    final error = await cubit.signInWithFacebook();
+    if (!mounted) return;
+    setState(() => _facebookSubmitting = false);
+    if (error != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(error)));
+    } else if (cubit.state is AuthAuthenticated) {
+      context.go('/dashboard');
+    }
   }
 
   @override
@@ -47,11 +58,18 @@ class _LoginPageState extends State<LoginPage> {
       _emailError = null;
       _passwordError = null;
     });
-    final error = await context.read<AuthCubit>().signInWithEmail(
+    final result = await context.read<AuthCubit>().signInWithEmail(
           _emailController.text,
           _passwordController.text,
         );
     if (!mounted) return;
+    if (result.otpEmail != null) {
+      setState(() => _submitting = false);
+      context.push('/verify-otp',
+          extra: VerifyOtpArgs(email: result.otpEmail!, autoResend: true));
+      return;
+    }
+    final error = result.errorMessage;
     setState(() {
       _submitting = false;
       // Client-side validation errors are field-specific ("Email không hợp
@@ -62,23 +80,26 @@ class _LoginPageState extends State<LoginPage> {
       _passwordError =
           error != null && error.contains('Mật khẩu') ? error : null;
     });
-    if (error == null) {
+    if (result.success) {
       context.go('/dashboard');
     } else if (_emailError == null && _passwordError == null) {
-      AppSnackbar.showError(context, error);
+      AppSnackbar.showError(context, error!);
     }
   }
 
   Future<void> _submitGoogleLogin() async {
     setState(() => _googleSubmitting = true);
-    final error = await context.read<AuthCubit>().signInWithGoogle();
+    final cubit = context.read<AuthCubit>();
+    final error = await cubit.signInWithGoogle();
     if (!mounted) return;
     setState(() => _googleSubmitting = false);
     if (error != null) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(content: Text(error)));
-    } else {
+    } else if (cubit.state is AuthAuthenticated) {
+      // A null error can also mean the user simply cancelled the native
+      // picker — only navigate on an actual successful sign-in.
       context.go('/dashboard');
     }
   }
@@ -223,7 +244,8 @@ class _LoginPageState extends State<LoginPage> {
                       height: 52,
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: _submitFacebookLogin,
+                        onPressed:
+                            _facebookSubmitting ? null : _submitFacebookLogin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1877F2),
                           foregroundColor: Colors.white,
@@ -232,8 +254,18 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           elevation: 0,
                         ),
-                        icon: const Icon(Icons.facebook,
-                            size: 22, color: Colors.white),
+                        icon: _facebookSubmitting
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor:
+                                      AlwaysStoppedAnimation(Colors.white),
+                                ),
+                              )
+                            : const Icon(Icons.facebook,
+                                size: 22, color: Colors.white),
                         label: Text(
                           context.l10n.loginContinueWithFacebookButton,
                           style: textTheme.titleSmall

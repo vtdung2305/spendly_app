@@ -11,7 +11,6 @@ import 'package:spendly_app/shared/components/loading/app_loading_indicator.dart
 import 'package:spendly_app/shared/components/navigation/app_bottom_nav_bar.dart';
 import 'package:spendly_app/shared/components/navigation/app_fab.dart';
 import 'package:spendly_app/features/transactions/domain/entities/report_period.dart';
-import 'package:spendly_app/features/transactions/presentation/mappers/chart_category_group_ui.dart';
 import 'package:spendly_app/features/reports/presentation/viewmodel/reports_cubit.dart';
 import 'package:spendly_app/features/reports/presentation/viewmodel/reports_state.dart';
 import 'package:spendly_app/features/reports/presentation/widgets/report_period_tabs.dart';
@@ -94,9 +93,9 @@ class _ReportsPageState extends State<ReportsPage> {
                                   StatMiniCard(
                                     label: context
                                         .l10n.reportsStatTopCategoryLabel,
-                                    value: summary.topCategoryGroup
-                                            ?.labelText(context) ??
-                                        '—',
+                                    value:
+                                        summary.topCategory?.category?.label ??
+                                            '—',
                                   ),
                                   StatMiniCard(
                                     label:
