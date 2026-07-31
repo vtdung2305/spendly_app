@@ -148,7 +148,8 @@ class UserRepository implements IUserRepository {
 
 ## Component Design Rules
 
-Tách UI thành widget nhỏ, mỗi widget 1 trách nhiệm duy nhất.
+Tách UI thành widget nhỏ, mỗi widget 1 trách nhiệm duy nhất. **Chia càng nhỏ càng tốt** — một
+page chỉ nên là nơi "compose" các widget con lại, không tự chứa UI phức tạp.
 
 ```
 Bad:  HomePage → 1000 dòng, mọi thứ nhồi vào 1 file
@@ -163,14 +164,65 @@ Good: HomePage
         └── Footer
 ```
 
+Ví dụ cấu trúc thư mục cho 1 feature sau khi tách nhỏ:
+
+```
+profile/
+│
+├── profile_page.dart            (70 lines)
+│
+├── widgets/
+│   ├── profile_header.dart      (60)
+│   ├── profile_stats.dart       (90)
+│   ├── profile_menu.dart        (120)
+│   ├── profile_avatar.dart      (45)
+│   ├── profile_info.dart        (80)
+│   └── logout_tile.dart         (35)
+```
+
+Page cuối cùng chỉ còn compose:
+
+```dart
+return Scaffold(
+  body: Column(
+    children: [
+      const PageHeader(),
+      Expanded(
+        child: ListView(
+          children: const [
+            ProfileHeader(),
+            ProfileStats(),
+            ProfileInfo(),
+            ProfileMenu(),
+            LogoutTile(),
+          ],
+        ),
+      ),
+    ],
+  ),
+);
+```
+
+Nếu widget mang tính chất chung, có thể tái sử dụng ở ≥2 nơi khác nhau → đưa vào
+`shared/components/` (xem `project-structure.md`), không để lặp lại trong từng feature.
+
 Mỗi widget: reusable, configurable qua constructor, stateless khi có thể, không hidden dependency
 (không tự đọc global singleton bên trong nếu có thể truyền qua constructor/provider).
 
 ## File Length Limit
 
-| Loại file | Giới hạn | Nếu vượt |
+Widget: đánh giá theo tier, không phải ngưỡng fail/pass đơn thuần — **càng ít dòng càng tốt**:
+
+| Số dòng widget | Đánh giá | Hành động |
+|---------------:|----------|-----------|
+| < 100 | Rất tốt | Không cần làm gì |
+| 100–200 | Bình thường, chấp nhận được | Không cần làm gì |
+| 200–350 | Nên xem xét tách widget | Cân nhắc split nếu widget có >1 trách nhiệm |
+| > 350 | Thường quá lớn, nên refactor | Split thành widget con trước khi merge |
+| > 500 | Bắt buộc chia nhỏ | Không được để nguyên — chia nhỏ thành nhiều widget |
+
+| Loại file khác | Giới hạn | Nếu vượt |
 |-----------|----------|----------|
-| Widget | 200 dòng | Split thành widget con |
 | ViewModel | 300 dòng | Tách helper method ra extension hoặc mixin, hoặc split state |
 | Repository | 300 dòng | Tách theo domain con (vd UserProfileRepository, UserAuthRepository) |
 | UseCase | 100 dòng | 1 UseCase chỉ làm đúng 1 việc — nếu dài, đang vi phạm SRP |

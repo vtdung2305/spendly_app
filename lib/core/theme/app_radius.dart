@@ -13,6 +13,9 @@ abstract class AppRadius {
   /// Bottom sheet top corners.
   static const sheet = 28.0;
 
+  /// Centered dialogs (`CenterDialog`).
+  static const dialog = 22.0;
+
   /// Pills / segmented controls / avatars.
   static const full = 999.0;
 }

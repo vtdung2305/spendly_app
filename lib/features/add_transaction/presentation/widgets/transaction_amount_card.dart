@@ -100,36 +100,45 @@ class _TransactionAmountCardState extends State<TransactionAmountCard> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(
-                isExpense ? '−' : '+',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: amountColor),
+              // Tab switching flips amountColor between danger/success
+              // instantly — TweenAnimationBuilder cross-fades it instead of
+              // hard-cutting, so it doesn't compound the tab-switch flicker.
+              TweenAnimationBuilder<Color?>(
+                tween: ColorTween(end: amountColor),
+                duration: const Duration(milliseconds: 200),
+                builder: (context, color, _) => Text(
+                  isExpense ? '−' : '+',
+                  style: TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.w700, color: color),
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: TextField(
-                  controller: _controller,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  onChanged: _handleChanged,
-                  strutStyle: const StrutStyle(fontSize: 24, height: 1.0),
-                  style: AppTypography.mono(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: amountColor),
-                  decoration: InputDecoration(
-                    hintText: '0',
-                    hintStyle: AppTypography.mono(
+                child: TweenAnimationBuilder<Color?>(
+                  tween: ColorTween(end: amountColor),
+                  duration: const Duration(milliseconds: 200),
+                  builder: (context, color, _) => TextField(
+                    controller: _controller,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    onChanged: _handleChanged,
+                    strutStyle: const StrutStyle(fontSize: 24, height: 1.0),
+                    style: AppTypography.mono(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
-                        color: colors.textTertiary),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    filled: false,
-                    isCollapsed: true,
+                        color: color ?? amountColor),
+                    decoration: InputDecoration(
+                      hintText: '0',
+                      hintStyle: AppTypography.mono(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: colors.textTertiary),
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      filled: false,
+                      isCollapsed: true,
+                    ),
                   ),
                 ),
               ),

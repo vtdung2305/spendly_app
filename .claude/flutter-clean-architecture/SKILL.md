@@ -57,7 +57,7 @@ Scripts tại `scripts/`. Copy vào `verify/` ở project root trước khi dùn
 
 | Script | Coverage | Khi nào chạy |
 |--------|----------|--------------|
-| `scripts/01-file-length-check.sh` | Widget ≤200 dòng, ViewModel ≤300, Repository ≤300, UseCase ≤100 | Sau mọi lần generate/edit file |
+| `scripts/01-file-length-check.sh` | Widget theo tier (<100 tốt, 100-200 ok, 200-350 nên xem xét, >350 warning, >500 fail), ViewModel ≤300, Repository ≤300, UseCase ≤100 | Sau mọi lần generate/edit file |
 | `scripts/02-naming-convention-validator.mjs` | PascalCase widget, `snake_case.dart` file, suffix `ViewModel`/`UseCase`/`Repository`/`I`-prefix interface | Sau generate file mới |
 | `scripts/03-forbidden-pattern-scanner.mjs` | `setState` business logic, `Provider`/`GetX` import, global mutable var, hardcode color/string/padding/fontSize, API call trong Presentation | BẮT BUỘC trước khi output — chạy đầu tiên |
 | `scripts/04-dependency-direction-checker.mjs` | Domain không import `flutter/*`, Presentation không import trực tiếp `data/`, no cross-feature import | Sau generate feature mới hoặc refactor layer |
@@ -161,5 +161,5 @@ Không output code dở dang trừ khi user yêu cầu rõ ràng.
 | Feature cần gọi API nhưng chưa có API spec/response mẫu | Hỏi shape của response, hoặc đề xuất mock trước |
 | UI có design (Figma/ảnh) nhưng thiếu breakpoint tablet/desktop | Hỏi có cần responsive 3 breakpoint hay chỉ mobile |
 | Không rõ dự án dùng GoRouter hay Navigator 1.0 sẵn có | Đọc code cũ trước, nếu vẫn không rõ thì hỏi |
-| File sắp vượt giới hạn dòng (Widget 200 / ViewModel 300 / Repo 300 / UseCase 100) | Báo cho user và đề xuất cách split trước khi viết tiếp |
+| Widget sắp vượt 200 dòng (nhất là >350) / ViewModel 300 / Repo 300 / UseCase 100 | Báo cho user và đề xuất cách split trước khi viết tiếp — widget luôn ưu tiên chia càng nhỏ càng tốt |
 | User yêu cầu dùng `setState` cho business logic, `Provider`, hoặc `GetX` | Từ chối, giải thích lý do, đề xuất Riverpod/Bloc thay thế |

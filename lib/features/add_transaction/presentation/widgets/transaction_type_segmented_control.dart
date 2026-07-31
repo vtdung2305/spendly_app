@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
-import 'package:spendly_app/core/theme/app_animation.dart';
 import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
@@ -72,8 +71,7 @@ class _Segment extends StatelessWidget {
     final colors = context.colors;
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: AppAnimation.fast,
+      child: Container(
         padding: const EdgeInsets.symmetric(vertical: 9),
         decoration: BoxDecoration(
           color: isActive ? colors.surface : Colors.transparent,

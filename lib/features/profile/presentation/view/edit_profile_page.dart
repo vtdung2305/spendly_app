@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
@@ -7,6 +8,7 @@ import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/shared/components/buttons/app_button.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
+import 'package:spendly_app/shared/components/headers/app_header.dart';
 import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_cubit.dart';
 import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_state.dart';
 
@@ -88,79 +90,87 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final textTheme = Theme.of(context).textTheme;
+    // Header has a leading back button (44px row), taller than a
+    // title-only header.
+    final headerHeight = MediaQuery.paddingOf(context).top + 76;
 
-    return Scaffold(
-      backgroundColor: colors.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenHorizontal),
-          child: Column(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: colors.background,
+        body: SizedBox.expand(
+          child: Stack(
             children: [
-              const SizedBox(height: AppSpacing.mdLg),
-              Row(
-                children: [
-                  _CloseButton(onTap: () => Navigator.of(context).pop()),
-                  const SizedBox(width: AppSpacing.md),
-                  Text(context.l10n.editProfilePageTitle,
-                      style: textTheme.titleMedium),
-                ],
-              ),
-              Expanded(
-                child: ListView(
-                  children: [
-                    const SizedBox(height: AppSpacing.lg),
-                    Center(
-                      child: _AvatarPicker(
-                        initial: _avatarInitial(),
-                        onTapCamera: () => AppSnackbar.showInfo(
-                          context,
-                          context.l10n.editProfileAvatarChangeLabel,
+              Positioned.fill(
+                top: headerHeight,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.screenHorizontal),
+                    // A single ListView — the Save button flows with the form
+                    // (6px below Address, per design) and scrolls with it,
+                    // instead of being pinned to the bottom of the available
+                    // height regardless of content length.
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      children: [
+                        const SizedBox(height: AppSpacing.lg),
+                        Center(
+                          child: _AvatarPicker(
+                            initial: _avatarInitial(),
+                            onTapCamera: () => AppSnackbar.showInfo(
+                              context,
+                              context.l10n.editProfileAvatarChangeLabel,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: AppSpacing.xl),
+                        _FormField(
+                          label: context.l10n.editProfileFirstNameLabel,
+                          controller: _firstNameController,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        _FormField(
+                          label: context.l10n.editProfileLastNameLabel,
+                          controller: _lastNameController,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        _FormField(
+                          label: context.l10n.editProfilePhoneLabel,
+                          controller: _phoneController,
+                          hint: context.l10n.editProfilePhoneHint,
+                          keyboardType: TextInputType.phone,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        _FormField(
+                          label: context.l10n.editProfileEmailLabel,
+                          controller: _emailController,
+                          hint: context.l10n.editProfileEmailHint,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        _FormField(
+                          label: context.l10n.editProfileAddressLabel,
+                          controller: _addressController,
+                          hint: context.l10n.editProfileAddressHint,
+                        ),
+                        const SizedBox(height: 6),
+                        AppButton(
+                          label: context.l10n.editProfileSaveButton,
+                          isLoading: _isSaving,
+                          onPressed: _isValid ? _save : null,
+                        ),
+                        const SizedBox(height: AppSpacing.mdLg),
+                      ],
                     ),
-                    const SizedBox(height: AppSpacing.xl),
-                    _FormField(
-                      label: context.l10n.editProfileFirstNameLabel,
-                      controller: _firstNameController,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    _FormField(
-                      label: context.l10n.editProfileLastNameLabel,
-                      controller: _lastNameController,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    _FormField(
-                      label: context.l10n.editProfilePhoneLabel,
-                      controller: _phoneController,
-                      hint: context.l10n.editProfilePhoneHint,
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    _FormField(
-                      label: context.l10n.editProfileEmailLabel,
-                      controller: _emailController,
-                      hint: context.l10n.editProfileEmailHint,
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    _FormField(
-                      label: context.l10n.editProfileAddressLabel,
-                      controller: _addressController,
-                      hint: context.l10n.editProfileAddressHint,
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                  ],
+                  ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.mdLg),
-                child: AppButton(
-                  label: context.l10n.editProfileSaveButton,
-                  isLoading: _isSaving,
-                  onPressed: _isValid ? _save : null,
-                ),
+              AppHeader(
+                title: context.l10n.editProfilePageTitle,
+                titleFontSize: 18,
+                onBack: () => Navigator.of(context).pop(),
               ),
             ],
           ),
@@ -180,32 +190,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return firstToken.isNotEmpty
         ? firstToken.substring(0, 1).toUpperCase()
         : 'U';
-  }
-}
-
-class _CloseButton extends StatelessWidget {
-  const _CloseButton({required this.onTap});
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Material(
-      color: colors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        side: BorderSide(color: colors.border),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        child: SizedBox(
-          height: 38,
-          width: 38,
-          child: Icon(Icons.close_rounded, size: 20, color: colors.textPrimary),
-        ),
-      ),
-    );
   }
 }
 

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
-import 'package:spendly_app/core/localization/weekday_labels.dart';
 import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_shadow.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/core/theme/app_typography.dart';
 import 'package:spendly_app/core/utils/currency_formatter.dart';
+import 'package:spendly_app/shared/components/calendar/month_grid.dart';
 import 'package:spendly_app/shared/components/error/app_error_view.dart';
 import 'package:spendly_app/shared/components/loading/app_loading_indicator.dart';
 import 'package:spendly_app/shared/components/navigation/app_bottom_nav_bar.dart';
@@ -29,11 +30,27 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   DateTime _currentMonth = DateTime(2026, 7);
+  final _scrollController = ScrollController();
+  bool _isScrolled = false;
 
   @override
   void initState() {
     super.initState();
     context.read<CalendarCubit>().load(_currentMonth);
+    _scrollController.addListener(_handleScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_handleScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    final isScrolled = _scrollController.offset > 0;
+    if (isScrolled != _isScrolled) setState(() => _isScrolled = isScrolled);
   }
 
   void _changeMonth(int delta) {
@@ -42,198 +59,185 @@ class _CalendarPageState extends State<CalendarPage> {
     context.read<CalendarCubit>().load(_currentMonth);
   }
 
-  void _openDay(BuildContext context, int day, int month, int year) {
+  Future<void> _openDay(
+      BuildContext context, int day, int month, int year) async {
     final cubit = context.read<CalendarCubit>();
-    cubit.selectDay(day);
-    showModalBottomSheet<void>(
+    // Await the fetch before opening the sheet so its first frame already
+    // shows the final content/height — opening it first and letting the
+    // fetch resolve afterwards (while the sheet is already visible) is what
+    // caused the sheet to visibly grow/shrink after appearing.
+    await cubit.selectDay(day);
+    if (!context.mounted) return;
+    await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => BlocProvider.value(
-        value: cubit,
-        child: DayTransactionsSheet(day: day, month: month, year: year),
+      // A local ScaffoldMessenger, as an ancestor of DayTransactionsSheet's
+      // own context, scopes its AppSnackbar calls to its own Scaffold —
+      // without it Flutter shows the SnackBar on every registered root
+      // Scaffold, duplicating it onto CalendarPage's Scaffold underneath.
+      builder: (_) => ScaffoldMessenger(
+        child: BlocProvider.value(
+          value: cubit,
+          child: DayTransactionsSheet(day: day, month: month, year: year),
+        ),
       ),
-    ).then((_) => cubit.closeDay());
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final textTheme = Theme.of(context).textTheme;
+    final topInset = MediaQuery.paddingOf(context).top;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenHorizontal),
-          child: RefreshIndicator(
-            onRefresh: () => context.read<CalendarCubit>().load(_currentMonth),
-            child: BlocBuilder<CalendarCubit, CalendarState>(
-              builder: (context, state) {
-                return switch (state) {
-                  CalendarLoading() => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        Padding(
-                          padding: EdgeInsets.only(top: AppSpacing.xxl2),
-                          child: AppLoadingIndicator(),
-                        ),
-                      ],
-                    ),
-                  CalendarError(:final message) => ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        AppErrorView(
-                          message: message,
-                          onRetry: () =>
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: BlocBuilder<CalendarCubit, CalendarState>(
+          builder: (context, state) {
+            final headerHeight = state is CalendarLoaded ? topInset + 72 : 0.0;
+            return SizedBox.expand(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    top: headerHeight,
+                    child: SafeArea(
+                      top: false,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.screenHorizontal),
+                        child: RefreshIndicator(
+                          onRefresh: () =>
                               context.read<CalendarCubit>().load(_currentMonth),
-                        ),
-                      ],
-                    ),
-                  CalendarLoaded(
-                    :final month,
-                    :final days,
-                    :final totalExpense
-                  ) =>
-                    SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: AppSpacing.mdLg),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _MonthNavButton(
-                                icon: Icons.chevron_left_rounded,
-                                onTap: () => _changeMonth(-1),
-                              ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    context.l10n.monthYearHeader(
-                                        month.month.toString(),
-                                        month.year.toString()),
-                                    style: textTheme.titleLarge,
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    context.l10n.calendarTotalExpenseLabel(
-                                        CurrencyFormatter.format(totalExpense)),
-                                    style: AppTypography.mono(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400,
-                                        color: colors.textSecondary),
+                          child: switch (state) {
+                            CalendarLoading() => ListView(
+                                padding: EdgeInsets.zero,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: const [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(top: AppSpacing.xxl2),
+                                    child: AppLoadingIndicator(),
                                   ),
                                 ],
                               ),
-                              _MonthNavButton(
-                                icon: Icons.chevron_right_rounded,
-                                onTap: () => _changeMonth(1),
+                            CalendarError(:final message) => ListView(
+                                padding: EdgeInsets.zero,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  AppErrorView(
+                                    message: message,
+                                    onRetry: () => context
+                                        .read<CalendarCubit>()
+                                        .load(_currentMonth),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: colors.surface,
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.card),
-                              border: Border.all(color: colors.border),
-                              boxShadow: AppShadow.card,
-                            ),
-                            child: Column(
-                              children: [
-                                GridView.count(
-                                  crossAxisCount: 7,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  mainAxisSpacing: 6,
-                                  crossAxisSpacing: 6,
+                            CalendarLoaded(:final month, :final days) =>
+                              SingleChildScrollView(
+                                controller: _scrollController,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    for (final label in weekdayLabels(context))
-                                      Center(
-                                        child: Text(
-                                          label,
-                                          style: textTheme.labelSmall?.copyWith(
-                                              fontWeight: FontWeight.w700,
-                                              color: colors.textTertiary),
-                                        ),
+                                    const SizedBox(height: AppSpacing.mdLg),
+                                    Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 16),
+                                      decoration: BoxDecoration(
+                                        color: colors.surface,
+                                        borderRadius: BorderRadius.circular(
+                                            AppRadius.card),
+                                        border:
+                                            Border.all(color: colors.border),
+                                        boxShadow: AppShadow.card,
                                       ),
-                                    for (var i = 0;
-                                        i < _leadingBlanks(month);
-                                        i++)
-                                      const SizedBox.shrink(),
-                                    for (final day in days)
-                                      _DayCell(
-                                        day: day.day,
-                                        amount: day.amount,
-                                        isToday: _isToday(month, day.day),
-                                        onTap: () => _openDay(context, day.day,
-                                            month.month, month.year),
+                                      child: Column(
+                                        children: [
+                                          MonthGrid(
+                                            month: month,
+                                            daysInMonth: days.length,
+                                            dayBuilder: (day) => _DayCell(
+                                              day: days[day - 1],
+                                              isToday: _isToday(month, day),
+                                              onTap: () => _openDay(context,
+                                                  day, month.month, month.year),
+                                            ),
+                                          ),
+                                          Container(
+                                            width: double.infinity,
+                                            margin:
+                                                const EdgeInsets.only(top: 16),
+                                            padding:
+                                                const EdgeInsets.only(top: 14),
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                  top: BorderSide(
+                                                      color: colors.border)),
+                                            ),
+                                            child: Wrap(
+                                              spacing: 16,
+                                              runSpacing: 8,
+                                              children: [
+                                                _LegendDot(
+                                                  color: colors.danger,
+                                                  label: context.l10n
+                                                      .calendarLegendHighSpend,
+                                                ),
+                                                _LegendDot(
+                                                  color: colors.primary,
+                                                  label: context.l10n
+                                                      .calendarLegendMidSpend,
+                                                ),
+                                                _LegendDot(
+                                                  color: colors.success,
+                                                  label: context.l10n
+                                                      .calendarLegendLowSpend,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
+                                    ),
+                                    const SizedBox(height: AppSpacing.md),
+                                    _CalendarStatsSection(
+                                        month: month, days: days),
                                   ],
                                 ),
-                                Container(
-                                  width: double.infinity,
-                                  margin: const EdgeInsets.only(top: 16),
-                                  padding: const EdgeInsets.only(top: 14),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                        top: BorderSide(color: colors.border)),
-                                  ),
-                                  child: Wrap(
-                                    spacing: 16,
-                                    runSpacing: 8,
-                                    children: [
-                                      _LegendDot(
-                                        color: colors.danger,
-                                        label: context
-                                            .l10n.calendarLegendHighSpend,
-                                      ),
-                                      _LegendDot(
-                                        color: colors.primary,
-                                        label:
-                                            context.l10n.calendarLegendMidSpend,
-                                      ),
-                                      _LegendDot(
-                                        color: colors.success,
-                                        label:
-                                            context.l10n.calendarLegendLowSpend,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          _CalendarStatsSection(month: month, days: days),
-                        ],
+                              ),
+                          },
+                        ),
                       ),
                     ),
-                };
-              },
-            ),
-          ),
+                  ),
+                  if (state is CalendarLoaded)
+                    _CalendarHeader(
+                      month: state.month,
+                      totalExpense: state.totalExpense,
+                      showShadow: _isScrolled,
+                      onPrevMonth: () => _changeMonth(-1),
+                      onNextMonth: () => _changeMonth(1),
+                    ),
+                ],
+              ),
+            );
+          },
         ),
-      ),
-      floatingActionButton: AppFab(
-        onPressed: () async {
-          await context.push('/add-transaction');
-          if (context.mounted) {
-            context.read<CalendarCubit>().load(_currentMonth);
-          }
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 1,
-        onTabSelected: (index) => _handleTabSelected(context, index),
+        floatingActionButton: AppFab(
+          onPressed: () async {
+            await context.push('/add-transaction');
+            if (context.mounted) {
+              context.read<CalendarCubit>().load(_currentMonth);
+            }
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        bottomNavigationBar: AppBottomNavBar(
+          currentIndex: 1,
+          onTabSelected: (index) => _handleTabSelected(context, index),
+        ),
       ),
     );
   }
@@ -251,9 +255,6 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
-  int _leadingBlanks(DateTime month) =>
-      DateTime(month.year, month.month).weekday - 1;
-
   bool _isToday(DateTime month, int day) {
     final now = DateTime.now();
     return now.year == month.year && now.month == month.month && now.day == day;
@@ -263,49 +264,121 @@ class _CalendarPageState extends State<CalendarPage> {
 class _DayCell extends StatelessWidget {
   const _DayCell({
     required this.day,
-    required this.amount,
     required this.onTap,
     this.isToday = false,
   });
 
-  final int day;
-  final double amount;
+  final CalendarDay day;
   final VoidCallback onTap;
   final bool isToday;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final tone = calendarDayTone(amount);
+    final tone = calendarDayTone(day.amount);
 
-    return InkWell(
+    return MonthGridDayCell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-      child: Container(
-        decoration: BoxDecoration(
-          color: tone.background(colors),
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: isToday ? Border.all(color: colors.primary, width: 2) : null,
+      background: tone.background(colors),
+      ringColor: isToday ? colors.primary : null,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '${day.day}',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: tone.foreground(colors)),
+          ),
+          Text(
+            day.amount > 0 ? CurrencyFormatter.formatCompact(day.amount) : '—',
+            style: AppTypography.mono(
+                fontSize: 8.5,
+                fontWeight: FontWeight.w600,
+                color: tone.foreground(colors)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Same full-bleed gradient bar as `AppHeader` (`headerBg`/`headerFg` per
+/// design) — kept as its own widget rather than `AppHeader` since its
+/// prev/next-flanking-centered-title shape doesn't fit that widget's
+/// leading-back/trailing-action model.
+class _CalendarHeader extends StatelessWidget {
+  const _CalendarHeader({
+    required this.month,
+    required this.totalExpense,
+    required this.showShadow,
+    required this.onPrevMonth,
+    required this.onNextMonth,
+  });
+
+  final DateTime month;
+  final double totalExpense;
+  final bool showShadow;
+  final VoidCallback onPrevMonth;
+  final VoidCallback onNextMonth;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final topInset = MediaQuery.paddingOf(context).top;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(16, topInset + 16, 16, 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [colors.primary, colors.splashEnd],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '$day',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
-                  color: tone.foreground(colors)),
-            ),
-            Text(
-              amount > 0 ? CurrencyFormatter.formatCompact(amount) : '—',
-              style: AppTypography.mono(
-                  fontSize: 8.5,
-                  fontWeight: FontWeight.w600,
-                  color: tone.foreground(colors)),
-            ),
-          ],
-        ),
+        boxShadow: showShadow
+            ? [
+                BoxShadow(
+                  color: colors.primary.withValues(alpha: 0.22),
+                  blurRadius: 14,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _MonthNavButton(icon: Icons.chevron_left_rounded, onTap: onPrevMonth),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                context.l10n.monthYearHeader(
+                    month.month.toString(), month.year.toString()),
+                style: const TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.01 * 19,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                context.l10n.calendarTotalExpenseLabel(
+                    CurrencyFormatter.format(totalExpense)),
+                style: AppTypography.mono(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: const Color.fromRGBO(255, 255, 255, 0.82),
+                ),
+              ),
+            ],
+          ),
+          _MonthNavButton(
+              icon: Icons.chevron_right_rounded, onTap: onNextMonth),
+        ],
       ),
     );
   }
@@ -319,18 +392,14 @@ class _MonthNavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Material(
-      color: colors.surfaceAlt,
-      borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: SizedBox(
-          height: 36,
-          width: 36,
-          child: Icon(icon, size: 18, color: colors.textPrimary),
+    return SizedBox(
+      height: 38,
+      width: 38,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          child: Icon(icon, size: 20, color: Colors.white),
         ),
       ),
     );

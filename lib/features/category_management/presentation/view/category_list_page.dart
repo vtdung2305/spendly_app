@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,9 +8,9 @@ import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_shadow.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
-import 'package:spendly_app/shared/components/buttons/bordered_icon_button.dart';
 import 'package:spendly_app/shared/components/empty/app_empty_view.dart';
 import 'package:spendly_app/shared/components/error/app_error_view.dart';
+import 'package:spendly_app/shared/components/headers/app_header.dart';
 import 'package:spendly_app/shared/components/loading/app_loading_indicator.dart';
 import 'package:spendly_app/shared/components/borders/dashed_rrect_border.dart';
 import 'package:spendly_app/features/category_management/domain/entities/category.dart';
@@ -43,119 +44,136 @@ class _CategoryListPageState extends State<CategoryListPage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    // Header has leading back button + trailing icon (44px row), taller
+    // than a title-only header — dominates even when the subtitle appears.
+    final headerHeight = MediaQuery.paddingOf(context).top + 76;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenHorizontal),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: SizedBox.expand(
+          child: Stack(
             children: [
-              const SizedBox(height: AppSpacing.mdLg),
-              Row(
-                children: [
-                  BorderedIconButton(
-                    icon: Icons.arrow_back_rounded,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Text(context.l10n.categoryListPageTitle,
-                        style: Theme.of(context).textTheme.titleLarge),
-                  ),
-                  InkWell(
-                    onTap: () => _openEditor(context),
-                    borderRadius: BorderRadius.circular(100),
-                    child: Icon(Icons.add_circle_rounded,
-                        size: 22, color: colors.primary),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () => context.read<CategoryCubit>().load(),
-                  child: BlocBuilder<CategoryCubit, CategoryState>(
-                    builder: (context, state) {
-                      return switch (state) {
-                        CategoryLoading() => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: const [
-                              Padding(
-                                padding: EdgeInsets.only(top: AppSpacing.xxl2),
-                                child: AppLoadingIndicator(),
-                              ),
-                            ],
-                          ),
-                        CategoryError(:final message) => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: [
-                              AppErrorView(
-                                message: message,
-                                onRetry: () =>
-                                    context.read<CategoryCubit>().load(),
-                              ),
-                            ],
-                          ),
-                        CategoryLoaded(categories: []) => LayoutBuilder(
-                            builder: (context, constraints) => ListView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              children: [
-                                SizedBox(
-                                  height: constraints.maxHeight - 64,
-                                  child: AppEmptyView(
-                                    icon: Icons.category_rounded,
-                                    message:
-                                        context.l10n.categoryListEmptyMessage,
-                                  ),
-                                ),
-                                _AddNewCategoryButton(
-                                  onTap: () => _openEditor(context),
-                                ),
-                              ],
+              Positioned.fill(
+                top: headerHeight,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.screenHorizontal),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: RefreshIndicator(
+                            onRefresh: () =>
+                                context.read<CategoryCubit>().load(),
+                            child: BlocBuilder<CategoryCubit, CategoryState>(
+                              builder: (context, state) {
+                                return switch (state) {
+                                  CategoryLoading() => ListView(
+                                      padding: EdgeInsets.zero,
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      children: const [
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              top: AppSpacing.xxl2),
+                                          child: AppLoadingIndicator(),
+                                        ),
+                                      ],
+                                    ),
+                                  CategoryError(:final message) => ListView(
+                                      padding: EdgeInsets.zero,
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      children: [
+                                        AppErrorView(
+                                          message: message,
+                                          onRetry: () => context
+                                              .read<CategoryCubit>()
+                                              .load(),
+                                        ),
+                                      ],
+                                    ),
+                                  CategoryLoaded(categories: []) =>
+                                    LayoutBuilder(
+                                      builder: (context, constraints) =>
+                                          ListView(
+                                        padding: EdgeInsets.zero,
+                                        physics:
+                                            const AlwaysScrollableScrollPhysics(),
+                                        children: [
+                                          SizedBox(
+                                            height: constraints.maxHeight - 64,
+                                            child: AppEmptyView(
+                                              icon: Icons.category_rounded,
+                                              message: context.l10n
+                                                  .categoryListEmptyMessage,
+                                            ),
+                                          ),
+                                          _AddNewCategoryButton(
+                                            onTap: () => _openEditor(context),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  CategoryLoaded(:final categories) => ListView(
+                                      padding: EdgeInsets.zero,
+                                      children: [
+                                        const SizedBox(height: AppSpacing.mdLg),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 4),
+                                          decoration: BoxDecoration(
+                                            color: colors.surface,
+                                            borderRadius: BorderRadius.circular(
+                                                AppRadius.card),
+                                            border: Border.all(
+                                                color: colors.border),
+                                            boxShadow: AppShadow.card,
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              for (var i = 0;
+                                                  i < categories.length;
+                                                  i++)
+                                                _CategoryRow(
+                                                  category: categories[i],
+                                                  showTopBorder: i > 0,
+                                                  onTap: () => _openEditor(
+                                                      context,
+                                                      category: categories[i]),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                        _AddNewCategoryButton(
+                                          onTap: () => _openEditor(context),
+                                        ),
+                                      ],
+                                    ),
+                                };
+                              },
                             ),
                           ),
-                        CategoryLoaded(:final categories) => ListView(
-                            children: [
-                              const SizedBox(height: 2),
-                              Text(
-                                context.l10n
-                                    .categoryCountLabel(categories.length),
-                                style: TextStyle(
-                                    fontSize: 12, color: colors.textSecondary),
-                              ),
-                              Container(
-                                margin:
-                                    const EdgeInsets.only(top: AppSpacing.mdLg),
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                decoration: BoxDecoration(
-                                  color: colors.surface,
-                                  borderRadius:
-                                      BorderRadius.circular(AppRadius.card),
-                                  border: Border.all(color: colors.border),
-                                  boxShadow: AppShadow.card,
-                                ),
-                                child: Column(
-                                  children: [
-                                    for (var i = 0; i < categories.length; i++)
-                                      _CategoryRow(
-                                        category: categories[i],
-                                        showTopBorder: i > 0,
-                                        onTap: () => _openEditor(context,
-                                            category: categories[i]),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              _AddNewCategoryButton(
-                                onTap: () => _openEditor(context),
-                              ),
-                            ],
-                          ),
-                      };
-                    },
+                        ),
+                      ],
+                    ),
                   ),
+                ),
+              ),
+              BlocBuilder<CategoryCubit, CategoryState>(
+                builder: (context, state) => AppHeader(
+                  title: context.l10n.categoryListPageTitle,
+                  titleFontSize: 19,
+                  onBack: () => Navigator.of(context).pop(),
+                  trailingIcon: Icons.add_rounded,
+                  onTrailingPressed: () => _openEditor(context),
+                  subtitle: state is CategoryLoaded &&
+                          state.categories.isNotEmpty
+                      ? context.l10n.categoryCountLabel(state.categories.length)
+                      : null,
                 ),
               ),
             ],

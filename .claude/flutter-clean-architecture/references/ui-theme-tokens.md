@@ -99,6 +99,54 @@ class AppTheme {
 }
 ```
 
+## Layout: Header cố định + nội dung cuộn
+
+Khi screen có header cố định (gradient bar, title bar...) không cuộn theo nội dung, dùng cấu trúc
+`Stack` với `Positioned.fill(top: headerHeight)`, **không** dùng `Column([Header, Expanded(...)])`:
+
+```
+Scaffold
+ └── SizedBox.expand           // ép Stack chiếm trọn chiều cao body
+      └── Stack
+           ├── Positioned.fill(top: headerHeight)
+           │     └── ScrollView (padding: EdgeInsets.zero)
+           └── Header           // đặt sau cùng để luôn vẽ đè lên trên khi cuộn/bounce
+```
+
+```dart
+final headerHeight = MediaQuery.paddingOf(context).top + 56; // status bar + header content
+
+return Scaffold(
+  body: SizedBox.expand(
+    child: Stack(
+      children: [
+        Positioned.fill(
+          top: headerHeight,
+          child: SafeArea(
+            top: false,
+            child: ListView(
+              padding: EdgeInsets.zero, // xem lưu ý bên dưới
+              children: [...],
+            ),
+          ),
+        ),
+        AppHeader(title: '...', titleFontSize: 20),
+      ],
+    ),
+  ),
+);
+```
+
+Lưu ý bắt buộc:
+- **`SizedBox.expand` bọc ngoài `Stack` là bắt buộc.** Nếu thiếu, `Stack` (loose constraints từ
+  `Scaffold.body`) sẽ tự co lại vừa đúng kích thước của `Header` — child không dùng `Positioned` —
+  khiến toàn bộ nội dung bên dưới bị `Positioned.fill` đẩy ra ngoài và bị clip mất (không hiển thị).
+- **`ScrollView` (`ListView`/`CustomScrollView`) phải set `padding: EdgeInsets.zero`** khi để trong
+  `SafeArea(top: false)`. Do `top: false` không loại bỏ top-inset khỏi `MediaQuery` của subtree,
+  `BoxScrollView` sẽ tự động cộng thêm khoảng đó vào padding trên nếu không set padding tường minh
+  — gây ra khoảng trống thừa ngay dưới header.
+- `Header` đặt là item **cuối cùng** trong `Stack.children` để luôn vẽ đè lên nội dung cuộn.
+
 ## Responsive — bắt buộc support Phone / Tablet / Desktop / Landscape
 
 Luôn dùng `MediaQuery`, `LayoutBuilder`, `Flexible`, `Expanded`. **Không dùng fixed width** trừ

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
 import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/shared/components/buttons/app_button.dart';
-import 'package:spendly_app/shared/components/buttons/bordered_icon_button.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
+import 'package:spendly_app/shared/components/headers/app_header.dart';
 import 'package:spendly_app/features/add_transaction/presentation/widgets/amount_input.dart';
 import 'package:spendly_app/features/add_transaction/presentation/widgets/category_picker_grid.dart';
 import 'package:spendly_app/features/budget/presentation/viewmodel/add_budget_cubit.dart';
@@ -31,101 +32,103 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    // Header has a leading back button (44px row), taller than a
+    // title-only header.
+    final headerHeight = MediaQuery.paddingOf(context).top + 76;
 
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<AddBudgetCubit, AddBudgetState>(
-          listenWhen: (previous, current) => !previous.saved && current.saved,
-          listener: (context, state) {
-            Navigator.of(context).pop();
-            AppSnackbar.showSuccess(
-                context, context.l10n.budgetAddSavedSnackbar);
-          },
-        ),
-        BlocListener<AddBudgetCubit, AddBudgetState>(
-          listenWhen: (previous, current) =>
-              current.errorMessage != null &&
-              current.errorMessage != previous.errorMessage,
-          listener: (context, state) =>
-              AppSnackbar.showError(context, state.errorMessage!),
-        ),
-      ],
-      child: Scaffold(
-        backgroundColor: colors.background,
-        body: SafeArea(
-          child: BlocBuilder<AddBudgetCubit, AddBudgetState>(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AddBudgetCubit, AddBudgetState>(
+            listenWhen: (previous, current) => !previous.saved && current.saved,
+            listener: (context, state) {
+              Navigator.of(context).pop();
+              AppSnackbar.showSuccess(
+                  context, context.l10n.budgetAddSavedSnackbar);
+            },
+          ),
+          BlocListener<AddBudgetCubit, AddBudgetState>(
+            listenWhen: (previous, current) =>
+                current.errorMessage != null &&
+                current.errorMessage != previous.errorMessage,
+            listener: (context, state) =>
+                AppSnackbar.showError(context, state.errorMessage!),
+          ),
+        ],
+        child: Scaffold(
+          backgroundColor: colors.background,
+          body: BlocBuilder<AddBudgetCubit, AddBudgetState>(
             builder: (context, state) {
               final cubit = context.read<AddBudgetCubit>();
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screenHorizontal,
-                      AppSpacing.mdLg,
-                      AppSpacing.screenHorizontal,
-                      0,
-                    ),
-                    child: Row(
-                      children: [
-                        BorderedIconButton(
-                          icon: Icons.close_rounded,
-                          onPressed: () => Navigator.of(context).pop(),
+              return SizedBox.expand(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      top: headerHeight,
+                      child: SafeArea(
+                        top: false,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: ListView(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.screenHorizontal),
+                                children: [
+                                  const SizedBox(height: AppSpacing.mdLg),
+                                  Text(
+                                    context.l10n.budgetAddCategoryLabel,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: colors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.smMd),
+                                  CategoryPickerGrid(
+                                    categories: state.categories,
+                                    selected: state.category,
+                                    onSelected: cubit.selectCategory,
+                                  ),
+                                  const SizedBox(height: AppSpacing.xl),
+                                  Text(
+                                    context.l10n.budgetAddMonthlyLimitLabel,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: colors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.xs),
+                                  AmountInput(onChanged: cubit.setAmount),
+                                  const SizedBox(height: AppSpacing.xl),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                AppSpacing.screenHorizontal,
+                                0,
+                                AppSpacing.screenHorizontal,
+                                AppSpacing.mdLg,
+                              ),
+                              child: AppButton(
+                                label: context.l10n.budgetAddSaveButton,
+                                isLoading: state.isSaving,
+                                onPressed: state.isValid ? cubit.save : null,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: AppSpacing.md),
-                        Text(context.l10n.budgetAddPageTitle,
-                            style: Theme.of(context).textTheme.titleMedium),
-                      ],
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.screenHorizontal),
-                      children: [
-                        const SizedBox(height: AppSpacing.lg),
-                        Text(
-                          context.l10n.budgetAddCategoryLabel,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: colors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.smMd),
-                        CategoryPickerGrid(
-                          categories: state.categories,
-                          selected: state.category,
-                          onSelected: cubit.selectCategory,
-                        ),
-                        const SizedBox(height: AppSpacing.xl),
-                        Text(
-                          context.l10n.budgetAddMonthlyLimitLabel,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: colors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        AmountInput(onChanged: cubit.setAmount),
-                        const SizedBox(height: AppSpacing.xl),
-                      ],
+                    AppHeader(
+                      title: context.l10n.budgetAddPageTitle,
+                      titleFontSize: 18,
+                      onBack: () => Navigator.of(context).pop(),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screenHorizontal,
-                      0,
-                      AppSpacing.screenHorizontal,
-                      AppSpacing.mdLg,
-                    ),
-                    child: AppButton(
-                      label: context.l10n.budgetAddSaveButton,
-                      isLoading: state.isSaving,
-                      onPressed: state.isValid ? cubit.save : null,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),

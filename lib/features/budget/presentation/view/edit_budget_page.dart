@@ -10,9 +10,9 @@ import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/core/theme/app_typography.dart';
 import 'package:spendly_app/core/utils/currency_formatter.dart';
 import 'package:spendly_app/shared/components/buttons/app_button.dart';
-import 'package:spendly_app/shared/components/buttons/bordered_icon_button.dart';
 import 'package:spendly_app/shared/components/dialogs/app_confirm_dialog.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
+import 'package:spendly_app/shared/components/headers/app_header.dart';
 import 'package:spendly_app/features/category_management/presentation/mappers/category_icon_ui.dart';
 import 'package:spendly_app/features/budget/presentation/viewmodel/edit_budget_cubit.dart';
 import 'package:spendly_app/features/budget/presentation/viewmodel/edit_budget_state.dart';
@@ -42,207 +42,206 @@ class EditBudgetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    // Header has a leading back button (44px row), taller than a
+    // title-only header.
+    final headerHeight = MediaQuery.paddingOf(context).top + 76;
 
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<EditBudgetCubit, EditBudgetState>(
-          listenWhen: (previous, current) => !previous.saved && current.saved,
-          listener: (context, state) {
-            Navigator.of(context).pop();
-            AppSnackbar.showSuccess(
-                context, context.l10n.editBudgetUpdatedSnackbar);
-          },
-        ),
-        BlocListener<EditBudgetCubit, EditBudgetState>(
-          listenWhen: (previous, current) =>
-              !previous.deleted && current.deleted,
-          listener: (context, state) {
-            Navigator.of(context).pop();
-            AppSnackbar.showSuccess(
-                context, context.l10n.editBudgetDeletedSnackbar);
-          },
-        ),
-        BlocListener<EditBudgetCubit, EditBudgetState>(
-          listenWhen: (previous, current) =>
-              current.errorMessage != null &&
-              current.errorMessage != previous.errorMessage,
-          listener: (context, state) =>
-              AppSnackbar.showError(context, state.errorMessage!),
-        ),
-      ],
-      child: Scaffold(
-        backgroundColor: colors.background,
-        body: SafeArea(
-          child: BlocBuilder<EditBudgetCubit, EditBudgetState>(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<EditBudgetCubit, EditBudgetState>(
+            listenWhen: (previous, current) => !previous.saved && current.saved,
+            listener: (context, state) {
+              Navigator.of(context).pop();
+              AppSnackbar.showSuccess(
+                  context, context.l10n.editBudgetUpdatedSnackbar);
+            },
+          ),
+          BlocListener<EditBudgetCubit, EditBudgetState>(
+            listenWhen: (previous, current) =>
+                !previous.deleted && current.deleted,
+            listener: (context, state) {
+              Navigator.of(context).pop();
+              AppSnackbar.showSuccess(
+                  context, context.l10n.editBudgetDeletedSnackbar);
+            },
+          ),
+          BlocListener<EditBudgetCubit, EditBudgetState>(
+            listenWhen: (previous, current) =>
+                current.errorMessage != null &&
+                current.errorMessage != previous.errorMessage,
+            listener: (context, state) =>
+                AppSnackbar.showError(context, state.errorMessage!),
+          ),
+        ],
+        child: Scaffold(
+          backgroundColor: colors.background,
+          body: BlocBuilder<EditBudgetCubit, EditBudgetState>(
             builder: (context, state) {
               final cubit = context.read<EditBudgetCubit>();
               final item = cubit.item;
               final tooLow = state.amount > 0 && state.amount < item.usedAmount;
 
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screenHorizontal,
-                      AppSpacing.mdLg,
-                      AppSpacing.screenHorizontal,
-                      0,
-                    ),
-                    child: Row(
-                      children: [
-                        BorderedIconButton(
-                          icon: Icons.close_rounded,
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Text(context.l10n.editBudgetPageTitle,
-                            style: Theme.of(context).textTheme.titleMedium),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.all(AppSpacing.mdLg),
-                      children: [
-                        Container(
+              return SizedBox.expand(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      top: headerHeight,
+                      child: SafeArea(
+                        top: false,
+                        child: ListView(
                           padding: const EdgeInsets.all(AppSpacing.mdLg),
-                          decoration: BoxDecoration(
-                            color: colors.surface,
-                            borderRadius: BorderRadius.circular(AppRadius.card),
-                            border: Border.all(color: colors.border),
-                            boxShadow: AppShadow.card,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                height: 44,
-                                width: 44,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: colors.surfaceAlt,
-                                  borderRadius: BorderRadius.circular(13),
-                                ),
-                                child: Icon(
-                                    categoryIconFor(item.category.iconName),
-                                    size: 21,
-                                    color: categoryColorFromHex(
-                                        item.category.colorHex)),
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(AppSpacing.mdLg),
+                              decoration: BoxDecoration(
+                                color: colors.surface,
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.card),
+                                border: Border.all(color: colors.border),
+                                boxShadow: AppShadow.card,
                               ),
-                              const SizedBox(width: AppSpacing.smMd),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.category.label,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height: 44,
+                                    width: 44,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: colors.surfaceAlt,
+                                      borderRadius: BorderRadius.circular(13),
+                                    ),
+                                    child: Icon(
+                                        categoryIconFor(item.category.iconName),
+                                        size: 21,
+                                        color: categoryColorFromHex(
+                                            item.category.colorHex)),
+                                  ),
+                                  const SizedBox(width: AppSpacing.smMd),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.category.label,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall
+                                              ?.copyWith(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          context.l10n.editBudgetUsedLabel(
+                                            CurrencyFormatter.format(
+                                                item.usedAmount),
+                                          ),
+                                          style: AppTypography.mono(
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w400,
+                                            color: colors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                            Text(
+                              context.l10n.budgetAddMonthlyLimitLabel,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: colors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            _AmountField(
+                              amount: state.amount,
+                              onChanged: cubit.setAmount,
+                            ),
+                            if (tooLow) ...[
+                              const SizedBox(height: AppSpacing.xs),
+                              Row(
+                                children: [
+                                  Icon(Icons.error_rounded,
+                                      size: 14, color: colors.danger),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    child: Text(
+                                      context.l10n.editBudgetTooLowWarning,
                                       style: Theme.of(context)
                                           .textTheme
-                                          .titleSmall
+                                          .labelSmall
                                           ?.copyWith(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w700),
+                                              color: colors.danger,
+                                              fontSize: 11.5,
+                                              fontWeight: FontWeight.w600),
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      context.l10n.editBudgetUsedLabel(
-                                        CurrencyFormatter.format(
-                                            item.usedAmount),
-                                      ),
-                                      style: AppTypography.mono(
-                                        fontSize: 11.5,
-                                        fontWeight: FontWeight.w400,
-                                        color: colors.textSecondary,
-                                      ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            const SizedBox(height: AppSpacing.md),
+                            Row(
+                              children: [
+                                for (final preset in _kBudgetPresets) ...[
+                                  Expanded(
+                                    child: _PresetChip(
+                                      amount: preset,
+                                      selected: state.amount == preset,
+                                      onTap: () => cubit.setAmount(preset),
                                     ),
-                                  ],
+                                  ),
+                                  if (preset != _kBudgetPresets.last)
+                                    const SizedBox(width: AppSpacing.xs),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.xl),
+                            AppButton(
+                              label: context.l10n.editBudgetSaveButton,
+                              isLoading: state.isSaving,
+                              onPressed: state.isValid ? cubit.save : null,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            SizedBox(
+                              height: 48,
+                              child: ElevatedButton.icon(
+                                onPressed: () => _confirmDelete(context),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colors.dangerTint,
+                                  foregroundColor: colors.danger,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.lg)),
+                                ),
+                                icon:
+                                    const Icon(Icons.delete_rounded, size: 19),
+                                label: Text(
+                                  context.l10n.editBudgetDeleteButton,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        Text(
-                          context.l10n.budgetAddMonthlyLimitLabel,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: colors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        _AmountField(
-                          amount: state.amount,
-                          onChanged: cubit.setAmount,
-                        ),
-                        if (tooLow) ...[
-                          const SizedBox(height: AppSpacing.xs),
-                          Row(
-                            children: [
-                              Icon(Icons.error_rounded,
-                                  size: 14, color: colors.danger),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                child: Text(
-                                  context.l10n.editBudgetTooLowWarning,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelSmall
-                                      ?.copyWith(
-                                          color: colors.danger,
-                                          fontSize: 11.5,
-                                          fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                        const SizedBox(height: AppSpacing.md),
-                        Row(
-                          children: [
-                            for (final preset in _kBudgetPresets) ...[
-                              Expanded(
-                                child: _PresetChip(
-                                  amount: preset,
-                                  selected: state.amount == preset,
-                                  onTap: () => cubit.setAmount(preset),
-                                ),
-                              ),
-                              if (preset != _kBudgetPresets.last)
-                                const SizedBox(width: AppSpacing.xs),
-                            ],
+                            ),
                           ],
                         ),
-                        const SizedBox(height: AppSpacing.xl),
-                        AppButton(
-                          label: context.l10n.editBudgetSaveButton,
-                          isLoading: state.isSaving,
-                          onPressed: state.isValid ? cubit.save : null,
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        SizedBox(
-                          height: 48,
-                          child: ElevatedButton.icon(
-                            onPressed: () => _confirmDelete(context),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: colors.dangerTint,
-                              foregroundColor: colors.danger,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(AppRadius.lg)),
-                            ),
-                            icon: const Icon(Icons.delete_rounded, size: 19),
-                            label: Text(
-                              context.l10n.editBudgetDeleteButton,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                    AppHeader(
+                      title: context.l10n.editBudgetPageTitle,
+                      titleFontSize: 18,
+                      onBack: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
               );
             },
           ),

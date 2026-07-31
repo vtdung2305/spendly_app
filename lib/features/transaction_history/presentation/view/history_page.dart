@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,6 +8,7 @@ import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
 import 'package:spendly_app/shared/components/empty/app_empty_view.dart';
 import 'package:spendly_app/shared/components/error/app_error_view.dart';
+import 'package:spendly_app/shared/components/headers/app_header.dart';
 import 'package:spendly_app/shared/components/list/swipe_to_delete.dart';
 import 'package:spendly_app/shared/components/loading/app_loading_indicator.dart';
 import 'package:spendly_app/shared/components/navigation/app_fab.dart';
@@ -54,129 +56,162 @@ class _HistoryPageState extends State<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final headerHeight = MediaQuery.paddingOf(context).top + 56;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenHorizontal),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: SizedBox.expand(
+          child: Stack(
             children: [
-              const SizedBox(height: AppSpacing.mdLg),
-              Text(context.l10n.historyTitle, style: textTheme.titleLarge),
-              const SizedBox(height: AppSpacing.md),
-              HistorySearchBar(
-                onChanged: (query) {
-                  _searchQuery = query;
-                  context.read<HistoryCubit>().load(searchQuery: query);
-                },
-                filterOpen: _filterOpen,
-                onToggleFilter: () =>
-                    setState(() => _filterOpen = !_filterOpen),
-              ),
-              if (_filterOpen) ...[
-                const SizedBox(height: AppSpacing.sm),
-                const FilterChipPanel(),
-              ],
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () => context
-                      .read<HistoryCubit>()
-                      .load(searchQuery: _searchQuery),
-                  child: BlocBuilder<HistoryCubit, HistoryState>(
-                    builder: (context, state) {
-                      return switch (state) {
-                        HistoryLoading() => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: const [
-                              Padding(
-                                padding: EdgeInsets.only(top: AppSpacing.xxl2),
-                                child: AppLoadingIndicator(),
-                              ),
-                            ],
-                          ),
-                        HistoryError(:final message) => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: [
-                              AppErrorView(
-                                message: message,
-                                onRetry: () => context
-                                    .read<HistoryCubit>()
-                                    .load(searchQuery: _searchQuery),
-                              ),
-                            ],
-                          ),
-                        HistoryLoaded(transactions: [], :final searchQuery)
-                            when searchQuery.isNotEmpty =>
-                          LayoutBuilder(
-                            builder: (context, constraints) => ListView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              children: [
-                                SizedBox(
-                                  height: constraints.maxHeight,
-                                  child: AppEmptyView(
-                                    icon: Icons.search_off_rounded,
-                                    message:
-                                        context.l10n.historyNoResultsMessage,
-                                  ),
-                                ),
-                              ],
+              Positioned.fill(
+                top: headerHeight,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.screenHorizontal),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: AppSpacing.mdLg),
+                        HistorySearchBar(
+                          onChanged: (query) {
+                            _searchQuery = query;
+                            context
+                                .read<HistoryCubit>()
+                                .load(searchQuery: query);
+                          },
+                          filterOpen: _filterOpen,
+                          onToggleFilter: () =>
+                              setState(() => _filterOpen = !_filterOpen),
+                        ),
+                        if (_filterOpen) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          const FilterChipPanel(),
+                        ],
+                        const SizedBox(height: AppSpacing.mdLg),
+                        Expanded(
+                          child: RefreshIndicator(
+                            onRefresh: () => context
+                                .read<HistoryCubit>()
+                                .load(searchQuery: _searchQuery),
+                            child: BlocBuilder<HistoryCubit, HistoryState>(
+                              builder: (context, state) {
+                                return switch (state) {
+                                  HistoryLoading() => ListView(
+                                      padding: EdgeInsets.zero,
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      children: const [
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              top: AppSpacing.xxl2),
+                                          child: AppLoadingIndicator(),
+                                        ),
+                                      ],
+                                    ),
+                                  HistoryError(:final message) => ListView(
+                                      padding: EdgeInsets.zero,
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      children: [
+                                        AppErrorView(
+                                          message: message,
+                                          onRetry: () => context
+                                              .read<HistoryCubit>()
+                                              .load(searchQuery: _searchQuery),
+                                        ),
+                                      ],
+                                    ),
+                                  HistoryLoaded(
+                                    transactions: [],
+                                    :final searchQuery
+                                  )
+                                      when searchQuery.isNotEmpty =>
+                                    LayoutBuilder(
+                                      builder: (context, constraints) =>
+                                          ListView(
+                                        padding: EdgeInsets.zero,
+                                        physics:
+                                            const AlwaysScrollableScrollPhysics(),
+                                        children: [
+                                          SizedBox(
+                                            height: constraints.maxHeight,
+                                            child: AppEmptyView(
+                                              icon: Icons.search_off_rounded,
+                                              message: context
+                                                  .l10n.historyNoResultsMessage,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  HistoryLoaded(transactions: []) =>
+                                    LayoutBuilder(
+                                      builder: (context, constraints) =>
+                                          ListView(
+                                        padding: EdgeInsets.zero,
+                                        physics:
+                                            const AlwaysScrollableScrollPhysics(),
+                                        children: [
+                                          SizedBox(
+                                            height: constraints.maxHeight,
+                                            child: AppEmptyView(
+                                              icon: Icons.receipt_long_rounded,
+                                              message: context
+                                                  .l10n.historyEmptyMessage,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  HistoryLoaded(:final transactions) =>
+                                    ListView(
+                                      padding: EdgeInsets.zero,
+                                      children: [
+                                        for (final t in transactions) ...[
+                                          SwipeToDelete(
+                                            itemKey: ValueKey(t.id),
+                                            confirmTitle: context.l10n
+                                                .transactionDeleteConfirmTitle,
+                                            confirmDescription: context.l10n
+                                                .feedbackKitConfirmDialogDesc,
+                                            onTap: () =>
+                                                _editTransaction(context, t),
+                                            onDelete: () => _deleteTransaction(
+                                                context, t.id),
+                                            child:
+                                                TransactionRow(transaction: t),
+                                          ),
+                                          const SizedBox(height: 12),
+                                        ],
+                                      ],
+                                    ),
+                                };
+                              },
                             ),
                           ),
-                        HistoryLoaded(transactions: []) => LayoutBuilder(
-                            builder: (context, constraints) => ListView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              children: [
-                                SizedBox(
-                                  height: constraints.maxHeight,
-                                  child: AppEmptyView(
-                                    icon: Icons.receipt_long_rounded,
-                                    message: context.l10n.historyEmptyMessage,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        HistoryLoaded(:final transactions) => ListView(
-                            padding:
-                                const EdgeInsets.only(top: AppSpacing.mdLg),
-                            children: [
-                              for (final t in transactions) ...[
-                                SwipeToDelete(
-                                  itemKey: ValueKey(t.id),
-                                  confirmTitle: context
-                                      .l10n.transactionDeleteConfirmTitle,
-                                  confirmDescription:
-                                      context.l10n.feedbackKitConfirmDialogDesc,
-                                  onTap: () => _editTransaction(context, t),
-                                  onDelete: () =>
-                                      _deleteTransaction(context, t.id),
-                                  child: TransactionRow(transaction: t),
-                                ),
-                                const SizedBox(height: 12),
-                              ],
-                            ],
-                          ),
-                      };
-                    },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
+              AppHeader(title: context.l10n.historyTitle, titleFontSize: 19),
             ],
           ),
         ),
+        floatingActionButton: AppFab(
+          onPressed: () async {
+            await context.push('/add-transaction');
+            if (context.mounted) {
+              context.read<HistoryCubit>().load(searchQuery: _searchQuery);
+            }
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
-      floatingActionButton: AppFab(
-        onPressed: () async {
-          await context.push('/add-transaction');
-          if (context.mounted) {
-            context.read<HistoryCubit>().load(searchQuery: _searchQuery);
-          }
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

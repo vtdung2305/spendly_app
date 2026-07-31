@@ -41,6 +41,7 @@ class CategoryPickerGrid extends StatelessWidget {
 
   Widget _buildGrid() {
     return GridView.count(
+      padding: EdgeInsets.zero,
       crossAxisCount: 4,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -61,6 +62,7 @@ class CategoryPickerGrid extends StatelessWidget {
 
   Widget _buildList() {
     return GridView.count(
+      padding: EdgeInsets.zero,
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),

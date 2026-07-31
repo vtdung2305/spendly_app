@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,6 +9,7 @@ import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/core/utils/currency_formatter.dart';
 import 'package:spendly_app/shared/components/empty/app_empty_view.dart';
 import 'package:spendly_app/shared/components/error/app_error_view.dart';
+import 'package:spendly_app/shared/components/headers/app_header.dart';
 import 'package:spendly_app/shared/components/loading/app_loading_indicator.dart';
 import 'package:spendly_app/shared/components/navigation/app_bottom_nav_bar.dart';
 import 'package:spendly_app/shared/components/navigation/app_fab.dart';
@@ -41,116 +43,129 @@ class _BudgetPageState extends State<BudgetPage> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final textTheme = Theme.of(context).textTheme;
+    // Header has leading spacer + trailing icon (44px row), taller than a
+    // title-only header.
+    final headerHeight = MediaQuery.paddingOf(context).top + 76;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenHorizontal),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: SizedBox.expand(
+          child: Stack(
             children: [
-              const SizedBox(height: AppSpacing.mdLg),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(context.l10n.budgetPageTitle,
-                      style: textTheme.titleLarge),
-                  InkWell(
-                    onTap: () async {
-                      await context.push('/add-budget');
-                      if (context.mounted) context.read<BudgetCubit>().load();
-                    },
-                    borderRadius: BorderRadius.circular(100),
-                    child: Icon(Icons.add_circle_rounded,
-                        size: 22, color: colors.primary),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () => context.read<BudgetCubit>().load(),
-                  child: BlocBuilder<BudgetCubit, BudgetState>(
-                    builder: (context, state) {
-                      return switch (state) {
-                        BudgetLoading() => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: const [
-                              Padding(
-                                padding: EdgeInsets.only(top: AppSpacing.xxl2),
-                                child: AppLoadingIndicator(),
-                              ),
-                            ],
-                          ),
-                        BudgetError(:final message) => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: [
-                              AppErrorView(
-                                message: message,
-                                onRetry: () =>
-                                    context.read<BudgetCubit>().load(),
-                              ),
-                            ],
-                          ),
-                        BudgetLoaded(items: []) => LayoutBuilder(
-                            builder: (context, constraints) => ListView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              children: [
-                                SizedBox(
-                                  height: constraints.maxHeight,
-                                  child: AppEmptyView(
-                                    icon: Icons.account_balance_wallet_rounded,
-                                    message: context.l10n.budgetEmptyMessage,
+              Positioned.fill(
+                top: headerHeight,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.screenHorizontal,
+                        AppSpacing.sm,
+                        AppSpacing.screenHorizontal,
+                        0),
+                    child: RefreshIndicator(
+                      onRefresh: () => context.read<BudgetCubit>().load(),
+                      child: BlocBuilder<BudgetCubit, BudgetState>(
+                        builder: (context, state) {
+                          return switch (state) {
+                            BudgetLoading() => ListView(
+                                padding: EdgeInsets.zero,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: const [
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(top: AppSpacing.xxl2),
+                                    child: AppLoadingIndicator(),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        BudgetLoaded(
-                          :final items,
-                          :final totalBudget,
-                          :final totalUsedPercent
-                        ) =>
-                          ListView(
-                            children: [
-                              const SizedBox(height: 2),
-                              Text(
-                                context.l10n.budgetSummaryLine(
-                                  CurrencyFormatter.format(totalBudget),
-                                  totalUsedPercent.toString(),
-                                ),
-                                style: textTheme.bodySmall
-                                    ?.copyWith(color: colors.textSecondary),
+                                ],
                               ),
-                              const SizedBox(height: AppSpacing.mdLg),
-                              for (final item in items) ...[
-                                BudgetItemCard(
-                                  item: item,
-                                  onTap: () => _editBudget(context, item),
+                            BudgetError(:final message) => ListView(
+                                padding: EdgeInsets.zero,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  AppErrorView(
+                                    message: message,
+                                    onRetry: () =>
+                                        context.read<BudgetCubit>().load(),
+                                  ),
+                                ],
+                              ),
+                            BudgetLoaded(items: []) => LayoutBuilder(
+                                builder: (context, constraints) => ListView(
+                                  padding: EdgeInsets.zero,
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  children: [
+                                    SizedBox(
+                                      height: constraints.maxHeight,
+                                      child: AppEmptyView(
+                                        icon: Icons
+                                            .account_balance_wallet_rounded,
+                                        message:
+                                            context.l10n.budgetEmptyMessage,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: AppSpacing.smMd),
-                              ],
-                            ],
-                          ),
-                      };
-                    },
+                              ),
+                            BudgetLoaded(
+                              :final items,
+                              :final totalBudget,
+                              :final totalUsedPercent
+                            ) =>
+                              ListView(
+                                padding: EdgeInsets.zero,
+                                children: [
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    context.l10n.budgetSummaryLine(
+                                      CurrencyFormatter.format(totalBudget),
+                                      totalUsedPercent.toString(),
+                                    ),
+                                    style: textTheme.bodySmall
+                                        ?.copyWith(color: colors.textSecondary),
+                                  ),
+                                  const SizedBox(height: AppSpacing.mdLg),
+                                  for (final item in items) ...[
+                                    BudgetItemCard(
+                                      item: item,
+                                      onTap: () => _editBudget(context, item),
+                                    ),
+                                    const SizedBox(height: AppSpacing.smMd),
+                                  ],
+                                ],
+                              ),
+                          };
+                        },
+                      ),
+                    ),
                   ),
                 ),
+              ),
+              AppHeader(
+                title: context.l10n.budgetPageTitle,
+                titleFontSize: 20,
+                showLeadingSpacer: true,
+                trailingIcon: Icons.add_rounded,
+                onTrailingPressed: () async {
+                  await context.push('/add-budget');
+                  if (context.mounted) context.read<BudgetCubit>().load();
+                },
               ),
             ],
           ),
         ),
-      ),
-      floatingActionButton: AppFab(
-        onPressed: () async {
-          await context.push('/add-transaction');
-          if (context.mounted) context.read<BudgetCubit>().load();
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 2,
-        onTabSelected: (index) => _handleTabSelected(context, index),
+        floatingActionButton: AppFab(
+          onPressed: () async {
+            await context.push('/add-transaction');
+            if (context.mounted) context.read<BudgetCubit>().load();
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        bottomNavigationBar: AppBottomNavBar(
+          currentIndex: 2,
+          onTabSelected: (index) => _handleTabSelected(context, index),
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
@@ -7,9 +8,9 @@ import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_shadow.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/shared/components/buttons/app_button.dart';
-import 'package:spendly_app/shared/components/buttons/bordered_icon_button.dart';
 import 'package:spendly_app/shared/components/dialogs/app_confirm_dialog.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
+import 'package:spendly_app/shared/components/headers/app_header.dart';
 import 'package:spendly_app/features/category_management/presentation/mappers/category_icon_ui.dart';
 import 'package:spendly_app/features/category_management/presentation/viewmodel/category_edit_cubit.dart';
 import 'package:spendly_app/features/category_management/presentation/viewmodel/category_edit_state.dart';
@@ -47,271 +48,278 @@ class _CategoryEditPageState extends State<CategoryEditPage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    // Header has a leading back button (44px row), taller than a
+    // title-only header.
+    final headerHeight = MediaQuery.paddingOf(context).top + 76;
 
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<CategoryEditCubit, CategoryEditState>(
-          listenWhen: (previous, current) => !previous.saved && current.saved,
-          listener: (context, state) {
-            Navigator.of(context).pop();
-            AppSnackbar.showSuccess(
-              context,
-              state.isEditing
-                  ? context.l10n.categoryUpdatedSnackbar
-                  : context.l10n.categoryCreatedSnackbar,
-            );
-          },
-        ),
-        BlocListener<CategoryEditCubit, CategoryEditState>(
-          listenWhen: (previous, current) =>
-              !previous.deleted && current.deleted,
-          listener: (context, state) {
-            Navigator.of(context).pop();
-            AppSnackbar.showSuccess(
-                context, context.l10n.categoryDeletedSnackbar);
-          },
-        ),
-        BlocListener<CategoryEditCubit, CategoryEditState>(
-          listenWhen: (previous, current) =>
-              current.errorMessage != null &&
-              current.errorMessage != previous.errorMessage,
-          listener: (context, state) =>
-              AppSnackbar.showError(context, state.errorMessage!),
-        ),
-      ],
-      child: Scaffold(
-        backgroundColor: colors.background,
-        body: SafeArea(
-          child: BlocBuilder<CategoryEditCubit, CategoryEditState>(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<CategoryEditCubit, CategoryEditState>(
+            listenWhen: (previous, current) => !previous.saved && current.saved,
+            listener: (context, state) {
+              Navigator.of(context).pop();
+              AppSnackbar.showSuccess(
+                context,
+                state.isEditing
+                    ? context.l10n.categoryUpdatedSnackbar
+                    : context.l10n.categoryCreatedSnackbar,
+              );
+            },
+          ),
+          BlocListener<CategoryEditCubit, CategoryEditState>(
+            listenWhen: (previous, current) =>
+                !previous.deleted && current.deleted,
+            listener: (context, state) {
+              Navigator.of(context).pop();
+              AppSnackbar.showSuccess(
+                  context, context.l10n.categoryDeletedSnackbar);
+            },
+          ),
+          BlocListener<CategoryEditCubit, CategoryEditState>(
+            listenWhen: (previous, current) =>
+                current.errorMessage != null &&
+                current.errorMessage != previous.errorMessage,
+            listener: (context, state) =>
+                AppSnackbar.showError(context, state.errorMessage!),
+          ),
+        ],
+        child: Scaffold(
+          backgroundColor: colors.background,
+          body: BlocBuilder<CategoryEditCubit, CategoryEditState>(
             builder: (context, state) {
               final cubit = context.read<CategoryEditCubit>();
               final previewColor = categoryColorFromHex(state.colorHex);
 
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screenHorizontal,
-                      AppSpacing.mdLg,
-                      AppSpacing.screenHorizontal,
-                      0,
-                    ),
-                    child: Row(
-                      children: [
-                        BorderedIconButton(
-                          icon: Icons.close_rounded,
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Text(
-                          state.isEditing
-                              ? context.l10n.categoryEditPageTitleEdit
-                              : context.l10n.categoryEditPageTitleCreate,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.all(AppSpacing.mdLg),
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.lg, vertical: 22),
-                          decoration: BoxDecoration(
-                            color: colors.surface,
-                            borderRadius: BorderRadius.circular(AppRadius.card),
-                            border: Border.all(color: colors.border),
-                            boxShadow: AppShadow.card,
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 64,
-                                width: 64,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: previewColor.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(18),
+              return SizedBox.expand(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      top: headerHeight,
+                      child: SafeArea(
+                        top: false,
+                        child: ListView(
+                          padding: const EdgeInsets.all(AppSpacing.mdLg),
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.lg, vertical: 22),
+                              decoration: BoxDecoration(
+                                color: colors.surface,
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.card),
+                                border: Border.all(color: colors.border),
+                                boxShadow: AppShadow.card,
+                              ),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    height: 64,
+                                    width: 64,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          previewColor.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(18),
+                                    ),
+                                    child: Icon(categoryIconFor(state.iconName),
+                                        size: 32, color: previewColor),
+                                  ),
+                                  const SizedBox(height: AppSpacing.smMd),
+                                  Text(
+                                    state.trimmedName.isEmpty
+                                        ? context
+                                            .l10n.categoryPreviewPlaceholder
+                                        : state.trimmedName,
+                                    style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    context.l10n.categoryPreviewLabel,
+                                    style: TextStyle(
+                                        fontSize: 11,
+                                        color: colors.textTertiary),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                            Text(context.l10n.categoryNameLabel,
+                                style: _fieldLabelStyle(colors)),
+                            const SizedBox(height: AppSpacing.xs),
+                            Container(
+                              height: 50,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.md),
+                              decoration: BoxDecoration(
+                                color: colors.surface,
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.md),
+                                border: Border.all(
+                                  color: state.hasDuplicateName
+                                      ? colors.danger
+                                      : colors.border,
+                                  width: state.hasDuplicateName ? 1.5 : 1,
                                 ),
-                                child: Icon(categoryIconFor(state.iconName),
-                                    size: 32, color: previewColor),
                               ),
-                              const SizedBox(height: AppSpacing.smMd),
-                              Text(
-                                state.trimmedName.isEmpty
-                                    ? context.l10n.categoryPreviewPlaceholder
-                                    : state.trimmedName,
-                                style: const TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.w700),
+                              child: _NameField(
+                                name: state.name,
+                                hintText: context.l10n.categoryNameHint,
+                                onChanged: cubit.setName,
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                context.l10n.categoryPreviewLabel,
-                                style: TextStyle(
-                                    fontSize: 11, color: colors.textTertiary),
+                            ),
+                            if (state.hasDuplicateName) ...[
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Icon(Icons.error_rounded,
+                                      size: 14, color: colors.danger),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    child: Text(
+                                      context.l10n.categoryNameDuplicateError,
+                                      style: TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: colors.danger),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        Text(context.l10n.categoryNameLabel,
-                            style: _fieldLabelStyle(colors)),
-                        const SizedBox(height: AppSpacing.xs),
-                        Container(
-                          height: 50,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.md),
-                          decoration: BoxDecoration(
-                            color: colors.surface,
-                            borderRadius: BorderRadius.circular(AppRadius.md),
-                            border: Border.all(
-                              color: state.hasDuplicateName
-                                  ? colors.danger
-                                  : colors.border,
-                              width: state.hasDuplicateName ? 1.5 : 1,
+                            const SizedBox(height: AppSpacing.lg),
+                            Text(context.l10n.categoryColorLabel,
+                                style: _fieldLabelStyle(colors)),
+                            const SizedBox(height: AppSpacing.xs),
+                            Row(
+                              children: [
+                                for (final hex in categoryColorOptions) ...[
+                                  _ColorSwatch(
+                                    hex: hex,
+                                    selected: state.colorHex == hex,
+                                    onTap: () => cubit.setColor(hex),
+                                  ),
+                                  if (hex != categoryColorOptions.last)
+                                    const SizedBox(width: 10),
+                                ],
+                              ],
                             ),
-                          ),
-                          child: _NameField(
-                            name: state.name,
-                            hintText: context.l10n.categoryNameHint,
-                            onChanged: cubit.setName,
-                          ),
-                        ),
-                        if (state.hasDuplicateName) ...[
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Icon(Icons.error_rounded,
-                                  size: 14, color: colors.danger),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                child: Text(
-                                  context.l10n.categoryNameDuplicateError,
+                            const SizedBox(height: AppSpacing.lg),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(context.l10n.categoryIconLabel,
+                                    style: _fieldLabelStyle(colors)
+                                        .copyWith(height: 1)),
+                                Text(
+                                  context.l10n.categoryIconCountLabel(
+                                      (categoryIconGroups[state.iconGroup] ??
+                                              [])
+                                          .length),
                                   style: TextStyle(
                                       fontSize: 11.5,
-                                      fontWeight: FontWeight.w600,
-                                      color: colors.danger),
+                                      color: colors.textTertiary),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                        const SizedBox(height: AppSpacing.lg),
-                        Text(context.l10n.categoryColorLabel,
-                            style: _fieldLabelStyle(colors)),
-                        const SizedBox(height: AppSpacing.xs),
-                        Row(
-                          children: [
-                            for (final hex in categoryColorOptions) ...[
-                              _ColorSwatch(
-                                hex: hex,
-                                selected: state.colorHex == hex,
-                                onTap: () => cubit.setColor(hex),
-                              ),
-                              if (hex != categoryColorOptions.last)
-                                const SizedBox(width: 10),
-                            ],
-                          ],
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(context.l10n.categoryIconLabel,
-                                style: _fieldLabelStyle(colors)
-                                    .copyWith(height: 1)),
-                            Text(
-                              context.l10n.categoryIconCountLabel(
-                                  (categoryIconGroups[state.iconGroup] ?? [])
-                                      .length),
-                              style: TextStyle(
-                                  fontSize: 11.5, color: colors.textTertiary),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        SizedBox(
-                          height: 34,
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            children: [
-                              for (final groupKey in categoryIconGroupKeys) ...[
-                                _IconGroupChip(
-                                  label: _groupLabel(context, groupKey),
-                                  selected: state.iconGroup == groupKey,
-                                  onTap: () => cubit.setIconGroup(groupKey),
-                                ),
-                                const SizedBox(width: 6),
                               ],
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          padding: const EdgeInsets.all(AppSpacing.smMd),
-                          decoration: BoxDecoration(
-                            color: colors.surface,
-                            borderRadius: BorderRadius.circular(AppRadius.card),
-                            border: Border.all(color: colors.border),
-                            boxShadow: AppShadow.card,
-                          ),
-                          child: GridView.count(
-                            crossAxisCount: 5,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            mainAxisSpacing: 8,
-                            crossAxisSpacing: 8,
-                            children: [
-                              for (final iconName
-                                  in categoryIconGroups[state.iconGroup] ?? [])
-                                _IconOption(
-                                  iconName: iconName,
-                                  selected: state.iconName == iconName,
-                                  color: previewColor,
-                                  onTap: () => cubit.setIcon(iconName),
-                                ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xl),
-                        AppButton(
-                          label: state.isEditing
-                              ? context.l10n.categorySaveButtonUpdate
-                              : context.l10n.categorySaveButtonCreate,
-                          isLoading: state.isSaving,
-                          onPressed: state.isValid ? cubit.save : null,
-                        ),
-                        if (state.isEditing && !state.isDefault) ...[
-                          const SizedBox(height: AppSpacing.sm),
-                          SizedBox(
-                            height: 48,
-                            child: ElevatedButton.icon(
-                              onPressed: () => _confirmDelete(context),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colors.dangerTint,
-                                foregroundColor: colors.danger,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(AppRadius.lg)),
-                              ),
-                              icon: const Icon(Icons.delete_rounded, size: 19),
-                              label: Text(
-                                context.l10n.categoryDeleteButton,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            SizedBox(
+                              height: 34,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  for (final groupKey
+                                      in categoryIconGroupKeys) ...[
+                                    _IconGroupChip(
+                                      label: _groupLabel(context, groupKey),
+                                      selected: state.iconGroup == groupKey,
+                                      onTap: () => cubit.setIconGroup(groupKey),
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                ],
                               ),
                             ),
-                          ),
-                        ],
-                      ],
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.all(AppSpacing.smMd),
+                              decoration: BoxDecoration(
+                                color: colors.surface,
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.card),
+                                border: Border.all(color: colors.border),
+                                boxShadow: AppShadow.card,
+                              ),
+                              child: GridView.count(
+                                padding: EdgeInsets.zero,
+                                crossAxisCount: 5,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                mainAxisSpacing: 8,
+                                crossAxisSpacing: 8,
+                                children: [
+                                  for (final iconName
+                                      in categoryIconGroups[state.iconGroup] ??
+                                          [])
+                                    _IconOption(
+                                      iconName: iconName,
+                                      selected: state.iconName == iconName,
+                                      color: previewColor,
+                                      onTap: () => cubit.setIcon(iconName),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.xl),
+                            AppButton(
+                              label: state.isEditing
+                                  ? context.l10n.categorySaveButtonUpdate
+                                  : context.l10n.categorySaveButtonCreate,
+                              isLoading: state.isSaving,
+                              onPressed: state.isValid ? cubit.save : null,
+                            ),
+                            if (state.isEditing && !state.isDefault) ...[
+                              const SizedBox(height: AppSpacing.sm),
+                              SizedBox(
+                                height: 48,
+                                child: ElevatedButton.icon(
+                                  onPressed: () => _confirmDelete(context),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colors.dangerTint,
+                                    foregroundColor: colors.danger,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            AppRadius.lg)),
+                                  ),
+                                  icon: const Icon(Icons.delete_rounded,
+                                      size: 19),
+                                  label: Text(
+                                    context.l10n.categoryDeleteButton,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                    AppHeader(
+                      title: state.isEditing
+                          ? context.l10n.categoryEditPageTitleEdit
+                          : context.l10n.categoryEditPageTitleCreate,
+                      titleFontSize: 18,
+                      onBack: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
               );
             },
           ),

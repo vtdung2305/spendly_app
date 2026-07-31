@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:spendly_app/core/theme/app_animation.dart';
 import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/features/reports/presentation/mappers/report_period_ui.dart';
@@ -30,8 +29,7 @@ class ReportPeriodTabs extends StatelessWidget {
             Expanded(
               child: GestureDetector(
                 onTap: () => onChanged(period),
-                child: AnimatedContainer(
-                  duration: AppAnimation.fast,
+                child: Container(
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: period == selected

@@ -27,15 +27,15 @@ class CalendarLoaded extends CalendarState {
 
   CalendarLoaded copyWith({
     int? selectedDay,
-    bool clearSelection = false,
     List<Transaction>? dayTransactions,
+    bool clearDayTransactions = false,
   }) {
     return CalendarLoaded(
       month,
       days,
-      selectedDay: clearSelection ? null : selectedDay ?? this.selectedDay,
+      selectedDay: selectedDay ?? this.selectedDay,
       dayTransactions:
-          clearSelection ? null : dayTransactions ?? this.dayTransactions,
+          clearDayTransactions ? null : dayTransactions ?? this.dayTransactions,
     );
   }
 

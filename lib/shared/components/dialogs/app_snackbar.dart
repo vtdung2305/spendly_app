@@ -42,7 +42,7 @@ abstract class AppSnackbar {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.full),
           ),
-          margin: const EdgeInsets.only(bottom: 0, left: 20, right: 20),
+          margin: const EdgeInsets.only(bottom: 100, left: 20, right: 20),
           content: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

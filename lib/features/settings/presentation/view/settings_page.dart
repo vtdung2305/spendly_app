@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,6 +10,7 @@ import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_shadow.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/core/theme/theme_cubit.dart';
+import 'package:spendly_app/shared/components/headers/app_header.dart';
 import 'package:spendly_app/shared/components/menu/menu_row.dart';
 import 'package:spendly_app/shared/components/navigation/app_bottom_nav_bar.dart';
 import 'package:spendly_app/shared/components/navigation/app_fab.dart';
@@ -48,133 +50,157 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     final themeMode = context.watch<ThemeCubit>().state;
     final locale = context.watch<LocaleCubit>().state;
     final isDark = themeMode == ThemeMode.dark;
     final isEnglish = locale?.languageCode == 'en';
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenHorizontal),
-          child: ListView(
+    final headerHeight = MediaQuery.paddingOf(context).top + 56;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: SizedBox.expand(
+          child: Stack(
             children: [
-              const SizedBox(height: AppSpacing.mdLg),
-              Text(context.l10n.settingsPageTitle, style: textTheme.titleLarge),
-              const SizedBox(height: AppSpacing.mdLg),
-              _SectionLabel(context.l10n.settingsSectionGeneral),
-              _SectionCard(
-                children: [
-                  MenuRow(
-                    icon: Icons.palette_rounded,
-                    label: context.l10n.settingsThemeLabel,
-                    value: isDark
-                        ? context.l10n.settingsThemeValueDark
-                        : context.l10n.settingsThemeValueLight,
-                    onTap: () => _toggle('theme'),
-                  ),
-                  if (_expandedRow == 'theme')
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: AppSpacing.xxl, bottom: AppSpacing.xs),
-                      child: Column(
-                        children: [
-                          _OptionRow(
-                            label: context.l10n.settingsThemeValueLight,
-                            selected: !isDark,
-                            onTap: () {
-                              if (isDark) context.read<ThemeCubit>().toggle();
-                            },
-                          ),
-                          _OptionRow(
-                            label: context.l10n.settingsThemeValueDark,
-                            selected: isDark,
-                            onTap: () {
-                              if (!isDark) context.read<ThemeCubit>().toggle();
-                            },
-                          ),
-                        ],
-                      ),
+              Positioned.fill(
+                top: headerHeight,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.screenHorizontal),
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      children: [
+                        const SizedBox(height: AppSpacing.mdLg),
+                        _SectionLabel(context.l10n.settingsSectionGeneral),
+                        _SectionCard(
+                          children: [
+                            MenuRow(
+                              icon: Icons.palette_rounded,
+                              label: context.l10n.settingsThemeLabel,
+                              value: isDark
+                                  ? context.l10n.settingsThemeValueDark
+                                  : context.l10n.settingsThemeValueLight,
+                              onTap: () => _toggle('theme'),
+                            ),
+                            if (_expandedRow == 'theme')
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    left: AppSpacing.xxl,
+                                    bottom: AppSpacing.xs),
+                                child: Column(
+                                  children: [
+                                    _OptionRow(
+                                      label:
+                                          context.l10n.settingsThemeValueLight,
+                                      selected: !isDark,
+                                      onTap: () {
+                                        if (isDark)
+                                          context.read<ThemeCubit>().toggle();
+                                      },
+                                    ),
+                                    _OptionRow(
+                                      label:
+                                          context.l10n.settingsThemeValueDark,
+                                      selected: isDark,
+                                      onTap: () {
+                                        if (!isDark)
+                                          context.read<ThemeCubit>().toggle();
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            MenuRow(
+                              icon: Icons.language_rounded,
+                              label: context.l10n.settingsLanguageLabel,
+                              value: isEnglish
+                                  ? context.l10n.settingsLanguageValueEnglish
+                                  : context
+                                      .l10n.settingsLanguageValueVietnamese,
+                              onTap: () => _toggle('language'),
+                            ),
+                            if (_expandedRow == 'language')
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    left: AppSpacing.xxl,
+                                    bottom: AppSpacing.xs),
+                                child: Column(
+                                  children: [
+                                    _OptionRow(
+                                      label: context
+                                          .l10n.settingsLanguageValueVietnamese,
+                                      selected: !isEnglish,
+                                      onTap: () => context
+                                          .read<LocaleCubit>()
+                                          .setLocale(const Locale('vi')),
+                                    ),
+                                    _OptionRow(
+                                      label: context
+                                          .l10n.settingsLanguageValueEnglish,
+                                      selected: isEnglish,
+                                      onTap: () => context
+                                          .read<LocaleCubit>()
+                                          .setLocale(const Locale('en')),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.cardGap),
+                        _SectionLabel(context.l10n.settingsSectionData),
+                        _SectionCard(
+                          children: [
+                            MenuRow(
+                                icon: Icons.cloud_upload_rounded,
+                                label: context.l10n.settingsBackupDataLabel),
+                            MenuRow(
+                                icon: Icons.privacy_tip_rounded,
+                                label: context.l10n.settingsPrivacyLabel),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.cardGap),
+                        _SectionLabel(context.l10n.settingsSectionSupport),
+                        _SectionCard(
+                          children: [
+                            MenuRow(
+                              icon: Icons.info_rounded,
+                              label: context.l10n.settingsAboutAppLabel,
+                              value: 'v1.0.0',
+                            ),
+                            MenuRow(
+                                icon: Icons.feedback_rounded,
+                                label: context.l10n.settingsFeedbackLabel),
+                            MenuRow(
+                                icon: Icons.description_rounded,
+                                label: context.l10n.settingsTermsLabel),
+                            MenuRow(
+                              icon: Icons.widgets_rounded,
+                              label: context.l10n.settingsFeedbackKitLabel,
+                              onTap: () => context.push('/feedback-kit'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.mdLg),
+                      ],
                     ),
-                  MenuRow(
-                    icon: Icons.language_rounded,
-                    label: context.l10n.settingsLanguageLabel,
-                    value: isEnglish
-                        ? context.l10n.settingsLanguageValueEnglish
-                        : context.l10n.settingsLanguageValueVietnamese,
-                    onTap: () => _toggle('language'),
                   ),
-                  if (_expandedRow == 'language')
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: AppSpacing.xxl, bottom: AppSpacing.xs),
-                      child: Column(
-                        children: [
-                          _OptionRow(
-                            label: context.l10n.settingsLanguageValueVietnamese,
-                            selected: !isEnglish,
-                            onTap: () => context
-                                .read<LocaleCubit>()
-                                .setLocale(const Locale('vi')),
-                          ),
-                          _OptionRow(
-                            label: context.l10n.settingsLanguageValueEnglish,
-                            selected: isEnglish,
-                            onTap: () => context
-                                .read<LocaleCubit>()
-                                .setLocale(const Locale('en')),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
+                ),
               ),
-              const SizedBox(height: AppSpacing.cardGap),
-              _SectionLabel(context.l10n.settingsSectionData),
-              _SectionCard(
-                children: [
-                  MenuRow(
-                      icon: Icons.cloud_upload_rounded,
-                      label: context.l10n.settingsBackupDataLabel),
-                  MenuRow(
-                      icon: Icons.privacy_tip_rounded,
-                      label: context.l10n.settingsPrivacyLabel),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.cardGap),
-              _SectionLabel(context.l10n.settingsSectionSupport),
-              _SectionCard(
-                children: [
-                  MenuRow(
-                    icon: Icons.info_rounded,
-                    label: context.l10n.settingsAboutAppLabel,
-                    value: 'v1.0.0',
-                  ),
-                  MenuRow(
-                      icon: Icons.feedback_rounded,
-                      label: context.l10n.settingsFeedbackLabel),
-                  MenuRow(
-                      icon: Icons.description_rounded,
-                      label: context.l10n.settingsTermsLabel),
-                  MenuRow(
-                    icon: Icons.widgets_rounded,
-                    label: context.l10n.settingsFeedbackKitLabel,
-                    onTap: () => context.push('/feedback-kit'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.mdLg),
+              AppHeader(
+                  title: context.l10n.settingsPageTitle, titleFontSize: 20),
             ],
           ),
         ),
-      ),
-      floatingActionButton:
-          AppFab(onPressed: () => context.push('/add-transaction')),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: AppBottomNavBar(
-        onTabSelected: (index) => _handleTabSelected(context, index),
+        floatingActionButton:
+            AppFab(onPressed: () => context.push('/add-transaction')),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        bottomNavigationBar: AppBottomNavBar(
+          onTabSelected: (index) => _handleTabSelected(context, index),
+        ),
       ),
     );
   }

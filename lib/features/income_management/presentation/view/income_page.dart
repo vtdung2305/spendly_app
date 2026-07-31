@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
-import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
 import 'package:spendly_app/shared/components/empty/app_empty_view.dart';
 import 'package:spendly_app/shared/components/error/app_error_view.dart';
+import 'package:spendly_app/shared/components/headers/app_header.dart';
 import 'package:spendly_app/shared/components/list/swipe_to_delete.dart';
 import 'package:spendly_app/shared/components/loading/app_loading_indicator.dart';
 import 'package:spendly_app/shared/components/navigation/app_fab.dart';
@@ -51,115 +52,134 @@ class _IncomePageState extends State<IncomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final textTheme = Theme.of(context).textTheme;
+    // Header has leading back button + trailing icon (44px row), taller
+    // than a title-only header.
+    final headerHeight = MediaQuery.paddingOf(context).top + 76;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenHorizontal),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: SizedBox.expand(
+          child: Stack(
             children: [
-              const SizedBox(height: AppSpacing.mdLg),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(context.l10n.incomeManagementTitle,
-                      style: textTheme.titleLarge),
-                  InkWell(
-                    onTap: () async {
-                      await context.push('/add-transaction?type=income');
-                      if (context.mounted) context.read<IncomeCubit>().load();
-                    },
-                    borderRadius: BorderRadius.circular(100),
-                    child: Icon(Icons.add_circle_rounded,
-                        size: 22, color: colors.primary),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
-              MonthChipsRow(
-                selectedIndex: _selectedMonthChip,
-                onSelected: (i) => setState(() => _selectedMonthChip = i),
-              ),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () => context.read<IncomeCubit>().load(),
-                  child: BlocBuilder<IncomeCubit, IncomeState>(
-                    builder: (context, state) {
-                      return switch (state) {
-                        IncomeLoading() => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: const [
-                              Padding(
-                                padding: EdgeInsets.only(top: AppSpacing.xxl2),
-                                child: AppLoadingIndicator(),
-                              ),
-                            ],
-                          ),
-                        IncomeError(:final message) => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: [
-                              AppErrorView(
-                                message: message,
-                                onRetry: () =>
-                                    context.read<IncomeCubit>().load(),
-                              ),
-                            ],
-                          ),
-                        IncomeLoaded(transactions: []) => LayoutBuilder(
-                            builder: (context, constraints) => ListView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              children: [
-                                SizedBox(
-                                  height: constraints.maxHeight,
-                                  child: AppEmptyView(
-                                    icon: Icons.savings_rounded,
-                                    message: context
-                                        .l10n.incomeManagementEmptyMessage,
-                                  ),
-                                ),
-                              ],
+              Positioned.fill(
+                top: headerHeight,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.screenHorizontal),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: AppSpacing.mdLg),
+                        MonthChipsRow(
+                          selectedIndex: _selectedMonthChip,
+                          onSelected: (i) =>
+                              setState(() => _selectedMonthChip = i),
+                        ),
+                        const SizedBox(height: AppSpacing.mdLg),
+                        Expanded(
+                          child: RefreshIndicator(
+                            onRefresh: () => context.read<IncomeCubit>().load(),
+                            child: BlocBuilder<IncomeCubit, IncomeState>(
+                              builder: (context, state) {
+                                return switch (state) {
+                                  IncomeLoading() => ListView(
+                                      padding: EdgeInsets.zero,
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      children: const [
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              top: AppSpacing.xxl2),
+                                          child: AppLoadingIndicator(),
+                                        ),
+                                      ],
+                                    ),
+                                  IncomeError(:final message) => ListView(
+                                      padding: EdgeInsets.zero,
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      children: [
+                                        AppErrorView(
+                                          message: message,
+                                          onRetry: () => context
+                                              .read<IncomeCubit>()
+                                              .load(),
+                                        ),
+                                      ],
+                                    ),
+                                  IncomeLoaded(transactions: []) =>
+                                    LayoutBuilder(
+                                      builder: (context, constraints) =>
+                                          ListView(
+                                        padding: EdgeInsets.zero,
+                                        physics:
+                                            const AlwaysScrollableScrollPhysics(),
+                                        children: [
+                                          SizedBox(
+                                            height: constraints.maxHeight,
+                                            child: AppEmptyView(
+                                              icon: Icons.savings_rounded,
+                                              message: context.l10n
+                                                  .incomeManagementEmptyMessage,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  IncomeLoaded(:final transactions) => ListView(
+                                      padding: EdgeInsets.zero,
+                                      children: [
+                                        for (final t in transactions) ...[
+                                          SwipeToDelete(
+                                            itemKey: ValueKey(t.id),
+                                            confirmTitle: context.l10n
+                                                .transactionDeleteConfirmTitle,
+                                            confirmDescription: context.l10n
+                                                .feedbackKitConfirmDialogDesc,
+                                            onTap: () =>
+                                                _editTransaction(context, t),
+                                            onDelete: () => _deleteTransaction(
+                                                context, t.id),
+                                            child: IncomeRow(transaction: t),
+                                          ),
+                                          const SizedBox(height: 10),
+                                        ],
+                                      ],
+                                    ),
+                                };
+                              },
                             ),
                           ),
-                        IncomeLoaded(:final transactions) => ListView(
-                            padding:
-                                const EdgeInsets.only(top: AppSpacing.mdLg),
-                            children: [
-                              for (final t in transactions) ...[
-                                SwipeToDelete(
-                                  itemKey: ValueKey(t.id),
-                                  confirmTitle: context
-                                      .l10n.transactionDeleteConfirmTitle,
-                                  confirmDescription:
-                                      context.l10n.feedbackKitConfirmDialogDesc,
-                                  onTap: () => _editTransaction(context, t),
-                                  onDelete: () =>
-                                      _deleteTransaction(context, t.id),
-                                  child: IncomeRow(transaction: t),
-                                ),
-                                const SizedBox(height: 10),
-                              ],
-                            ],
-                          ),
-                      };
-                    },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+              ),
+              AppHeader(
+                title: context.l10n.incomeManagementTitle,
+                titleFontSize: 19,
+                onBack: () => Navigator.of(context).pop(),
+                trailingIcon: Icons.add_rounded,
+                onTrailingPressed: () async {
+                  await context.push('/add-transaction?type=income');
+                  if (context.mounted) context.read<IncomeCubit>().load();
+                },
               ),
             ],
           ),
         ),
+        floatingActionButton: AppFab(
+          onPressed: () async {
+            await context.push('/add-transaction?type=income');
+            if (context.mounted) context.read<IncomeCubit>().load();
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
-      floatingActionButton: AppFab(
-        onPressed: () async {
-          await context.push('/add-transaction?type=income');
-          if (context.mounted) context.read<IncomeCubit>().load();
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

@@ -13,11 +13,11 @@ abstract class AppSpacing {
   static const xxl = 28.0;
   static const xxl2 = 32.0;
 
-  /// Screen horizontal padding (Dashboard/Calendar/Reports/... — 15px).
-  static const screenHorizontal = 15.0;
+  /// Screen horizontal padding (Dashboard/Calendar/Reports/... — 16px).
+  static const screenHorizontal = 16.0;
 
-  /// Login/Register side padding — wider than the standard screen gutter (20px).
-  static const authHorizontal = 20.0;
+  /// Login/Register side padding — wider than the standard screen gutter (18px).
+  static const authHorizontal = 18.0;
 
   /// Gap between stacked cards.
   static const cardGap = 14.0;
