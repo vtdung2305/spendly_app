@@ -41,7 +41,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final _month = DateTime(2026, 7);
+  final _month = DateTime(DateTime.now().year, DateTime.now().month);
 
   @override
   void initState() {

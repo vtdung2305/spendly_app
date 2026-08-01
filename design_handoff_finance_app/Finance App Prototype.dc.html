@@ -698,7 +698,16 @@
                   </button>
               </div>
               <div style="padding:16px;">
-              <div style="font-size:12px;color:{{ c.textSec }};margin-top:-6px;">{{ budgetSummaryStr }}</div>
+              <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
+                <button onclick="{{ prevMonth }}" style="width:34px;height:34px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                  <span class="msr" style="font-size:18px;color:{{ c.text }};">chevron_left</span>
+                </button>
+                <div style="font-size:15px;font-weight:800;color:{{ c.text }};min-width:120px;text-align:center;">{{ budgetMonthLabel }}</div>
+                <button onclick="{{ nextMonth }}" style="width:34px;height:34px;border-radius:10px;background:{{ c.surfaceAlt }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                  <span class="msr" style="font-size:18px;color:{{ c.text }};">chevron_right</span>
+                </button>
+              </div>
+              <div style="font-size:12px;color:{{ c.textSec }};margin-top:10px;text-align:center;">{{ budgetSummaryStr }}</div>
 
               <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
                 <sc-for list="{{ budgetItems }}" as="bi" hint-placeholder-count="5">
@@ -1938,9 +1947,11 @@ class Component extends DCLogic {
         style: `aspect-ratio:1;border-radius:12px;border:${isTod && !isSel ? `2px solid ${c.primary}` : 'none'};background:${isSel?c.primary:(isTod?c.primaryLight:c.surfaceAlt)};color:${isSel?'#fff':(isTod?c.primary:c.text)};font-size:12.5px;font-weight:700;cursor:pointer;` };
     });
 
+    // Prototype-only: vary spend per category across months so the month switcher shows real change.
+    const monthUsedFactor = [0.72, 0.91, 1.08, 0.85, 1.0, 0.63, 1.15][((s.monthOffset%7)+7)%7];
     const activeBudgets = this.budgets
       .filter(b => !s.deletedBudgetCats.includes(b.cat))
-      .map(b => ({...b, budget: s.budgetOverrides[b.cat] ?? b.budget}));
+      .map(b => ({...b, budget: s.budgetOverrides[b.cat] ?? b.budget, used: s.monthOffset===0 ? b.used : Math.round(b.used*monthUsedFactor/1000)*1000}));
     const budgetItems = activeBudgets.map(b=>{
       const pct = Math.round(b.used/b.budget*100);
       const over = pct>100;
@@ -2148,6 +2159,7 @@ class Component extends DCLogic {
       isReports: screen==='reports', isBudget: screen==='budget', isIncomeMgmt: screen==='incomeMgmt',
       isHistory: screen==='history', isProfile: screen==='profile', isSettings: screen==='settings',
       isForgotPassword: screen==='forgotPassword', isBudgetAdd: screen==='budgetAdd',
+      budgetMonthLabel: calendarMonthLabel,
       isBudgetEdit: screen==='budgetEdit', goBudgetEdit:this.goBudgetEdit, onEditBudgetAmountInput:this.onEditBudgetAmountInput,
       saveBudgetEdit:this.saveBudgetEdit, requestDeleteBudget:this.requestDeleteBudget, budgetPresets,
       editBudgetLabel: editB.label || '', editBudgetIcon: editB.icon || 'category', editBudgetColor: editB.color || c.primary,

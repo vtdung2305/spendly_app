@@ -8,12 +8,12 @@ class BudgetCubit extends Cubit<BudgetState> {
 
   final GetBudgetsUseCase _getBudgetsUseCase;
 
-  Future<void> load() async {
+  Future<void> load(DateTime month) async {
     emit(const BudgetLoading());
-    final result = await _getBudgetsUseCase();
+    final result = await _getBudgetsUseCase(month);
     result.fold(
       (failure) => emit(BudgetError(failure.message)),
-      (items) => emit(BudgetLoaded(items)),
+      (items) => emit(BudgetLoaded(items, month)),
     );
   }
 }

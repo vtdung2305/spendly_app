@@ -56,7 +56,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final headerHeight = MediaQuery.paddingOf(context).top + 56;
+    final headerHeight = MediaQuery.paddingOf(context).top + 76;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
@@ -198,7 +198,11 @@ class _HistoryPageState extends State<HistoryPage> {
                   ),
                 ),
               ),
-              AppHeader(title: context.l10n.historyTitle, titleFontSize: 19),
+              AppHeader(
+                title: context.l10n.historyTitle,
+                titleFontSize: 19,
+                onBack: () => Navigator.of(context).pop(),
+              ),
             ],
           ),
         ),

@@ -18,11 +18,10 @@ class BudgetRepository implements IBudgetRepository {
   final CategoryRemoteDataSource _categoryDataSource;
 
   @override
-  Future<Either<Failure, List<BudgetItem>>> getBudgets() async {
+  Future<Either<Failure, List<BudgetItem>>> getBudgets(DateTime month) async {
     try {
-      final now = DateTime.now();
-      final monthStart = DateTime(now.year, now.month);
-      final monthEnd = DateTime(now.year, now.month + 1);
+      final monthStart = DateTime(month.year, month.month);
+      final monthEnd = DateTime(month.year, month.month + 1);
 
       final rows = await _budgetDataSource.getBudgetRows();
       final monthTransactions = await _transactionDataSource

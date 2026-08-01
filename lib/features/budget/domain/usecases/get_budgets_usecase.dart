@@ -8,5 +8,6 @@ class GetBudgetsUseCase {
   const GetBudgetsUseCase(this._repository);
   final IBudgetRepository _repository;
 
-  Future<Either<Failure, List<BudgetItem>>> call() => _repository.getBudgets();
+  Future<Either<Failure, List<BudgetItem>>> call(DateTime month) =>
+      _repository.getBudgets(month);
 }

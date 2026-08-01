@@ -14,8 +14,9 @@ class BudgetLoading extends BudgetState {
 }
 
 class BudgetLoaded extends BudgetState {
-  const BudgetLoaded(this.items);
+  const BudgetLoaded(this.items, this.month);
   final List<BudgetItem> items;
+  final DateTime month;
 
   double get totalBudget =>
       items.fold<double>(0, (sum, i) => sum + i.budgetAmount);
@@ -24,7 +25,7 @@ class BudgetLoaded extends BudgetState {
       totalBudget == 0 ? 0 : ((totalUsed / totalBudget) * 100).round();
 
   @override
-  List<Object?> get props => [items];
+  List<Object?> get props => [items, month];
 }
 
 class BudgetError extends BudgetState {

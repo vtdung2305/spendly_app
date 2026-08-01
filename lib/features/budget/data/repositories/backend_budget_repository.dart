@@ -18,13 +18,16 @@ class BackendBudgetRepository implements IBudgetRepository {
 
   String _currentMonth() {
     final now = DateTime.now();
-    return '${now.year}-${now.month.toString().padLeft(2, '0')}';
+    return _monthString(now);
   }
 
+  String _monthString(DateTime month) =>
+      '${month.year}-${month.month.toString().padLeft(2, '0')}';
+
   @override
-  Future<Either<Failure, List<BudgetItem>>> getBudgets() async {
+  Future<Either<Failure, List<BudgetItem>>> getBudgets(DateTime month) async {
     try {
-      final rows = await _dataSource.getBudgetRows(_currentMonth());
+      final rows = await _dataSource.getBudgetRows(_monthString(month));
       final items = rows.map((row) {
         final category = CategoryModel.fromBackendJson(
                 row['category'] as Map<String, dynamic>)

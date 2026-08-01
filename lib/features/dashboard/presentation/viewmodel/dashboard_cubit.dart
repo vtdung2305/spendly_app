@@ -24,7 +24,7 @@ class DashboardCubit extends Cubit<DashboardState> {
   Future<void> load(DateTime month) async {
     emit(const DashboardLoading());
     final result = await _getDashboardSummaryUseCase(month);
-    final budgetsResult = await _getBudgetsUseCase();
+    final budgetsResult = await _getBudgetsUseCase(month);
     final savingsGoalResult = await _getSavingsGoalUseCase(month.year);
     final BudgetItem? overBudgetItem = budgetsResult.fold(
       (_) => null,
