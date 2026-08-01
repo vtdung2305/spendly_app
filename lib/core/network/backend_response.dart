@@ -23,6 +23,8 @@ dynamic unwrapBackendData(dynamic body, {int? statusCode}) {
   if (body is! Map<String, dynamic>) return body;
   if (body['success'] == false) {
     final error = body['error'] as Map<String, dynamic>? ?? const {};
+    // TEMP DEBUG — remove after diagnosing validation error details.
+    // print('raw backend error: $error');
     throw BackendApiException(
       code: error['code'] as String? ?? 'UNKNOWN',
       message: error['message'] as String? ?? 'Đã có lỗi xảy ra',

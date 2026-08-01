@@ -84,9 +84,12 @@ class TransactionModel {
       };
 
   /// Backend `POST`/`PATCH transactions` body — `occurredAt` instead of
-  /// `date`, `type` upper-cased, `categoryId` camelCase.
-  Map<String, dynamic> toBackendJson() => {
-        'type': type == TransactionType.income ? 'INCOME' : 'EXPENSE',
+  /// `date`, `type` upper-cased, `categoryId` camelCase. `type` is
+  /// immutable on the backend, so `PATCH` calls pass `includeType: false`
+  /// to omit it.
+  Map<String, dynamic> toBackendJson({bool includeType = true}) => {
+        if (includeType)
+          'type': type == TransactionType.income ? 'INCOME' : 'EXPENSE',
         'categoryId': categoryId,
         'amount': amount,
         'note': note,

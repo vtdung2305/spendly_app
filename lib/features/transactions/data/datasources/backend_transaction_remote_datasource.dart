@@ -26,8 +26,8 @@ class BackendTransactionRemoteDataSource {
   }
 
   Future<void> updateTransaction(TransactionModel model) async {
-    await _client.dio
-        .patch('transactions/${model.id}', data: model.toBackendJson());
+    await _client.dio.patch('transactions/${model.id}',
+        data: model.toBackendJson(includeType: false));
   }
 
   Future<void> deleteTransaction(String id) async {

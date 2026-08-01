@@ -29,7 +29,7 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  DateTime _currentMonth = DateTime(2026, 7);
+  DateTime _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
   final _scrollController = ScrollController();
   bool _isScrolled = false;
 
