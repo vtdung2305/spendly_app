@@ -728,23 +728,65 @@ abstract class AppLocalizations {
   /// **'Mục tiêu tiết kiệm {year}'**
   String dashboardSavingsGoalTitle(String year);
 
-  /// No description provided for @dashboardSavingsGoalEditTitle.
+  /// No description provided for @savingsGoalDetailPageTitle.
   ///
   /// In vi, this message translates to:
-  /// **'Đặt mục tiêu tiết kiệm'**
-  String get dashboardSavingsGoalEditTitle;
+  /// **'Mục tiêu tiết kiệm'**
+  String get savingsGoalDetailPageTitle;
 
-  /// No description provided for @dashboardSavingsGoalAmountHint.
+  /// No description provided for @savingsGoalDetailOfTarget.
   ///
   /// In vi, this message translates to:
-  /// **'Nhập số tiền mục tiêu'**
-  String get dashboardSavingsGoalAmountHint;
+  /// **'trong tổng mục tiêu {target}'**
+  String savingsGoalDetailOfTarget(String target);
 
-  /// No description provided for @dashboardSavingsGoalUpdatedSnackbar.
+  /// No description provided for @savingsGoalDetailPercentComplete.
   ///
   /// In vi, this message translates to:
-  /// **'Đã cập nhật mục tiêu tiết kiệm'**
-  String get dashboardSavingsGoalUpdatedSnackbar;
+  /// **'{percent}% hoàn thành'**
+  String savingsGoalDetailPercentComplete(String percent);
+
+  /// No description provided for @savingsGoalDetailRemaining.
+  ///
+  /// In vi, this message translates to:
+  /// **'còn {amount}'**
+  String savingsGoalDetailRemaining(String amount);
+
+  /// No description provided for @savingsGoalDetailDeadlineLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hạn mục tiêu'**
+  String get savingsGoalDetailDeadlineLabel;
+
+  /// No description provided for @savingsGoalDetailAvgPerMonthLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'TB mỗi tháng'**
+  String get savingsGoalDetailAvgPerMonthLabel;
+
+  /// No description provided for @savingsGoalDetailHistoryTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lịch sử đóng góp'**
+  String get savingsGoalDetailHistoryTitle;
+
+  /// No description provided for @savingsGoalDetailHistoryCount.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} lần'**
+  String savingsGoalDetailHistoryCount(String count);
+
+  /// No description provided for @savingsGoalDetailContributionMonth.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đóng góp tháng {month}'**
+  String savingsGoalDetailContributionMonth(String month);
+
+  /// No description provided for @savingsGoalDetailEmptyMessage.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có lịch sử đóng góp'**
+  String get savingsGoalDetailEmptyMessage;
 
   /// No description provided for @addTransactionSavedExpenseSnackbar.
   ///
@@ -1172,6 +1214,270 @@ abstract class AppLocalizations {
   /// **'Một số danh mục đã vượt hạn mức ngân sách tháng này.'**
   String get budgetOverLimitBannerDesc;
 
+  /// No description provided for @recurringTransactionListPageTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Giao dịch định kỳ'**
+  String get recurringTransactionListPageTitle;
+
+  /// No description provided for @recurringTransactionListDescription.
+  ///
+  /// In vi, this message translates to:
+  /// **'Các khoản chi/thu cố định lặp lại hàng tháng, như tiền nhà hay gói đăng ký.'**
+  String get recurringTransactionListDescription;
+
+  /// No description provided for @recurringTransactionEmptyTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có giao dịch định kỳ'**
+  String get recurringTransactionEmptyTitle;
+
+  /// No description provided for @recurringTransactionEmptyMessage.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhấn + để thêm tiền nhà, subscription...'**
+  String get recurringTransactionEmptyMessage;
+
+  /// No description provided for @recurringTransactionMonthlyOnDay.
+  ///
+  /// In vi, this message translates to:
+  /// **'{category} · Hàng tháng · ngày {day}'**
+  String recurringTransactionMonthlyOnDay(String category, String day);
+
+  /// No description provided for @recurringTransactionStatusActive.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang hoạt động'**
+  String get recurringTransactionStatusActive;
+
+  /// No description provided for @recurringTransactionStatusPaused.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã tạm dừng'**
+  String get recurringTransactionStatusPaused;
+
+  /// No description provided for @recurringTransactionFormAddTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thêm giao dịch định kỳ'**
+  String get recurringTransactionFormAddTitle;
+
+  /// No description provided for @recurringTransactionFormEditTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Sửa giao dịch định kỳ'**
+  String get recurringTransactionFormEditTitle;
+
+  /// No description provided for @recurringTransactionFormLabelField.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tên giao dịch định kỳ'**
+  String get recurringTransactionFormLabelField;
+
+  /// No description provided for @recurringTransactionFormLabelHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'VD: Tiền nhà, Netflix...'**
+  String get recurringTransactionFormLabelHint;
+
+  /// No description provided for @recurringTransactionFormCategoryLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh mục'**
+  String get recurringTransactionFormCategoryLabel;
+
+  /// No description provided for @recurringTransactionFormAmountLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Số tiền'**
+  String get recurringTransactionFormAmountLabel;
+
+  /// No description provided for @recurringTransactionFormDayLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lặp lại vào ngày'**
+  String get recurringTransactionFormDayLabel;
+
+  /// No description provided for @recurringTransactionFormActiveTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đang hoạt động'**
+  String get recurringTransactionFormActiveTitle;
+
+  /// No description provided for @recurringTransactionFormActiveSubtitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tự động tạo giao dịch mỗi tháng'**
+  String get recurringTransactionFormActiveSubtitle;
+
+  /// No description provided for @recurringTransactionFormSaveButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lưu'**
+  String get recurringTransactionFormSaveButton;
+
+  /// No description provided for @recurringTransactionFormDeleteButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xóa giao dịch định kỳ'**
+  String get recurringTransactionFormDeleteButton;
+
+  /// No description provided for @recurringTransactionDeleteConfirmTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xóa giao dịch định kỳ?'**
+  String get recurringTransactionDeleteConfirmTitle;
+
+  /// No description provided for @recurringTransactionDeleteConfirmDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Khoản này sẽ không còn tự động tạo giao dịch mỗi tháng nữa.'**
+  String get recurringTransactionDeleteConfirmDesc;
+
+  /// No description provided for @recurringTransactionSavedSnackbar.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã lưu giao dịch định kỳ'**
+  String get recurringTransactionSavedSnackbar;
+
+  /// No description provided for @recurringTransactionDeletedSnackbar.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã xóa giao dịch định kỳ'**
+  String get recurringTransactionDeletedSnackbar;
+
+  /// No description provided for @notificationCenterPageTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thông báo & Nhắc nhở'**
+  String get notificationCenterPageTitle;
+
+  /// No description provided for @notificationCenterRecentTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Gần đây'**
+  String get notificationCenterRecentTitle;
+
+  /// No description provided for @notificationCenterMarkAllRead.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đánh dấu đã đọc'**
+  String get notificationCenterMarkAllRead;
+
+  /// No description provided for @notificationCenterEmptyMessage.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có thông báo nào'**
+  String get notificationCenterEmptyMessage;
+
+  /// No description provided for @notificationCenterReminderSettingsTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cài đặt nhắc nhở'**
+  String get notificationCenterReminderSettingsTitle;
+
+  /// No description provided for @notificationReminderDailyExpenseLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhắc nhập chi tiêu hàng ngày'**
+  String get notificationReminderDailyExpenseLabel;
+
+  /// No description provided for @notificationReminderDailyExpenseDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhắc bạn ghi lại chi tiêu nếu chưa nhập gì trong ngày.'**
+  String get notificationReminderDailyExpenseDesc;
+
+  /// No description provided for @notificationReminderBudgetAlertLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Cảnh báo gần vượt ngân sách'**
+  String get notificationReminderBudgetAlertLabel;
+
+  /// No description provided for @notificationReminderBudgetAlertDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Báo khi một danh mục đã dùng trên 80% hạn mức.'**
+  String get notificationReminderBudgetAlertDesc;
+
+  /// No description provided for @notificationReminderRecurringAlertLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Nhắc giao dịch định kỳ'**
+  String get notificationReminderRecurringAlertLabel;
+
+  /// No description provided for @notificationReminderRecurringAlertDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Báo khi hệ thống vừa tự động tạo một giao dịch định kỳ.'**
+  String get notificationReminderRecurringAlertDesc;
+
+  /// No description provided for @notificationDailyReminderTimeLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Giờ nhắc hàng ngày'**
+  String get notificationDailyReminderTimeLabel;
+
+  /// No description provided for @notificationTimeJustNow.
+  ///
+  /// In vi, this message translates to:
+  /// **'Vừa xong'**
+  String get notificationTimeJustNow;
+
+  /// No description provided for @notificationTimeMinutesAgo.
+  ///
+  /// In vi, this message translates to:
+  /// **'{minutes} phút trước'**
+  String notificationTimeMinutesAgo(String minutes);
+
+  /// No description provided for @notificationTimeHoursAgo.
+  ///
+  /// In vi, this message translates to:
+  /// **'{hours} giờ trước'**
+  String notificationTimeHoursAgo(String hours);
+
+  /// No description provided for @notificationTimeYesterday.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hôm qua'**
+  String get notificationTimeYesterday;
+
+  /// No description provided for @notificationTimeDaysAgo.
+  ///
+  /// In vi, this message translates to:
+  /// **'{days} ngày trước'**
+  String notificationTimeDaysAgo(String days);
+
+  /// No description provided for @savingsGoalFormPageTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thiết lập mục tiêu'**
+  String get savingsGoalFormPageTitle;
+
+  /// No description provided for @savingsGoalFormYearLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Năm mục tiêu'**
+  String get savingsGoalFormYearLabel;
+
+  /// No description provided for @savingsGoalFormTargetLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Số tiền mục tiêu'**
+  String get savingsGoalFormTargetLabel;
+
+  /// No description provided for @savingsGoalFormSaveButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lưu mục tiêu'**
+  String get savingsGoalFormSaveButton;
+
+  /// No description provided for @savingsGoalFormSavedSnackbar.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã lưu mục tiêu tiết kiệm'**
+  String get savingsGoalFormSavedSnackbar;
+
   /// No description provided for @incomeManagementTitle.
   ///
   /// In vi, this message translates to:
@@ -1303,6 +1609,18 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Quản lý thu nhập'**
   String get profileIncomeManagementLabel;
+
+  /// No description provided for @profileRecurringTransactionLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Giao dịch định kỳ'**
+  String get profileRecurringTransactionLabel;
+
+  /// No description provided for @profileNotificationCenterLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thông báo & Nhắc nhở'**
+  String get profileNotificationCenterLabel;
 
   /// No description provided for @profileCategoryManagementLabel.
   ///

@@ -345,13 +345,44 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get dashboardSavingsGoalEditTitle => 'Set savings goal';
+  String get savingsGoalDetailPageTitle => 'Savings goal';
 
   @override
-  String get dashboardSavingsGoalAmountHint => 'Enter target amount';
+  String savingsGoalDetailOfTarget(String target) {
+    return 'of the $target target';
+  }
 
   @override
-  String get dashboardSavingsGoalUpdatedSnackbar => 'Savings goal updated';
+  String savingsGoalDetailPercentComplete(String percent) {
+    return '$percent% complete';
+  }
+
+  @override
+  String savingsGoalDetailRemaining(String amount) {
+    return '$amount left';
+  }
+
+  @override
+  String get savingsGoalDetailDeadlineLabel => 'Target date';
+
+  @override
+  String get savingsGoalDetailAvgPerMonthLabel => 'Avg per month';
+
+  @override
+  String get savingsGoalDetailHistoryTitle => 'Contribution history';
+
+  @override
+  String savingsGoalDetailHistoryCount(String count) {
+    return '$count entries';
+  }
+
+  @override
+  String savingsGoalDetailContributionMonth(String month) {
+    return 'Contribution for month $month';
+  }
+
+  @override
+  String get savingsGoalDetailEmptyMessage => 'No contribution history yet';
 
   @override
   String get addTransactionSavedExpenseSnackbar => 'Expense saved';
@@ -597,6 +628,157 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some categories have exceeded this month\'s budget limit.';
 
   @override
+  String get recurringTransactionListPageTitle => 'Recurring transactions';
+
+  @override
+  String get recurringTransactionListDescription =>
+      'Fixed monthly charges or deposits, like rent or a subscription.';
+
+  @override
+  String get recurringTransactionEmptyTitle => 'No recurring transactions yet';
+
+  @override
+  String get recurringTransactionEmptyMessage =>
+      'Tap + to add rent, a subscription...';
+
+  @override
+  String recurringTransactionMonthlyOnDay(String category, String day) {
+    return '$category · Monthly · day $day';
+  }
+
+  @override
+  String get recurringTransactionStatusActive => 'Active';
+
+  @override
+  String get recurringTransactionStatusPaused => 'Paused';
+
+  @override
+  String get recurringTransactionFormAddTitle => 'Add recurring transaction';
+
+  @override
+  String get recurringTransactionFormEditTitle => 'Edit recurring transaction';
+
+  @override
+  String get recurringTransactionFormLabelField => 'Recurring transaction name';
+
+  @override
+  String get recurringTransactionFormLabelHint => 'e.g. Rent, Netflix...';
+
+  @override
+  String get recurringTransactionFormCategoryLabel => 'Category';
+
+  @override
+  String get recurringTransactionFormAmountLabel => 'Amount';
+
+  @override
+  String get recurringTransactionFormDayLabel => 'Repeats on day';
+
+  @override
+  String get recurringTransactionFormActiveTitle => 'Active';
+
+  @override
+  String get recurringTransactionFormActiveSubtitle =>
+      'Automatically creates a transaction every month';
+
+  @override
+  String get recurringTransactionFormSaveButton => 'Save';
+
+  @override
+  String get recurringTransactionFormDeleteButton =>
+      'Delete recurring transaction';
+
+  @override
+  String get recurringTransactionDeleteConfirmTitle =>
+      'Delete recurring transaction?';
+
+  @override
+  String get recurringTransactionDeleteConfirmDesc =>
+      'This will stop automatically creating a transaction every month.';
+
+  @override
+  String get recurringTransactionSavedSnackbar => 'Recurring transaction saved';
+
+  @override
+  String get recurringTransactionDeletedSnackbar =>
+      'Recurring transaction deleted';
+
+  @override
+  String get notificationCenterPageTitle => 'Notifications & Reminders';
+
+  @override
+  String get notificationCenterRecentTitle => 'Recent';
+
+  @override
+  String get notificationCenterMarkAllRead => 'Mark all read';
+
+  @override
+  String get notificationCenterEmptyMessage => 'No notifications yet';
+
+  @override
+  String get notificationCenterReminderSettingsTitle => 'Reminder settings';
+
+  @override
+  String get notificationReminderDailyExpenseLabel => 'Daily expense reminder';
+
+  @override
+  String get notificationReminderDailyExpenseDesc =>
+      'Reminds you to log an expense if you haven\'t entered anything today.';
+
+  @override
+  String get notificationReminderBudgetAlertLabel => 'Near-budget alert';
+
+  @override
+  String get notificationReminderBudgetAlertDesc =>
+      'Alerts you when a category has used over 80% of its limit.';
+
+  @override
+  String get notificationReminderRecurringAlertLabel =>
+      'Recurring transaction alert';
+
+  @override
+  String get notificationReminderRecurringAlertDesc =>
+      'Alerts you when a recurring transaction was just auto-generated.';
+
+  @override
+  String get notificationDailyReminderTimeLabel => 'Daily reminder time';
+
+  @override
+  String get notificationTimeJustNow => 'Just now';
+
+  @override
+  String notificationTimeMinutesAgo(String minutes) {
+    return '${minutes}m ago';
+  }
+
+  @override
+  String notificationTimeHoursAgo(String hours) {
+    return '${hours}h ago';
+  }
+
+  @override
+  String get notificationTimeYesterday => 'Yesterday';
+
+  @override
+  String notificationTimeDaysAgo(String days) {
+    return '${days}d ago';
+  }
+
+  @override
+  String get savingsGoalFormPageTitle => 'Set up goal';
+
+  @override
+  String get savingsGoalFormYearLabel => 'Goal year';
+
+  @override
+  String get savingsGoalFormTargetLabel => 'Target amount';
+
+  @override
+  String get savingsGoalFormSaveButton => 'Save goal';
+
+  @override
+  String get savingsGoalFormSavedSnackbar => 'Savings goal saved';
+
+  @override
   String get incomeManagementTitle => 'Income';
 
   @override
@@ -661,6 +843,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileIncomeManagementLabel => 'Manage income';
+
+  @override
+  String get profileRecurringTransactionLabel => 'Recurring transactions';
+
+  @override
+  String get profileNotificationCenterLabel => 'Notifications & Reminders';
 
   @override
   String get profileCategoryManagementLabel => 'Categories';

@@ -346,14 +346,44 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get dashboardSavingsGoalEditTitle => 'Đặt mục tiêu tiết kiệm';
+  String get savingsGoalDetailPageTitle => 'Mục tiêu tiết kiệm';
 
   @override
-  String get dashboardSavingsGoalAmountHint => 'Nhập số tiền mục tiêu';
+  String savingsGoalDetailOfTarget(String target) {
+    return 'trong tổng mục tiêu $target';
+  }
 
   @override
-  String get dashboardSavingsGoalUpdatedSnackbar =>
-      'Đã cập nhật mục tiêu tiết kiệm';
+  String savingsGoalDetailPercentComplete(String percent) {
+    return '$percent% hoàn thành';
+  }
+
+  @override
+  String savingsGoalDetailRemaining(String amount) {
+    return 'còn $amount';
+  }
+
+  @override
+  String get savingsGoalDetailDeadlineLabel => 'Hạn mục tiêu';
+
+  @override
+  String get savingsGoalDetailAvgPerMonthLabel => 'TB mỗi tháng';
+
+  @override
+  String get savingsGoalDetailHistoryTitle => 'Lịch sử đóng góp';
+
+  @override
+  String savingsGoalDetailHistoryCount(String count) {
+    return '$count lần';
+  }
+
+  @override
+  String savingsGoalDetailContributionMonth(String month) {
+    return 'Đóng góp tháng $month';
+  }
+
+  @override
+  String get savingsGoalDetailEmptyMessage => 'Chưa có lịch sử đóng góp';
 
   @override
   String get addTransactionSavedExpenseSnackbar => 'Đã lưu khoản chi';
@@ -599,6 +629,156 @@ class AppLocalizationsVi extends AppLocalizations {
       'Một số danh mục đã vượt hạn mức ngân sách tháng này.';
 
   @override
+  String get recurringTransactionListPageTitle => 'Giao dịch định kỳ';
+
+  @override
+  String get recurringTransactionListDescription =>
+      'Các khoản chi/thu cố định lặp lại hàng tháng, như tiền nhà hay gói đăng ký.';
+
+  @override
+  String get recurringTransactionEmptyTitle => 'Chưa có giao dịch định kỳ';
+
+  @override
+  String get recurringTransactionEmptyMessage =>
+      'Nhấn + để thêm tiền nhà, subscription...';
+
+  @override
+  String recurringTransactionMonthlyOnDay(String category, String day) {
+    return '$category · Hàng tháng · ngày $day';
+  }
+
+  @override
+  String get recurringTransactionStatusActive => 'Đang hoạt động';
+
+  @override
+  String get recurringTransactionStatusPaused => 'Đã tạm dừng';
+
+  @override
+  String get recurringTransactionFormAddTitle => 'Thêm giao dịch định kỳ';
+
+  @override
+  String get recurringTransactionFormEditTitle => 'Sửa giao dịch định kỳ';
+
+  @override
+  String get recurringTransactionFormLabelField => 'Tên giao dịch định kỳ';
+
+  @override
+  String get recurringTransactionFormLabelHint => 'VD: Tiền nhà, Netflix...';
+
+  @override
+  String get recurringTransactionFormCategoryLabel => 'Danh mục';
+
+  @override
+  String get recurringTransactionFormAmountLabel => 'Số tiền';
+
+  @override
+  String get recurringTransactionFormDayLabel => 'Lặp lại vào ngày';
+
+  @override
+  String get recurringTransactionFormActiveTitle => 'Đang hoạt động';
+
+  @override
+  String get recurringTransactionFormActiveSubtitle =>
+      'Tự động tạo giao dịch mỗi tháng';
+
+  @override
+  String get recurringTransactionFormSaveButton => 'Lưu';
+
+  @override
+  String get recurringTransactionFormDeleteButton => 'Xóa giao dịch định kỳ';
+
+  @override
+  String get recurringTransactionDeleteConfirmTitle => 'Xóa giao dịch định kỳ?';
+
+  @override
+  String get recurringTransactionDeleteConfirmDesc =>
+      'Khoản này sẽ không còn tự động tạo giao dịch mỗi tháng nữa.';
+
+  @override
+  String get recurringTransactionSavedSnackbar => 'Đã lưu giao dịch định kỳ';
+
+  @override
+  String get recurringTransactionDeletedSnackbar => 'Đã xóa giao dịch định kỳ';
+
+  @override
+  String get notificationCenterPageTitle => 'Thông báo & Nhắc nhở';
+
+  @override
+  String get notificationCenterRecentTitle => 'Gần đây';
+
+  @override
+  String get notificationCenterMarkAllRead => 'Đánh dấu đã đọc';
+
+  @override
+  String get notificationCenterEmptyMessage => 'Chưa có thông báo nào';
+
+  @override
+  String get notificationCenterReminderSettingsTitle => 'Cài đặt nhắc nhở';
+
+  @override
+  String get notificationReminderDailyExpenseLabel =>
+      'Nhắc nhập chi tiêu hàng ngày';
+
+  @override
+  String get notificationReminderDailyExpenseDesc =>
+      'Nhắc bạn ghi lại chi tiêu nếu chưa nhập gì trong ngày.';
+
+  @override
+  String get notificationReminderBudgetAlertLabel =>
+      'Cảnh báo gần vượt ngân sách';
+
+  @override
+  String get notificationReminderBudgetAlertDesc =>
+      'Báo khi một danh mục đã dùng trên 80% hạn mức.';
+
+  @override
+  String get notificationReminderRecurringAlertLabel =>
+      'Nhắc giao dịch định kỳ';
+
+  @override
+  String get notificationReminderRecurringAlertDesc =>
+      'Báo khi hệ thống vừa tự động tạo một giao dịch định kỳ.';
+
+  @override
+  String get notificationDailyReminderTimeLabel => 'Giờ nhắc hàng ngày';
+
+  @override
+  String get notificationTimeJustNow => 'Vừa xong';
+
+  @override
+  String notificationTimeMinutesAgo(String minutes) {
+    return '$minutes phút trước';
+  }
+
+  @override
+  String notificationTimeHoursAgo(String hours) {
+    return '$hours giờ trước';
+  }
+
+  @override
+  String get notificationTimeYesterday => 'Hôm qua';
+
+  @override
+  String notificationTimeDaysAgo(String days) {
+    return '$days ngày trước';
+  }
+
+  @override
+  String get savingsGoalFormPageTitle => 'Thiết lập mục tiêu';
+
+  @override
+  String get savingsGoalFormYearLabel => 'Năm mục tiêu';
+
+  @override
+  String get savingsGoalFormTargetLabel => 'Số tiền mục tiêu';
+
+  @override
+  String get savingsGoalFormSaveButton => 'Lưu mục tiêu';
+
+  @override
+  String get savingsGoalFormSavedSnackbar => 'Đã lưu mục tiêu tiết kiệm';
+
+  @override
   String get incomeManagementTitle => 'Thu nhập';
 
   @override
@@ -664,6 +844,12 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get profileIncomeManagementLabel => 'Quản lý thu nhập';
+
+  @override
+  String get profileRecurringTransactionLabel => 'Giao dịch định kỳ';
+
+  @override
+  String get profileNotificationCenterLabel => 'Thông báo & Nhắc nhở';
 
   @override
   String get profileCategoryManagementLabel => 'Danh mục';

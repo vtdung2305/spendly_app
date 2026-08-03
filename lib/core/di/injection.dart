@@ -55,11 +55,27 @@ import 'package:spendly_app/features/category_management/domain/usecases/add_cat
 import 'package:spendly_app/features/category_management/domain/usecases/delete_category_usecase.dart';
 import 'package:spendly_app/features/category_management/domain/usecases/get_categories_usecase.dart';
 import 'package:spendly_app/features/category_management/domain/usecases/update_category_usecase.dart';
+import 'package:spendly_app/features/notification/data/datasources/backend_notification_remote_datasource.dart';
+import 'package:spendly_app/features/notification/data/repositories/backend_notification_repository.dart';
+import 'package:spendly_app/features/notification/domain/repositories/i_notification_repository.dart';
+import 'package:spendly_app/features/notification/domain/usecases/get_notifications_usecase.dart';
+import 'package:spendly_app/features/notification/domain/usecases/get_reminder_settings_usecase.dart';
+import 'package:spendly_app/features/notification/domain/usecases/mark_all_notifications_read_usecase.dart';
+import 'package:spendly_app/features/notification/domain/usecases/update_reminder_settings_usecase.dart';
+import 'package:spendly_app/features/recurring_transaction/data/datasources/backend_recurring_transaction_remote_datasource.dart';
+import 'package:spendly_app/features/recurring_transaction/data/repositories/backend_recurring_transaction_repository.dart';
+import 'package:spendly_app/features/recurring_transaction/domain/repositories/i_recurring_transaction_repository.dart';
+import 'package:spendly_app/features/recurring_transaction/domain/usecases/add_recurring_transaction_usecase.dart';
+import 'package:spendly_app/features/recurring_transaction/domain/usecases/delete_recurring_transaction_usecase.dart';
+import 'package:spendly_app/features/recurring_transaction/domain/usecases/get_recurring_transactions_usecase.dart';
+import 'package:spendly_app/features/recurring_transaction/domain/usecases/update_recurring_transaction_usecase.dart';
 import 'package:spendly_app/features/savings_goal/data/datasources/backend_savings_goal_remote_datasource.dart';
 import 'package:spendly_app/features/savings_goal/data/datasources/savings_goal_remote_datasource.dart';
 import 'package:spendly_app/features/savings_goal/data/repositories/backend_savings_goal_repository.dart';
 import 'package:spendly_app/features/savings_goal/data/repositories/savings_goal_repository.dart';
 import 'package:spendly_app/features/savings_goal/domain/repositories/i_savings_goal_repository.dart';
+import 'package:spendly_app/features/savings_goal/domain/usecases/add_savings_goal_usecase.dart';
+import 'package:spendly_app/features/savings_goal/domain/usecases/get_savings_contribution_history_usecase.dart';
 import 'package:spendly_app/features/savings_goal/domain/usecases/get_savings_goal_usecase.dart';
 import 'package:spendly_app/features/savings_goal/domain/usecases/update_savings_goal_usecase.dart';
 
@@ -95,6 +111,16 @@ Future<void> configureDependencies() async {
     getIt.registerLazySingleton(() => BackendBudgetRemoteDataSource(getIt()));
     getIt.registerLazySingleton(
         () => BackendSavingsGoalRemoteDataSource(getIt()));
+    // Recurring Transactions has no Supabase-mode implementation — the
+    // backend auto-generates transactions server-side (no equivalent cron
+    // is possible from Flutter alone), so this is only registered here.
+    getIt.registerLazySingleton(
+        () => BackendRecurringTransactionRemoteDataSource(getIt()));
+    // Notifications/Reminders similarly has no Supabase-mode
+    // implementation — server-generated notifications + push delivery
+    // have no equivalent without a backend of their own.
+    getIt.registerLazySingleton(
+        () => BackendNotificationRemoteDataSource(getIt()));
   } else {
     getIt.registerLazySingleton(() => AuthRemoteDataSource(supabaseClient!));
     getIt
@@ -118,6 +144,10 @@ Future<void> configureDependencies() async {
         () => BackendBudgetRepository(getIt()));
     getIt.registerLazySingleton<ISavingsGoalRepository>(
         () => BackendSavingsGoalRepository(getIt()));
+    getIt.registerLazySingleton<IRecurringTransactionRepository>(
+        () => BackendRecurringTransactionRepository(getIt()));
+    getIt.registerLazySingleton<INotificationRepository>(
+        () => BackendNotificationRepository(getIt()));
   } else {
     getIt.registerLazySingleton<IAuthRepository>(() => AuthRepository(getIt()));
     getIt.registerLazySingleton<ICategoryRepository>(
@@ -166,7 +196,27 @@ Future<void> configureDependencies() async {
 
   // Use cases — Savings Goal
   getIt.registerFactory(() => GetSavingsGoalUseCase(getIt()));
+  getIt.registerFactory(() => AddSavingsGoalUseCase(getIt()));
   getIt.registerFactory(() => UpdateSavingsGoalUseCase(getIt()));
+  getIt.registerFactory(() => GetSavingsContributionHistoryUseCase(getIt()));
+
+  // Use cases — Recurring Transactions (backend mode only, see the
+  // repository registration above)
+  if (useBackend) {
+    getIt.registerFactory(() => GetRecurringTransactionsUseCase(getIt()));
+    getIt.registerFactory(() => AddRecurringTransactionUseCase(getIt()));
+    getIt.registerFactory(() => UpdateRecurringTransactionUseCase(getIt()));
+    getIt.registerFactory(() => DeleteRecurringTransactionUseCase(getIt()));
+  }
+
+  // Use cases — Notifications/Reminders (backend mode only, see the
+  // repository registration above)
+  if (useBackend) {
+    getIt.registerFactory(() => GetNotificationsUseCase(getIt()));
+    getIt.registerFactory(() => MarkAllNotificationsReadUseCase(getIt()));
+    getIt.registerFactory(() => GetReminderSettingsUseCase(getIt()));
+    getIt.registerFactory(() => UpdateReminderSettingsUseCase(getIt()));
+  }
 
   // AuthCubit is app-wide (session), registered as a singleton so Splash,
   // Profile, and the router redirect all observe the same instance.

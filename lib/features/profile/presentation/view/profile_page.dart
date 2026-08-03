@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:spendly_app/core/config/env_config.dart';
 import 'package:spendly_app/core/locale/locale_cubit.dart';
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
 import 'package:spendly_app/core/theme/app_colors.dart';
@@ -14,6 +15,7 @@ import 'package:spendly_app/shared/components/headers/app_header.dart';
 import 'package:spendly_app/shared/components/navigation/app_bottom_nav_bar.dart';
 import 'package:spendly_app/shared/components/navigation/app_fab.dart';
 import 'package:spendly_app/shared/components/menu/menu_row.dart';
+import 'package:spendly_app/shared/components/toggles/app_toggle_switch.dart';
 import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_cubit.dart';
 import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_state.dart';
 
@@ -122,8 +124,8 @@ class ProfilePage extends StatelessWidget {
                                     label: context.l10n.profileDarkModeLabel,
                                     onTap: () =>
                                         context.read<ThemeCubit>().toggle(),
-                                    trailing: _DarkModeSwitch(
-                                      isDark: mode == ThemeMode.dark,
+                                    trailing: AppToggleSwitch(
+                                      value: mode == ThemeMode.dark,
                                       onTap: () =>
                                           context.read<ThemeCubit>().toggle(),
                                     ),
@@ -169,6 +171,24 @@ class ProfilePage extends StatelessWidget {
                                     context.l10n.profileIncomeManagementLabel,
                                 onTap: () => context.push('/income'),
                               ),
+                              // Backend-only — Supabase mode has no
+                              // equivalent server-side auto-generation.
+                              if (EnvConfig.dataSource ==
+                                  DataSourceMode.backend) ...[
+                                MenuRow(
+                                  icon: Icons.event_repeat_rounded,
+                                  label: context
+                                      .l10n.profileRecurringTransactionLabel,
+                                  onTap: () =>
+                                      context.push('/recurring-transactions'),
+                                ),
+                                MenuRow(
+                                  icon: Icons.notifications_rounded,
+                                  label: context
+                                      .l10n.profileNotificationCenterLabel,
+                                  onTap: () => context.push('/notifications'),
+                                ),
+                              ],
                               MenuRow(
                                 icon: Icons.category_rounded,
                                 label:
@@ -236,43 +256,5 @@ class ProfilePage extends StatelessWidget {
       case 3:
         context.go('/reports');
     }
-  }
-}
-
-/// 40x24 pill + 18x18 white knob, per design handoff Profile screen
-/// (`darkTrack`/`darkKnobLeft2`) — off = slate #CBD5E1, on = theme primary
-/// (#818CF8 in dark mode).
-class _DarkModeSwitch extends StatelessWidget {
-  const _DarkModeSwitch({required this.isDark, required this.onTap});
-
-  final bool isDark;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        height: 24,
-        width: 40,
-        padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          color: isDark ? colors.primary : const Color(0xFFCBD5E1),
-          borderRadius: BorderRadius.circular(AppRadius.full),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 200),
-          alignment: isDark ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            height: 18,
-            width: 18,
-            decoration: const BoxDecoration(
-                color: Colors.white, shape: BoxShape.circle),
-          ),
-        ),
-      ),
-    );
   }
 }

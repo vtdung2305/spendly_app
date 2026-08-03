@@ -31,8 +31,20 @@ import 'package:spendly_app/features/income_management/presentation/viewmodel/in
 import 'package:spendly_app/features/language/presentation/view/language_select_page.dart';
 import 'package:spendly_app/features/profile/presentation/view/edit_profile_page.dart';
 import 'package:spendly_app/features/profile/presentation/view/profile_page.dart';
+import 'package:spendly_app/features/notification/presentation/view/notification_center_page.dart';
+import 'package:spendly_app/features/notification/presentation/viewmodel/notification_center_cubit.dart';
+import 'package:spendly_app/features/recurring_transaction/domain/entities/recurring_transaction.dart';
+import 'package:spendly_app/features/recurring_transaction/presentation/view/recurring_transaction_form_page.dart';
+import 'package:spendly_app/features/recurring_transaction/presentation/view/recurring_transaction_list_page.dart';
+import 'package:spendly_app/features/recurring_transaction/presentation/viewmodel/recurring_transaction_form_cubit.dart';
+import 'package:spendly_app/features/recurring_transaction/presentation/viewmodel/recurring_transaction_list_cubit.dart';
 import 'package:spendly_app/features/reports/presentation/view/reports_page.dart';
 import 'package:spendly_app/features/reports/presentation/viewmodel/reports_cubit.dart';
+import 'package:spendly_app/features/savings_goal/domain/entities/savings_goal.dart';
+import 'package:spendly_app/features/savings_goal/presentation/view/savings_goal_detail_page.dart';
+import 'package:spendly_app/features/savings_goal/presentation/view/savings_goal_form_page.dart';
+import 'package:spendly_app/features/savings_goal/presentation/viewmodel/savings_goal_detail_cubit.dart';
+import 'package:spendly_app/features/savings_goal/presentation/viewmodel/savings_goal_form_cubit.dart';
 import 'package:spendly_app/features/settings/presentation/view/settings_page.dart';
 import 'package:spendly_app/features/splash/presentation/view/splash_page.dart';
 import 'package:spendly_app/features/transaction_history/presentation/view/history_page.dart';
@@ -93,7 +105,7 @@ abstract class AppRouter {
         pageBuilder: (context, state) => _fadePage(
           state,
           BlocProvider(
-            create: (_) => DashboardCubit(getIt(), getIt(), getIt(), getIt()),
+            create: (_) => DashboardCubit(getIt(), getIt(), getIt()),
             child: const DashboardPage(),
           ),
         ),
@@ -167,6 +179,67 @@ abstract class AppRouter {
             create: (_) =>
                 EditBudgetCubit(getIt(), getIt(), state.extra as BudgetItem),
             child: const EditBudgetPage(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/savings-goal',
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          BlocProvider(
+            create: (_) => SavingsGoalDetailCubit(getIt(), getIt()),
+            child: SavingsGoalDetailPage(year: state.extra as int),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/savings-goal/form',
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          BlocProvider(
+            create: (_) => SavingsGoalFormCubit(
+              getIt(),
+              getIt(),
+              existing: state.extra as SavingsGoal?,
+            ),
+            child: const SavingsGoalFormPage(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/recurring-transactions',
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          BlocProvider(
+            create: (_) => RecurringTransactionListCubit(getIt()),
+            child: const RecurringTransactionListPage(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/recurring-transactions/form',
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          BlocProvider(
+            create: (_) => RecurringTransactionFormCubit(
+              getIt(),
+              getIt(),
+              getIt(),
+              getIt(),
+              existing: state.extra as RecurringTransaction?,
+            ),
+            child: const RecurringTransactionFormPage(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/notifications',
+        pageBuilder: (context, state) => _fadePage(
+          state,
+          BlocProvider(
+            create: (_) => NotificationCenterCubit(
+                getIt(), getIt(), getIt(), getIt()),
+            child: const NotificationCenterPage(),
           ),
         ),
       ),

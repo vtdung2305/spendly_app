@@ -3,17 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
-import 'package:spendly_app/core/theme/app_colors.dart';
-import 'package:spendly_app/core/theme/app_radius.dart';
-import 'package:spendly_app/core/theme/app_shadow.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
-import 'package:spendly_app/shared/components/buttons/app_button.dart';
-import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
 import 'package:spendly_app/shared/components/empty/app_empty_view.dart';
 import 'package:spendly_app/shared/components/error/app_error_view.dart';
 import 'package:spendly_app/shared/components/navigation/app_bottom_nav_bar.dart';
 import 'package:spendly_app/shared/components/navigation/app_fab.dart';
-import 'package:spendly_app/features/add_transaction/presentation/widgets/amount_input.dart';
 import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_cubit.dart';
 import 'package:spendly_app/features/authentication/presentation/viewmodel/auth_state.dart';
 import 'package:spendly_app/features/dashboard/presentation/viewmodel/dashboard_cubit.dart';
@@ -49,56 +43,9 @@ class _DashboardPageState extends State<DashboardPage> {
     context.read<DashboardCubit>().load(_month);
   }
 
-  Future<void> _editSavingsGoal(
-      BuildContext context, int year, double currentGoal) async {
-    double amount = currentGoal;
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(
-            color: dialogContext.colors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            border: Border.all(color: dialogContext.colors.border),
-            boxShadow: AppShadow.card,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                dialogContext.l10n.dashboardSavingsGoalEditTitle,
-                style: Theme.of(dialogContext).textTheme.titleSmall,
-              ),
-              const SizedBox(height: AppSpacing.smMd),
-              AmountInput(
-                  initialAmount: currentGoal,
-                  onChanged: (value) => amount = value),
-              const SizedBox(height: AppSpacing.mdLg),
-              AppButton(
-                label: dialogContext.l10n.editBudgetSaveButton,
-                onPressed: () async {
-                  Navigator.of(dialogContext).pop();
-                  final error = await context
-                      .read<DashboardCubit>()
-                      .updateSavingsGoal(year, amount);
-                  if (!context.mounted) return;
-                  if (error != null) {
-                    AppSnackbar.showError(context, error);
-                  } else {
-                    AppSnackbar.showSuccess(context,
-                        context.l10n.dashboardSavingsGoalUpdatedSnackbar);
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Future<void> _openSavingsGoal(BuildContext context, int year) async {
+    await context.push('/savings-goal', extra: year);
+    if (context.mounted) context.read<DashboardCubit>().load(_month);
   }
 
   @override
@@ -190,8 +137,8 @@ class _DashboardPageState extends State<DashboardPage> {
                             SavingsGoalCard(
                               current: savingsGoal.currentAmount,
                               goal: savingsGoal.targetAmount,
-                              onTap: () => _editSavingsGoal(context,
-                                  savingsGoal.year, savingsGoal.targetAmount),
+                              onTap: () =>
+                                  _openSavingsGoal(context, savingsGoal.year),
                             ),
                             const SizedBox(height: AppSpacing.cardGap),
                             CategoryPieCard(
