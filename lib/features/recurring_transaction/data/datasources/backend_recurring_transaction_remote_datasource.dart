@@ -23,7 +23,11 @@ class BackendRecurringTransactionRemoteDataSource {
         .toList();
   }
 
-  Future<RecurringTransactionModel> addRecurringTransaction({
+  /// Doesn't parse/return the created row — some deployments of this
+  /// endpoint respond with `data: null` on success, and the list screen
+  /// always does a full `GET` reload after returning from the form
+  /// anyway, so there's nothing useful to build from the POST body.
+  Future<void> addRecurringTransaction({
     required TransactionType type,
     required String categoryId,
     required String label,
@@ -42,13 +46,10 @@ class BackendRecurringTransactionRemoteDataSource {
         'isActive': isActive,
       },
     );
-    final data =
-        unwrapBackendData(response.data, statusCode: response.statusCode)
-            as Map<String, dynamic>;
-    return RecurringTransactionModel.fromBackendJson(data);
+    unwrapBackendData(response.data, statusCode: response.statusCode);
   }
 
-  Future<RecurringTransactionModel> updateRecurringTransaction(
+  Future<void> updateRecurringTransaction(
     String id, {
     required TransactionType type,
     required String categoryId,
@@ -68,10 +69,7 @@ class BackendRecurringTransactionRemoteDataSource {
         'isActive': isActive,
       },
     );
-    final data =
-        unwrapBackendData(response.data, statusCode: response.statusCode)
-            as Map<String, dynamic>;
-    return RecurringTransactionModel.fromBackendJson(data);
+    unwrapBackendData(response.data, statusCode: response.statusCode);
   }
 
   Future<void> deleteRecurringTransaction(String id) async {

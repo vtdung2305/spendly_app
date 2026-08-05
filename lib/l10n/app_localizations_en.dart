@@ -767,16 +767,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingsGoalFormPageTitle => 'Set up goal';
 
   @override
-  String get savingsGoalFormYearLabel => 'Goal year';
+  String get savingsGoalFormNameLabel => 'Goal name';
+
+  @override
+  String get savingsGoalFormNameHint => 'e.g. Savings goal 2026';
 
   @override
   String get savingsGoalFormTargetLabel => 'Target amount';
 
   @override
+  String get savingsGoalFormDeadlineLabel => 'Target date';
+
+  @override
+  String get savingsGoalFormInitialLabel => 'Already saved (optional)';
+
+  @override
   String get savingsGoalFormSaveButton => 'Save goal';
 
   @override
+  String get savingsGoalFormDeleteButton => 'Delete this goal';
+
+  @override
   String get savingsGoalFormSavedSnackbar => 'Savings goal saved';
+
+  @override
+  String get savingsGoalFormDeletedSnackbar => 'Savings goal deleted';
+
+  @override
+  String get savingsGoalDeleteConfirmTitle => 'Delete savings goal?';
+
+  @override
+  String get savingsGoalDeleteConfirmDesc =>
+      'This action can\'t be undone. The goal will be permanently deleted.';
 
   @override
   String get incomeManagementTitle => 'Income';

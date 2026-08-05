@@ -767,16 +767,38 @@ class AppLocalizationsVi extends AppLocalizations {
   String get savingsGoalFormPageTitle => 'Thiết lập mục tiêu';
 
   @override
-  String get savingsGoalFormYearLabel => 'Năm mục tiêu';
+  String get savingsGoalFormNameLabel => 'Tên mục tiêu';
+
+  @override
+  String get savingsGoalFormNameHint => 'VD: Mục tiêu tiết kiệm 2026';
 
   @override
   String get savingsGoalFormTargetLabel => 'Số tiền mục tiêu';
 
   @override
+  String get savingsGoalFormDeadlineLabel => 'Hạn hoàn thành';
+
+  @override
+  String get savingsGoalFormInitialLabel => 'Đã tiết kiệm (tuỳ chọn)';
+
+  @override
   String get savingsGoalFormSaveButton => 'Lưu mục tiêu';
 
   @override
+  String get savingsGoalFormDeleteButton => 'Xóa mục tiêu này';
+
+  @override
   String get savingsGoalFormSavedSnackbar => 'Đã lưu mục tiêu tiết kiệm';
+
+  @override
+  String get savingsGoalFormDeletedSnackbar => 'Đã xóa mục tiêu tiết kiệm';
+
+  @override
+  String get savingsGoalDeleteConfirmTitle => 'Xóa mục tiêu tiết kiệm?';
+
+  @override
+  String get savingsGoalDeleteConfirmDesc =>
+      'Hành động này không thể hoàn tác. Mục tiêu sẽ bị xóa vĩnh viễn.';
 
   @override
   String get incomeManagementTitle => 'Thu nhập';

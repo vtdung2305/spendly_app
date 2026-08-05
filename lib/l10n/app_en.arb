@@ -276,10 +276,17 @@
   "@notificationTimeDaysAgo": {"placeholders": {"days": {"type": "String"}}},
 
   "savingsGoalFormPageTitle": "Set up goal",
-  "savingsGoalFormYearLabel": "Goal year",
+  "savingsGoalFormNameLabel": "Goal name",
+  "savingsGoalFormNameHint": "e.g. Savings goal 2026",
   "savingsGoalFormTargetLabel": "Target amount",
+  "savingsGoalFormDeadlineLabel": "Target date",
+  "savingsGoalFormInitialLabel": "Already saved (optional)",
   "savingsGoalFormSaveButton": "Save goal",
+  "savingsGoalFormDeleteButton": "Delete this goal",
   "savingsGoalFormSavedSnackbar": "Savings goal saved",
+  "savingsGoalFormDeletedSnackbar": "Savings goal deleted",
+  "savingsGoalDeleteConfirmTitle": "Delete savings goal?",
+  "savingsGoalDeleteConfirmDesc": "This action can't be undone. The goal will be permanently deleted.",
 
   "incomeManagementTitle": "Income",
   "incomeManagementEmptyMessage": "No income entries this month.",

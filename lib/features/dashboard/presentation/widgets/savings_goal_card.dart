@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:spendly_app/core/localization/app_localizations_x.dart';
 import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_shadow.dart';
@@ -12,12 +11,14 @@ import 'package:spendly_app/core/utils/currency_formatter.dart';
 /// editor, per design handoff.
 class SavingsGoalCard extends StatelessWidget {
   const SavingsGoalCard({
+    required this.title,
     required this.current,
     required this.goal,
     required this.onTap,
     super.key,
   });
 
+  final String title;
   final double current;
   final double goal;
   final VoidCallback onTap;
@@ -48,8 +49,7 @@ class SavingsGoalCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    context.l10n.dashboardSavingsGoalTitle(
-                        DateTime.now().year.toString()),
+                    title,
                     style: Theme.of(context)
                         .textTheme
                         .titleSmall

@@ -1454,11 +1454,17 @@ abstract class AppLocalizations {
   /// **'Thiết lập mục tiêu'**
   String get savingsGoalFormPageTitle;
 
-  /// No description provided for @savingsGoalFormYearLabel.
+  /// No description provided for @savingsGoalFormNameLabel.
   ///
   /// In vi, this message translates to:
-  /// **'Năm mục tiêu'**
-  String get savingsGoalFormYearLabel;
+  /// **'Tên mục tiêu'**
+  String get savingsGoalFormNameLabel;
+
+  /// No description provided for @savingsGoalFormNameHint.
+  ///
+  /// In vi, this message translates to:
+  /// **'VD: Mục tiêu tiết kiệm 2026'**
+  String get savingsGoalFormNameHint;
 
   /// No description provided for @savingsGoalFormTargetLabel.
   ///
@@ -1466,17 +1472,53 @@ abstract class AppLocalizations {
   /// **'Số tiền mục tiêu'**
   String get savingsGoalFormTargetLabel;
 
+  /// No description provided for @savingsGoalFormDeadlineLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hạn hoàn thành'**
+  String get savingsGoalFormDeadlineLabel;
+
+  /// No description provided for @savingsGoalFormInitialLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã tiết kiệm (tuỳ chọn)'**
+  String get savingsGoalFormInitialLabel;
+
   /// No description provided for @savingsGoalFormSaveButton.
   ///
   /// In vi, this message translates to:
   /// **'Lưu mục tiêu'**
   String get savingsGoalFormSaveButton;
 
+  /// No description provided for @savingsGoalFormDeleteButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xóa mục tiêu này'**
+  String get savingsGoalFormDeleteButton;
+
   /// No description provided for @savingsGoalFormSavedSnackbar.
   ///
   /// In vi, this message translates to:
   /// **'Đã lưu mục tiêu tiết kiệm'**
   String get savingsGoalFormSavedSnackbar;
+
+  /// No description provided for @savingsGoalFormDeletedSnackbar.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã xóa mục tiêu tiết kiệm'**
+  String get savingsGoalFormDeletedSnackbar;
+
+  /// No description provided for @savingsGoalDeleteConfirmTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xóa mục tiêu tiết kiệm?'**
+  String get savingsGoalDeleteConfirmTitle;
+
+  /// No description provided for @savingsGoalDeleteConfirmDesc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Hành động này không thể hoàn tác. Mục tiêu sẽ bị xóa vĩnh viễn.'**
+  String get savingsGoalDeleteConfirmDesc;
 
   /// No description provided for @incomeManagementTitle.
   ///

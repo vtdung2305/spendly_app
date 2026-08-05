@@ -4,10 +4,10 @@ import 'package:spendly_app/core/error/failure.dart';
 import 'package:spendly_app/features/savings_goal/domain/entities/savings_goal.dart';
 import 'package:spendly_app/features/savings_goal/domain/repositories/i_savings_goal_repository.dart';
 
-class UpdateSavingsGoalUseCase {
-  const UpdateSavingsGoalUseCase(this._repository);
+class DeleteSavingsGoalUseCase {
+  const DeleteSavingsGoalUseCase(this._repository);
   final ISavingsGoalRepository _repository;
 
-  Future<Either<Failure, SavingsGoal>> call(SavingsGoal goal) =>
-      _repository.updateSavingsGoal(goal);
+  Future<Either<Failure, Unit>> call(SavingsGoal goal) =>
+      _repository.deleteSavingsGoal(goal);
 }

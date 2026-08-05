@@ -9,7 +9,7 @@ abstract class IRecurringTransactionRepository {
   Future<Either<Failure, List<RecurringTransaction>>>
       getRecurringTransactions();
 
-  Future<Either<Failure, RecurringTransaction>> addRecurringTransaction({
+  Future<Either<Failure, Unit>> addRecurringTransaction({
     required TransactionType type,
     required Category category,
     required String label,
@@ -18,7 +18,7 @@ abstract class IRecurringTransactionRepository {
     bool isActive = true,
   });
 
-  Future<Either<Failure, RecurringTransaction>> updateRecurringTransaction(
+  Future<Either<Failure, Unit>> updateRecurringTransaction(
       RecurringTransaction recurring);
 
   Future<Either<Failure, Unit>> deleteRecurringTransaction(String id);

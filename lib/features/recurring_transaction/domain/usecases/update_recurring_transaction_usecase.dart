@@ -8,7 +8,6 @@ class UpdateRecurringTransactionUseCase {
   const UpdateRecurringTransactionUseCase(this._repository);
   final IRecurringTransactionRepository _repository;
 
-  Future<Either<Failure, RecurringTransaction>> call(
-          RecurringTransaction recurring) =>
+  Future<Either<Failure, Unit>> call(RecurringTransaction recurring) =>
       _repository.updateRecurringTransaction(recurring);
 }

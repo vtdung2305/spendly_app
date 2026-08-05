@@ -9,8 +9,15 @@ import 'package:spendly_app/features/transactions/data/datasources/transaction_r
 import 'package:spendly_app/features/transactions/data/models/transaction_model.dart';
 import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
 
+/// Supabase never got the v3 (id-keyed, multi-goal, free-deadline)
+/// migration — it still stores a single year-agnostic target
+/// (`profiles.savings_goal_amount`) and adapts to [ISavingsGoalRepository]'s
+/// wider shape with a fixed [_kSupabaseGoalId], an empty `name`, and
+/// `deadline` always Dec 31 of whichever year it's asked about.
 class SavingsGoalRepository implements ISavingsGoalRepository {
   const SavingsGoalRepository(this._dataSource, this._transactionDataSource);
+
+  static const _kSupabaseGoalId = 'supabase-goal';
 
   final SavingsGoalRemoteDataSource _dataSource;
   final TransactionRemoteDataSource _transactionDataSource;
@@ -26,22 +33,49 @@ class SavingsGoalRepository implements ISavingsGoalRepository {
     }
   }
 
-  /// Supabase only ever stores one year-agnostic target
-  /// (`profiles.savings_goal_amount`), so "create for a year" and "update
-  /// the target" are the same write here — unlike backend mode, which
-  /// rejects a duplicate year.
   @override
-  Future<Either<Failure, SavingsGoal>> addSavingsGoal(
-          int year, double targetAmount) =>
-      updateSavingsGoal(year, targetAmount);
+  Future<Either<Failure, SavingsGoal>> refreshSavingsGoal(
+          SavingsGoal goal) =>
+      getSavingsGoal(goal.deadline.year);
+
+  /// Only ever one year-agnostic target here, so "create" and "update"
+  /// are the same write — [name]/[initialAmount] have nowhere to go.
+  @override
+  Future<Either<Failure, SavingsGoal>> addSavingsGoal({
+    required String name,
+    required double targetAmount,
+    required DateTime deadline,
+    double initialAmount = 0,
+  }) async {
+    try {
+      await _dataSource.setTargetAmount(targetAmount);
+      final currentAmount = await _yearToDateSavings(deadline.year);
+      return Right(_toSavingsGoal(deadline.year, targetAmount, currentAmount));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
 
   @override
   Future<Either<Failure, SavingsGoal>> updateSavingsGoal(
-      int year, double targetAmount) async {
+      SavingsGoal goal) async {
     try {
-      await _dataSource.setTargetAmount(targetAmount);
-      final currentAmount = await _yearToDateSavings(year);
-      return Right(_toSavingsGoal(year, targetAmount, currentAmount));
+      await _dataSource.setTargetAmount(goal.targetAmount);
+      final currentAmount = await _yearToDateSavings(goal.deadline.year);
+      return Right(
+          _toSavingsGoal(goal.deadline.year, goal.targetAmount, currentAmount));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  /// No real delete concept for a single value — resets the target to 0,
+  /// the closest analog.
+  @override
+  Future<Either<Failure, Unit>> deleteSavingsGoal(SavingsGoal goal) async {
+    try {
+      await _dataSource.setTargetAmount(0);
+      return const Right(unit);
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
@@ -64,8 +98,9 @@ class SavingsGoalRepository implements ISavingsGoalRepository {
 
   @override
   Future<Either<Failure, List<SavingsContribution>>> getContributionHistory(
-      int year) async {
+      SavingsGoal goal) async {
     try {
+      final year = goal.deadline.year;
       final start = DateTime(year);
       final end = DateTime(year + 1);
       final rows =
@@ -97,10 +132,13 @@ class SavingsGoalRepository implements ISavingsGoalRepository {
         ? 0.0
         : (currentAmount / targetAmount * 100).clamp(0, 999).toDouble();
     return SavingsGoal(
-      year: year,
+      id: _kSupabaseGoalId,
+      name: '',
       targetAmount: targetAmount,
+      initialAmount: 0,
       currentAmount: currentAmount,
       percent: percent,
+      deadline: DateTime(year, 12, 31),
     );
   }
 }

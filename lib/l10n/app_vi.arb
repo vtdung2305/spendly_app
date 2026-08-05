@@ -276,10 +276,17 @@
   "@notificationTimeDaysAgo": {"placeholders": {"days": {"type": "String"}}},
 
   "savingsGoalFormPageTitle": "Thiết lập mục tiêu",
-  "savingsGoalFormYearLabel": "Năm mục tiêu",
+  "savingsGoalFormNameLabel": "Tên mục tiêu",
+  "savingsGoalFormNameHint": "VD: Mục tiêu tiết kiệm 2026",
   "savingsGoalFormTargetLabel": "Số tiền mục tiêu",
+  "savingsGoalFormDeadlineLabel": "Hạn hoàn thành",
+  "savingsGoalFormInitialLabel": "Đã tiết kiệm (tuỳ chọn)",
   "savingsGoalFormSaveButton": "Lưu mục tiêu",
+  "savingsGoalFormDeleteButton": "Xóa mục tiêu này",
   "savingsGoalFormSavedSnackbar": "Đã lưu mục tiêu tiết kiệm",
+  "savingsGoalFormDeletedSnackbar": "Đã xóa mục tiêu tiết kiệm",
+  "savingsGoalDeleteConfirmTitle": "Xóa mục tiêu tiết kiệm?",
+  "savingsGoalDeleteConfirmDesc": "Hành động này không thể hoàn tác. Mục tiêu sẽ bị xóa vĩnh viễn.",
 
   "incomeManagementTitle": "Thu nhập",
   "incomeManagementEmptyMessage": "Chưa có khoản thu nào trong tháng này.",

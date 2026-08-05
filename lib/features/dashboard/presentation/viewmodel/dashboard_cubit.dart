@@ -34,7 +34,14 @@ class DashboardCubit extends Cubit<DashboardState> {
     );
     final savingsGoal = savingsGoalResult.fold(
       (_) => SavingsGoal(
-          year: month.year, targetAmount: 0, currentAmount: 0, percent: 0),
+        id: '',
+        name: '',
+        targetAmount: 0,
+        initialAmount: 0,
+        currentAmount: 0,
+        percent: 0,
+        deadline: DateTime(month.year, 12, 31),
+      ),
       (goal) => goal,
     );
     result.fold(

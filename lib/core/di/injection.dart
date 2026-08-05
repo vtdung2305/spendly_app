@@ -75,8 +75,10 @@ import 'package:spendly_app/features/savings_goal/data/repositories/backend_savi
 import 'package:spendly_app/features/savings_goal/data/repositories/savings_goal_repository.dart';
 import 'package:spendly_app/features/savings_goal/domain/repositories/i_savings_goal_repository.dart';
 import 'package:spendly_app/features/savings_goal/domain/usecases/add_savings_goal_usecase.dart';
+import 'package:spendly_app/features/savings_goal/domain/usecases/delete_savings_goal_usecase.dart';
 import 'package:spendly_app/features/savings_goal/domain/usecases/get_savings_contribution_history_usecase.dart';
 import 'package:spendly_app/features/savings_goal/domain/usecases/get_savings_goal_usecase.dart';
+import 'package:spendly_app/features/savings_goal/domain/usecases/refresh_savings_goal_usecase.dart';
 import 'package:spendly_app/features/savings_goal/domain/usecases/update_savings_goal_usecase.dart';
 
 final getIt = GetIt.instance;
@@ -196,8 +198,10 @@ Future<void> configureDependencies() async {
 
   // Use cases — Savings Goal
   getIt.registerFactory(() => GetSavingsGoalUseCase(getIt()));
+  getIt.registerFactory(() => RefreshSavingsGoalUseCase(getIt()));
   getIt.registerFactory(() => AddSavingsGoalUseCase(getIt()));
   getIt.registerFactory(() => UpdateSavingsGoalUseCase(getIt()));
+  getIt.registerFactory(() => DeleteSavingsGoalUseCase(getIt()));
   getIt.registerFactory(() => GetSavingsContributionHistoryUseCase(getIt()));
 
   // Use cases — Recurring Transactions (backend mode only, see the

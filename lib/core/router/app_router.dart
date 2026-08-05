@@ -188,7 +188,7 @@ abstract class AppRouter {
           state,
           BlocProvider(
             create: (_) => SavingsGoalDetailCubit(getIt(), getIt()),
-            child: SavingsGoalDetailPage(year: state.extra as int),
+            child: SavingsGoalDetailPage(goal: state.extra as SavingsGoal),
           ),
         ),
       ),
@@ -198,6 +198,7 @@ abstract class AppRouter {
           state,
           BlocProvider(
             create: (_) => SavingsGoalFormCubit(
+              getIt(),
               getIt(),
               getIt(),
               existing: state.extra as SavingsGoal?,

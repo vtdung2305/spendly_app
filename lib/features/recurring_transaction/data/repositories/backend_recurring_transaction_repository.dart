@@ -26,7 +26,7 @@ class BackendRecurringTransactionRepository
   }
 
   @override
-  Future<Either<Failure, RecurringTransaction>> addRecurringTransaction({
+  Future<Either<Failure, Unit>> addRecurringTransaction({
     required TransactionType type,
     required Category category,
     required String label,
@@ -35,7 +35,7 @@ class BackendRecurringTransactionRepository
     bool isActive = true,
   }) async {
     try {
-      final model = await _dataSource.addRecurringTransaction(
+      await _dataSource.addRecurringTransaction(
         type: type,
         categoryId: category.id,
         label: label,
@@ -43,17 +43,17 @@ class BackendRecurringTransactionRepository
         dayOfMonth: dayOfMonth,
         isActive: isActive,
       );
-      return Right(model.toEntity());
+      return const Right(unit);
     } catch (e) {
       return Left(mapBackendError(e));
     }
   }
 
   @override
-  Future<Either<Failure, RecurringTransaction>> updateRecurringTransaction(
+  Future<Either<Failure, Unit>> updateRecurringTransaction(
       RecurringTransaction recurring) async {
     try {
-      final model = await _dataSource.updateRecurringTransaction(
+      await _dataSource.updateRecurringTransaction(
         recurring.id,
         type: recurring.type,
         categoryId: recurring.category.id,
@@ -62,7 +62,7 @@ class BackendRecurringTransactionRepository
         dayOfMonth: recurring.dayOfMonth,
         isActive: recurring.isActive,
       );
-      return Right(model.toEntity());
+      return const Right(unit);
     } catch (e) {
       return Left(mapBackendError(e));
     }

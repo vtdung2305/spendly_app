@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
 import 'package:spendly_app/core/theme/app_colors.dart';
@@ -22,9 +23,9 @@ import 'package:spendly_app/features/savings_goal/presentation/widgets/savings_c
 /// card + deadline/avg-per-month stats + per-month contribution history,
 /// per design handoff.
 class SavingsGoalDetailPage extends StatefulWidget {
-  const SavingsGoalDetailPage({required this.year, super.key});
+  const SavingsGoalDetailPage({required this.goal, super.key});
 
-  final int year;
+  final SavingsGoal goal;
 
   @override
   State<SavingsGoalDetailPage> createState() => _SavingsGoalDetailPageState();
@@ -34,13 +35,13 @@ class _SavingsGoalDetailPageState extends State<SavingsGoalDetailPage> {
   @override
   void initState() {
     super.initState();
-    context.read<SavingsGoalDetailCubit>().load(widget.year);
+    context.read<SavingsGoalDetailCubit>().load(widget.goal);
   }
 
   Future<void> _openForm(BuildContext context, [SavingsGoal? existing]) async {
     await context.push('/savings-goal/form', extra: existing);
     if (context.mounted) {
-      context.read<SavingsGoalDetailCubit>().load(widget.year);
+      context.read<SavingsGoalDetailCubit>().load(widget.goal);
     }
   }
 
@@ -69,7 +70,7 @@ class _SavingsGoalDetailPageState extends State<SavingsGoalDetailPage> {
                           message: message,
                           onRetry: () => context
                               .read<SavingsGoalDetailCubit>()
-                              .load(widget.year),
+                              .load(widget.goal),
                         ),
                       SavingsGoalDetailLoaded(:final goal, :final history) =>
                         ListView(
@@ -89,7 +90,8 @@ class _SavingsGoalDetailPageState extends State<SavingsGoalDetailPage> {
                                   child: _StatMiniCard(
                                     label: context
                                         .l10n.savingsGoalDetailDeadlineLabel,
-                                    value: '31/12/${goal.year}',
+                                    value: DateFormat('dd/MM/yyyy')
+                                        .format(goal.deadline),
                                   ),
                                 ),
                                 const SizedBox(width: AppSpacing.sm),
@@ -199,8 +201,10 @@ class _GoalProgressCard extends StatelessWidget {
                 const Icon(Icons.flag_rounded, size: 22, color: Colors.white),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
-                  context.l10n
-                      .dashboardSavingsGoalTitle(goal.year.toString()),
+                  goal.name.isNotEmpty
+                      ? goal.name
+                      : context.l10n.dashboardSavingsGoalTitle(
+                          goal.deadline.year.toString()),
                   style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,

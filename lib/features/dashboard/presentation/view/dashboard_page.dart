@@ -22,6 +22,7 @@ import 'package:spendly_app/features/dashboard/presentation/widgets/over_budget_
 import 'package:spendly_app/features/dashboard/presentation/widgets/quick_actions_row.dart';
 import 'package:spendly_app/features/dashboard/presentation/widgets/recent_transactions_section.dart';
 import 'package:spendly_app/features/dashboard/presentation/widgets/savings_goal_card.dart';
+import 'package:spendly_app/features/savings_goal/domain/entities/savings_goal.dart';
 
 /// Most important screen per design handoff — hero savings, budget summary,
 /// category pie, daily spend bars, recent transactions, FAB. Presentation
@@ -43,8 +44,8 @@ class _DashboardPageState extends State<DashboardPage> {
     context.read<DashboardCubit>().load(_month);
   }
 
-  Future<void> _openSavingsGoal(BuildContext context, int year) async {
-    await context.push('/savings-goal', extra: year);
+  Future<void> _openSavingsGoal(BuildContext context, SavingsGoal goal) async {
+    await context.push('/savings-goal', extra: goal);
     if (context.mounted) context.read<DashboardCubit>().load(_month);
   }
 
@@ -135,10 +136,14 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                             const SizedBox(height: AppSpacing.cardGap),
                             SavingsGoalCard(
+                              title: savingsGoal.name.isNotEmpty
+                                  ? savingsGoal.name
+                                  : context.l10n.dashboardSavingsGoalTitle(
+                                      savingsGoal.deadline.year.toString()),
                               current: savingsGoal.currentAmount,
                               goal: savingsGoal.targetAmount,
                               onTap: () =>
-                                  _openSavingsGoal(context, savingsGoal.year),
+                                  _openSavingsGoal(context, savingsGoal),
                             ),
                             const SizedBox(height: AppSpacing.cardGap),
                             CategoryPieCard(

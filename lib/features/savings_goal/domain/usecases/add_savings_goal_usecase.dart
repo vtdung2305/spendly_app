@@ -8,6 +8,16 @@ class AddSavingsGoalUseCase {
   const AddSavingsGoalUseCase(this._repository);
   final ISavingsGoalRepository _repository;
 
-  Future<Either<Failure, SavingsGoal>> call(int year, double targetAmount) =>
-      _repository.addSavingsGoal(year, targetAmount);
+  Future<Either<Failure, SavingsGoal>> call({
+    required String name,
+    required double targetAmount,
+    required DateTime deadline,
+    double initialAmount = 0,
+  }) =>
+      _repository.addSavingsGoal(
+        name: name,
+        targetAmount: targetAmount,
+        deadline: deadline,
+        initialAmount: initialAmount,
+      );
 }
