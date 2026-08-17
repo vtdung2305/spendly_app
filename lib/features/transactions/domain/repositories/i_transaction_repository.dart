@@ -12,12 +12,15 @@ abstract class ITransactionRepository {
 
   Future<Either<Failure, Transaction>> addTransaction(Transaction transaction);
 
-  /// Full transaction history, optionally filtered by type and/or a
-  /// case-insensitive label search — used by Transaction History and
-  /// Income Management.
+  /// Full transaction history, optionally filtered by type, a
+  /// case-insensitive label search, a date range, and/or a minimum amount —
+  /// used by Transaction History and Income Management.
   Future<Either<Failure, List<Transaction>>> getTransactions({
     TransactionType? type,
     String? searchQuery,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+    double? minAmount,
   });
 
   Future<Either<Failure, List<CalendarDay>>> getCalendarSummary(DateTime month);

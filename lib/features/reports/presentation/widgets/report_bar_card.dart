@@ -6,13 +6,23 @@ import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_shadow.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/features/transactions/domain/entities/report_period.dart';
 import 'package:spendly_app/features/transactions/domain/entities/report_summary.dart';
 
-/// "Chi tiêu theo tuần" — 4 labeled bars (T1-T4), per Reports layout.
-class WeeklyBarCard extends StatelessWidget {
-  const WeeklyBarCard({required this.bars, super.key});
+/// Period-aware bar chart card — title and bucket count/labels change with
+/// the selected [period] (daily bars for week, weekly for month, quarterly
+/// for year).
+class ReportBarCard extends StatelessWidget {
+  const ReportBarCard({required this.period, required this.bars, super.key});
 
-  final List<WeekBar> bars;
+  final ReportPeriod period;
+  final List<ChartBar> bars;
+
+  String _titleFor(BuildContext context) => switch (period) {
+        ReportPeriod.week => context.l10n.reportsChartTitleWeek,
+        ReportPeriod.month => context.l10n.reportsChartTitleMonth,
+        ReportPeriod.year => context.l10n.reportsChartTitleYear,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +38,7 @@ class WeeklyBarCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.l10n.reportsWeeklyBarCardTitle,
-              style: Theme.of(context).textTheme.titleSmall),
+          Text(_titleFor(context), style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: AppSpacing.mdLg),
           SizedBox(
             height: 90,

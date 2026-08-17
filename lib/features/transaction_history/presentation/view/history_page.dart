@@ -15,6 +15,7 @@ import 'package:spendly_app/shared/components/navigation/app_fab.dart';
 import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
 import 'package:spendly_app/features/transactions/presentation/widgets/transaction_row.dart';
 import 'package:spendly_app/features/transaction_history/presentation/viewmodel/history_cubit.dart';
+import 'package:spendly_app/features/transaction_history/presentation/viewmodel/history_filter.dart';
 import 'package:spendly_app/features/transaction_history/presentation/viewmodel/history_state.dart';
 import 'package:spendly_app/features/transaction_history/presentation/widgets/filter_chip_panel.dart';
 import 'package:spendly_app/features/transaction_history/presentation/widgets/history_search_bar.dart';
@@ -27,8 +28,10 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
+  final _searchController = TextEditingController();
   bool _filterOpen = false;
   String _searchQuery = '';
+  HistoryFilter _filter = HistoryFilter.empty;
 
   @override
   void initState() {
@@ -36,12 +39,29 @@ class _HistoryPageState extends State<HistoryPage> {
     context.read<HistoryCubit>().load();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _reload() => context
+      .read<HistoryCubit>()
+      .load(searchQuery: _searchQuery, filter: _filter);
+
+  void _clearFilters() {
+    setState(() {
+      _searchQuery = '';
+      _filter = HistoryFilter.empty;
+      _searchController.clear();
+    });
+    _reload();
+  }
+
   Future<void> _editTransaction(
       BuildContext context, Transaction transaction) async {
     await context.push('/add-transaction', extra: transaction);
-    if (context.mounted) {
-      context.read<HistoryCubit>().load(searchQuery: _searchQuery);
-    }
+    if (context.mounted) _reload();
   }
 
   Future<void> _deleteTransaction(BuildContext context, String id) async {
@@ -76,11 +96,10 @@ class _HistoryPageState extends State<HistoryPage> {
                       children: [
                         const SizedBox(height: AppSpacing.mdLg),
                         HistorySearchBar(
+                          controller: _searchController,
                           onChanged: (query) {
                             _searchQuery = query;
-                            context
-                                .read<HistoryCubit>()
-                                .load(searchQuery: query);
+                            _reload();
                           },
                           filterOpen: _filterOpen,
                           onToggleFilter: () =>
@@ -88,14 +107,33 @@ class _HistoryPageState extends State<HistoryPage> {
                         ),
                         if (_filterOpen) ...[
                           const SizedBox(height: AppSpacing.sm),
-                          const FilterChipPanel(),
+                          FilterChipPanel(
+                            filter: _filter,
+                            hasActiveFilters:
+                                _filter.isActive || _searchQuery.isNotEmpty,
+                            onDateFromChanged: (date) {
+                              setState(
+                                  () => _filter = _filter.copyWith(
+                                      dateFrom: date, clearDateFrom: date == null));
+                              _reload();
+                            },
+                            onDateToChanged: (date) {
+                              setState(() => _filter = _filter.copyWith(
+                                  dateTo: date, clearDateTo: date == null));
+                              _reload();
+                            },
+                            onQuickFilterChanged: (quickFilter) {
+                              setState(() =>
+                                  _filter = _filter.copyWith(quickFilter: quickFilter));
+                              _reload();
+                            },
+                            onClearFilters: _clearFilters,
+                          ),
                         ],
                         const SizedBox(height: AppSpacing.mdLg),
                         Expanded(
                           child: RefreshIndicator(
-                            onRefresh: () => context
-                                .read<HistoryCubit>()
-                                .load(searchQuery: _searchQuery),
+                            onRefresh: _reload,
                             child: BlocBuilder<HistoryCubit, HistoryState>(
                               builder: (context, state) {
                                 return switch (state) {
@@ -118,17 +156,17 @@ class _HistoryPageState extends State<HistoryPage> {
                                       children: [
                                         AppErrorView(
                                           message: message,
-                                          onRetry: () => context
-                                              .read<HistoryCubit>()
-                                              .load(searchQuery: _searchQuery),
+                                          onRetry: _reload,
                                         ),
                                       ],
                                     ),
                                   HistoryLoaded(
                                     transactions: [],
-                                    :final searchQuery
+                                    :final searchQuery,
+                                    :final filter,
                                   )
-                                      when searchQuery.isNotEmpty =>
+                                      when searchQuery.isNotEmpty ||
+                                          filter.isActive =>
                                     LayoutBuilder(
                                       builder: (context, constraints) =>
                                           ListView(
@@ -209,9 +247,7 @@ class _HistoryPageState extends State<HistoryPage> {
         floatingActionButton: AppFab(
           onPressed: () async {
             await context.push('/add-transaction');
-            if (context.mounted) {
-              context.read<HistoryCubit>().load(searchQuery: _searchQuery);
-            }
+            if (context.mounted) _reload();
           },
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

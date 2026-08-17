@@ -5,6 +5,7 @@ import 'package:spendly_app/core/theme/app_colors.dart';
 import 'package:spendly_app/core/theme/app_radius.dart';
 import 'package:spendly_app/core/theme/app_shadow.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/core/utils/currency_formatter.dart';
 import 'package:spendly_app/shared/components/charts/donut_chart.dart';
 import 'package:spendly_app/features/category_management/presentation/mappers/category_icon_ui.dart';
 import 'package:spendly_app/features/transactions/domain/entities/dashboard_summary.dart';
@@ -82,16 +83,31 @@ class ReportPieCard extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              context.l10n.percentValue(
-                                  share.percent.round().toString()),
+                              CurrencyFormatter.formatCompact(share.amount),
                               style: Theme.of(context)
                                   .textTheme
-                                  .labelMedium
+                                  .bodySmall
                                   ?.copyWith(
-                                    color: colors.textPrimary,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 11.5,
+                                    color: colors.textTertiary,
+                                    fontSize: 11,
                                   ),
+                            ),
+                            const SizedBox(width: AppSpacing.xs),
+                            SizedBox(
+                              width: 32,
+                              child: Text(
+                                context.l10n.percentValue(
+                                    share.percent.round().toString()),
+                                textAlign: TextAlign.right,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                      color: colors.textPrimary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 11.5,
+                                    ),
+                              ),
                             ),
                           ],
                         ),

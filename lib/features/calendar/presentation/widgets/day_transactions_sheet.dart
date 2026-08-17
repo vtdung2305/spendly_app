@@ -68,7 +68,9 @@ class _DayTransactionsSheetState extends State<DayTransactionsSheet> {
   }
 
   Future<void> _addTransaction() async {
-    await context.push('/add-transaction');
+    final date = DateTime(widget.year, widget.month, widget.day);
+    await context.push(
+        '/add-transaction?date=${date.toIso8601String().split('T').first}');
     if (!mounted) return;
     final cubit = context.read<CalendarCubit>();
     final state = cubit.state;

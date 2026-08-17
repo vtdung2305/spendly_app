@@ -15,10 +15,11 @@ import 'package:spendly_app/shared/components/navigation/app_fab.dart';
 import 'package:spendly_app/features/transactions/domain/entities/report_period.dart';
 import 'package:spendly_app/features/reports/presentation/viewmodel/reports_cubit.dart';
 import 'package:spendly_app/features/reports/presentation/viewmodel/reports_state.dart';
+import 'package:spendly_app/features/reports/presentation/widgets/report_bar_card.dart';
+import 'package:spendly_app/features/reports/presentation/widgets/report_comparison_card.dart';
 import 'package:spendly_app/features/reports/presentation/widgets/report_period_tabs.dart';
 import 'package:spendly_app/features/reports/presentation/widgets/report_pie_card.dart';
 import 'package:spendly_app/features/reports/presentation/widgets/stat_mini_card.dart';
-import 'package:spendly_app/features/reports/presentation/widgets/weekly_bar_card.dart';
 
 class ReportsPage extends StatefulWidget {
   const ReportsPage({super.key});
@@ -98,6 +99,9 @@ class _ReportsPageState extends State<ReportsPage> {
                                       padding: EdgeInsets.zero,
                                       children: [
                                         const SizedBox(height: AppSpacing.mdLg),
+                                        ReportComparisonCard(summary: summary),
+                                        const SizedBox(
+                                            height: AppSpacing.cardGap),
                                         GridView.count(
                                           padding: EdgeInsets.zero,
                                           crossAxisCount: 2,
@@ -145,7 +149,9 @@ class _ReportsPageState extends State<ReportsPage> {
                                                 summary.categoryBreakdown),
                                         const SizedBox(
                                             height: AppSpacing.cardGap),
-                                        WeeklyBarCard(bars: summary.weekBars),
+                                        ReportBarCard(
+                                            period: period,
+                                            bars: summary.chartBars),
                                       ],
                                     ),
                                 },

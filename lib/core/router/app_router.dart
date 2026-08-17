@@ -116,6 +116,7 @@ abstract class AppRouter {
           final initialTab = state.uri.queryParameters['type'] == 'income'
               ? TransactionType.income
               : TransactionType.expense;
+          final dateParam = state.uri.queryParameters['date'];
           return _fadePage(
             state,
             BlocProvider(
@@ -125,6 +126,8 @@ abstract class AppRouter {
                 getIt(),
                 initialTab: initialTab,
                 existingTransaction: state.extra as Transaction?,
+                initialDate:
+                    dateParam == null ? null : DateTime.parse(dateParam),
               ),
               child: const AddTransactionPage(),
             ),

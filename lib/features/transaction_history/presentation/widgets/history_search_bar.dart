@@ -9,12 +9,14 @@ import 'package:spendly_app/core/theme/app_spacing.dart';
 /// (turns Primary-filled when the filter panel is open), per History layout.
 class HistorySearchBar extends StatelessWidget {
   const HistorySearchBar({
+    required this.controller,
     required this.onChanged,
     required this.filterOpen,
     required this.onToggleFilter,
     super.key,
   });
 
+  final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final bool filterOpen;
   final VoidCallback onToggleFilter;
@@ -27,10 +29,11 @@ class HistorySearchBar extends StatelessWidget {
         Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.smMd),
-            height: 44,
+            height: 48,
             decoration: BoxDecoration(
-              color: colors.surfaceAlt,
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              color: colors.surface,
+              border: Border.all(color: colors.border, width: 1.5),
+              borderRadius: BorderRadius.circular(AppRadius.md),
             ),
             child: Row(
               children: [
@@ -39,6 +42,7 @@ class HistorySearchBar extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: TextField(
+                    controller: controller,
                     onChanged: onChanged,
                     style: Theme.of(context)
                         .textTheme

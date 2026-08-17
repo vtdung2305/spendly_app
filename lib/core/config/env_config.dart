@@ -6,10 +6,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 /// `lib/core/di/injection.dart`).
 enum DataSourceMode { supabase, backend }
 
-/// Typed access to `.env` — never read `dotenv.env[...]` directly elsewhere.
-/// Call [load] once in `main()` before anything needs these values.
+/// Typed access to `.env.dev`/`.env.prod` — never read `dotenv.env[...]`
+/// directly elsewhere. Call [load] once in `main()` before anything needs
+/// these values.
 abstract class EnvConfig {
-  static Future<void> load() => dotenv.load(fileName: '.env');
+  /// Selected at build/run time via `--dart-define=ENV=dev|prod` — defaults
+  /// to `dev` so plain `flutter run`/`flutter test` keep working unchanged.
+  static const _environment = String.fromEnvironment('ENV', defaultValue: 'dev');
+
+  static Future<void> load() => dotenv.load(fileName: '.env.$_environment');
 
   static String get supabaseUrl => _require('SUPABASE_URL');
   static String get supabaseAnonKey => _require('SUPABASE_ANON_KEY');
@@ -48,15 +53,13 @@ abstract class EnvConfig {
 
   static String _require(String key) {
     final value = dotenv.env[key];
-    final isPlaceholder = value == null ||
-        value.isEmpty ||
-        value.contains('your-project-ref') ||
-        value.contains('your-anon-public-key') ||
-        value.startsWith('your-');
+    final isPlaceholder =
+        value == null || value.isEmpty || value.startsWith('your-');
     if (isPlaceholder) {
       throw StateError(
-        'Missing $key in .env — copy .env.example to .env and fill in your '
-        'Supabase project values (Project Settings → API).',
+        'Missing $key in .env.$_environment — copy .env.$_environment.example '
+        'to .env.$_environment and fill in your Supabase project values '
+        '(Project Settings → API).',
       );
     }
     return value;

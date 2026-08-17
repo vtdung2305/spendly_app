@@ -555,7 +555,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportsPieCardTitle => 'By category';
 
   @override
-  String get reportsWeeklyBarCardTitle => 'Spending by week';
+  String get reportsChartTitleWeek => 'Spending by day';
+
+  @override
+  String get reportsChartTitleMonth => 'Spending by week';
+
+  @override
+  String get reportsChartTitleYear => 'Spending by quarter';
+
+  @override
+  String get reportsComparisonIncomeLabel => 'Income';
+
+  @override
+  String get reportsComparisonExpenseLabel => 'Expense';
+
+  @override
+  String reportsComparisonVsPrevious(String delta) {
+    return '$delta vs previous period';
+  }
+
+  @override
+  String get reportsComparisonNoPreviousData =>
+      'No data for the previous period';
+
+  @override
+  String reportsComparisonUsedPercent(String percent) {
+    return '$percent% of income used';
+  }
+
+  @override
+  String reportsComparisonSavings(String amount) {
+    return 'Saved $amount';
+  }
 
   @override
   String get budgetAddSavedSnackbar => 'Budget saved';
@@ -816,19 +847,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyEmptyMessage => 'No transactions yet';
 
   @override
-  String get historyFilterSectionLabel => 'Filter by';
+  String get historyFilterDateRangeLabel => 'Date range';
 
   @override
-  String get historyFilterChipThisWeek => 'This week';
+  String get historyFilterFromLabel => 'From date';
 
   @override
-  String get historyFilterChipFoodDrink => 'Food & drink';
+  String get historyFilterToLabel => 'To date';
+
+  @override
+  String get historyFilterQuickLabel => 'Quick filters';
 
   @override
   String get historyFilterChipOver500k => 'Over 500K';
 
   @override
   String get historyFilterChipExpenseOnly => 'Expenses only';
+
+  @override
+  String get historyFilterChipIncomeOnly => 'Income only';
+
+  @override
+  String get historyClearFiltersButton => 'Clear filters';
 
   @override
   String get historySearchHint => 'Search transactions...';

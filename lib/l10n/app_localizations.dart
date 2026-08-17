@@ -1088,11 +1088,59 @@ abstract class AppLocalizations {
   /// **'Theo danh mục'**
   String get reportsPieCardTitle;
 
-  /// No description provided for @reportsWeeklyBarCardTitle.
+  /// No description provided for @reportsChartTitleWeek.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chi tiêu theo ngày'**
+  String get reportsChartTitleWeek;
+
+  /// No description provided for @reportsChartTitleMonth.
   ///
   /// In vi, this message translates to:
   /// **'Chi tiêu theo tuần'**
-  String get reportsWeeklyBarCardTitle;
+  String get reportsChartTitleMonth;
+
+  /// No description provided for @reportsChartTitleYear.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chi tiêu theo quý'**
+  String get reportsChartTitleYear;
+
+  /// No description provided for @reportsComparisonIncomeLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thu nhập'**
+  String get reportsComparisonIncomeLabel;
+
+  /// No description provided for @reportsComparisonExpenseLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chi tiêu'**
+  String get reportsComparisonExpenseLabel;
+
+  /// No description provided for @reportsComparisonVsPrevious.
+  ///
+  /// In vi, this message translates to:
+  /// **'{delta} so với kỳ trước'**
+  String reportsComparisonVsPrevious(String delta);
+
+  /// No description provided for @reportsComparisonNoPreviousData.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chưa có dữ liệu kỳ trước'**
+  String get reportsComparisonNoPreviousData;
+
+  /// No description provided for @reportsComparisonUsedPercent.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đã dùng {percent}% thu nhập'**
+  String reportsComparisonUsedPercent(String percent);
+
+  /// No description provided for @reportsComparisonSavings.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tiết kiệm {amount}'**
+  String reportsComparisonSavings(String amount);
 
   /// No description provided for @budgetAddSavedSnackbar.
   ///
@@ -1550,23 +1598,29 @@ abstract class AppLocalizations {
   /// **'Chưa có giao dịch nào'**
   String get historyEmptyMessage;
 
-  /// No description provided for @historyFilterSectionLabel.
+  /// No description provided for @historyFilterDateRangeLabel.
   ///
   /// In vi, this message translates to:
-  /// **'Lọc theo'**
-  String get historyFilterSectionLabel;
+  /// **'Khoảng thời gian'**
+  String get historyFilterDateRangeLabel;
 
-  /// No description provided for @historyFilterChipThisWeek.
+  /// No description provided for @historyFilterFromLabel.
   ///
   /// In vi, this message translates to:
-  /// **'Tuần này'**
-  String get historyFilterChipThisWeek;
+  /// **'Từ ngày'**
+  String get historyFilterFromLabel;
 
-  /// No description provided for @historyFilterChipFoodDrink.
+  /// No description provided for @historyFilterToLabel.
   ///
   /// In vi, this message translates to:
-  /// **'Ăn uống'**
-  String get historyFilterChipFoodDrink;
+  /// **'Đến ngày'**
+  String get historyFilterToLabel;
+
+  /// No description provided for @historyFilterQuickLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Lọc nhanh'**
+  String get historyFilterQuickLabel;
 
   /// No description provided for @historyFilterChipOver500k.
   ///
@@ -1579,6 +1633,18 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Chỉ chi tiêu'**
   String get historyFilterChipExpenseOnly;
+
+  /// No description provided for @historyFilterChipIncomeOnly.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chỉ thu nhập'**
+  String get historyFilterChipIncomeOnly;
+
+  /// No description provided for @historyClearFiltersButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Xóa bộ lọc'**
+  String get historyClearFiltersButton;
 
   /// No description provided for @historySearchHint.
   ///

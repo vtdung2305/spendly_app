@@ -63,9 +63,12 @@ class TransactionRepository implements ITransactionRepository {
       for (final t in expenses) {
         dailyTotals[t.date.day] = (dailyTotals[t.date.day] ?? 0) + t.amount;
       }
-      final firstBarDay = (daysInMonth - 13).clamp(1, daysInMonth);
+      final now = DateTime.now();
+      final isCurrentMonth = month.year == now.year && month.month == now.month;
+      final lastBarDay = isCurrentMonth ? now.day : daysInMonth;
+      final firstBarDay = (lastBarDay - 13).clamp(1, daysInMonth);
       final dailySpend = [
-        for (var day = firstBarDay; day <= daysInMonth; day++)
+        for (var day = firstBarDay; day <= lastBarDay; day++)
           DailySpendPoint(day: day, total: dailyTotals[day] ?? 0),
       ];
 
@@ -113,6 +116,9 @@ class TransactionRepository implements ITransactionRepository {
   Future<Either<Failure, List<Transaction>>> getTransactions({
     TransactionType? type,
     String? searchQuery,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+    double? minAmount,
   }) async {
     try {
       final categoryMap = await _categoryMap();
@@ -128,6 +134,19 @@ class TransactionRepository implements ITransactionRepository {
             .where(
                 (t) => (t.note ?? t.displayLabel).toLowerCase().contains(query))
             .toList();
+      }
+      if (dateFrom != null) {
+        final from = DateTime(dateFrom.year, dateFrom.month, dateFrom.day);
+        transactions = transactions.where((t) => !t.date.isBefore(from)).toList();
+      }
+      if (dateTo != null) {
+        final to = DateTime(dateTo.year, dateTo.month, dateTo.day)
+            .add(const Duration(days: 1));
+        transactions = transactions.where((t) => t.date.isBefore(to)).toList();
+      }
+      if (minAmount != null) {
+        transactions =
+            transactions.where((t) => t.amount >= minAmount).toList();
       }
       return Right(transactions);
     } catch (e) {
@@ -163,27 +182,30 @@ class TransactionRepository implements ITransactionRepository {
       ReportPeriod period) async {
     try {
       final now = DateTime.now();
-      final (start, end) = switch (period) {
-        ReportPeriod.week => (
-            now.subtract(const Duration(days: 6)),
-            now.add(const Duration(days: 1))
-          ),
-        ReportPeriod.month => (
-            DateTime(now.year, now.month),
-            DateTime(now.year, now.month + 1)
-          ),
-        ReportPeriod.year => (DateTime(now.year), DateTime(now.year + 1)),
-      };
+      final (start, end) = _rangeFor(period, now);
+      final periodSpan = end.difference(start);
+      final previousStart = start.subtract(periodSpan);
 
       final categoryMap = await _categoryMap();
       final transactions = await _resolve(
           await _dataSource.getTransactionsInRange(start, end), categoryMap);
+      final previousTransactions = await _resolve(
+          await _dataSource.getTransactionsInRange(previousStart, start),
+          categoryMap);
+
       final expenses =
           transactions.where((t) => t.type == TransactionType.expense).toList();
       final totalIncome = transactions
           .where((t) => t.type == TransactionType.income)
           .fold<double>(0, (s, t) => s + t.amount);
       final totalExpense = expenses.fold<double>(0, (s, t) => s + t.amount);
+
+      final previousIncome = previousTransactions
+          .where((t) => t.type == TransactionType.income)
+          .fold<double>(0, (s, t) => s + t.amount);
+      final previousExpense = previousTransactions
+          .where((t) => t.type == TransactionType.expense)
+          .fold<double>(0, (s, t) => s + t.amount);
 
       final breakdown = _breakdownFor(expenses, totalExpense);
       final topCategory = breakdown.isEmpty ? null : breakdown.first;
@@ -202,19 +224,44 @@ class TransactionRepository implements ITransactionRepository {
           ? 0.0
           : (totalIncome - totalExpense) / totalIncome * 100;
 
-      final weekBars = _weeklyBars(expenses, start, end);
+      final chartBars = _chartBars(period, expenses, start, end);
 
       return Right(ReportSummary(
+        totalIncome: totalIncome,
+        totalExpense: totalExpense,
+        incomeDeltaPercent: _deltaPercent(totalIncome, previousIncome),
+        expenseDeltaPercent: _deltaPercent(totalExpense, previousExpense),
         topCategory: topCategory,
         avgPerDay: avgPerDay,
         maxSpendDay: maxSpendDay,
         savingsRatePercent: double.parse(savingsRatePercent.toStringAsFixed(1)),
         categoryBreakdown: breakdown,
-        weekBars: weekBars,
+        chartBars: chartBars,
       ));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
+  }
+
+  (DateTime, DateTime) _rangeFor(ReportPeriod period, DateTime now) =>
+      switch (period) {
+        ReportPeriod.week => (
+            now.subtract(const Duration(days: 6)),
+            now.add(const Duration(days: 1))
+          ),
+        ReportPeriod.month => (
+            DateTime(now.year, now.month),
+            DateTime(now.year, now.month + 1)
+          ),
+        ReportPeriod.year => (DateTime(now.year), DateTime(now.year + 1)),
+      };
+
+  /// Percent change of [current] vs [previous]; null when there is nothing
+  /// to compare against.
+  double? _deltaPercent(double current, double previous) {
+    if (previous == 0) return null;
+    return double.parse(
+        ((current - previous) / previous * 100).toStringAsFixed(1));
   }
 
   @override
@@ -266,28 +313,76 @@ class TransactionRepository implements ITransactionRepository {
     return foldCategoryBreakdown(byCategory, categoryById, totalExpense);
   }
 
-  /// Splits [start, end) into 4 equal buckets labeled T1-T4, summing expense
-  /// amounts per bucket — used for the Reports weekly bar chart regardless
-  /// of the selected period's actual span.
-  List<WeekBar> _weeklyBars(
+  static const _weekdayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+
+  /// Builds the Reports bar chart buckets, shaped per [period]: week → one
+  /// bar per calendar day, month → 4 equal time buckets, year → one bar per
+  /// calendar quarter.
+  List<ChartBar> _chartBars(ReportPeriod period, List<Transaction> expenses,
+      DateTime start, DateTime end) {
+    return switch (period) {
+      ReportPeriod.week => _dailyBars(expenses, start, end),
+      ReportPeriod.month => _equalTimeBars(expenses, start, end, 4),
+      ReportPeriod.year => _quarterlyBars(expenses, start.year),
+    };
+  }
+
+  List<ChartBar> _dailyBars(
       List<Transaction> expenses, DateTime start, DateTime end) {
+    final dayCount = end.difference(start).inDays;
+    final sums = List<double>.filled(dayCount, 0);
+    for (final t in expenses) {
+      final index = t.date.difference(start).inDays;
+      if (index < 0 || index >= dayCount) continue;
+      sums[index] += t.amount;
+    }
+    final maxSum = sums.fold<double>(0, (m, v) => v > m ? v : m);
+    return [
+      for (var i = 0; i < dayCount; i++)
+        ChartBar(
+          label: _weekdayLabels[start.add(Duration(days: i)).weekday - 1],
+          percent: maxSum == 0 ? 0 : (sums[i] / maxSum) * 100,
+        ),
+    ];
+  }
+
+  List<ChartBar> _equalTimeBars(
+      List<Transaction> expenses, DateTime start, DateTime end, int buckets) {
     final totalSpan = end.difference(start);
-    final bucketSpan = Duration(microseconds: totalSpan.inMicroseconds ~/ 4);
-    final sums = List<double>.filled(4, 0);
+    final bucketSpan =
+        Duration(microseconds: totalSpan.inMicroseconds ~/ buckets);
+    final sums = List<double>.filled(buckets, 0);
 
     for (final t in expenses) {
       final offset = t.date.difference(start);
       if (offset.isNegative) continue;
       final bucketIndex =
-          (offset.inMicroseconds ~/ bucketSpan.inMicroseconds).clamp(0, 3);
+          (offset.inMicroseconds ~/ bucketSpan.inMicroseconds)
+              .clamp(0, buckets - 1);
       sums[bucketIndex] += t.amount;
     }
 
     final maxSum = sums.fold<double>(0, (m, v) => v > m ? v : m);
     return [
-      for (var i = 0; i < 4; i++)
-        WeekBar(
+      for (var i = 0; i < buckets; i++)
+        ChartBar(
             label: 'T${i + 1}',
+            percent: maxSum == 0 ? 0 : (sums[i] / maxSum) * 100),
+    ];
+  }
+
+  List<ChartBar> _quarterlyBars(List<Transaction> expenses, int year) {
+    final sums = List<double>.filled(4, 0);
+    for (final t in expenses) {
+      if (t.date.year != year) continue;
+      final quarter = (t.date.month - 1) ~/ 3;
+      sums[quarter] += t.amount;
+    }
+    final maxSum = sums.fold<double>(0, (m, v) => v > m ? v : m);
+    return [
+      for (var i = 0; i < 4; i++)
+        ChartBar(
+            label: 'Q${i + 1}',
             percent: maxSum == 0 ? 0 : (sums[i] / maxSum) * 100),
     ];
   }

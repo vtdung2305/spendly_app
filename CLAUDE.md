@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 flutter pub get                        # install dependencies
-flutter run                            # run the app (needs .env, see below)
+flutter run                            # run the app in DEV (default; needs .env.dev, see below)
+flutter run --dart-define=ENV=prod     # run the app against the PROD config
 flutter analyze                        # lint (flutter_lints + analysis_options.yaml)
 flutter test                           # run all tests
 flutter test test/widget_test.dart     # run a single test file
@@ -14,10 +15,18 @@ flutter gen-l10n                       # regenerate lib/l10n/app_localizations*.
 flutter pub run flutter_launcher_icons # regenerate app icons from assets/icon/app_icon.png
 ```
 
-Before running the app, copy `.env.example` to `.env` and fill in Supabase project values
-(`SUPABASE_URL`, `SUPABASE_ANON_KEY`). `.env` is a Flutter asset (declared in `pubspec.yaml`) and
-is loaded once via `EnvConfig.load()` in `main()` — never read `dotenv.env[...]` directly
-elsewhere, go through `EnvConfig`.
+Before running the app, copy `.env.dev.example` to `.env.dev` and `.env.prod.example` to
+`.env.prod`, then fill in each environment's Supabase project values (`SUPABASE_URL`,
+`SUPABASE_ANON_KEY`) and backend settings. Both files are Flutter assets (declared in
+`pubspec.yaml`) bundled into every build; which one is actually read at runtime is picked via
+`EnvConfig.load()` based on the `ENV` dart-define (`dev` if unset, so plain `flutter run`/`flutter
+test` need no flag) — never read `dotenv.env[...]` directly elsewhere, go through `EnvConfig`.
+Building for release always requires an explicit `--dart-define=ENV=dev` or `ENV=prod`, e.g.:
+
+```bash
+flutter build apk --release --dart-define=ENV=prod
+flutter build ipa --release --dart-define=ENV=prod
+```
 
 ## Architecture
 

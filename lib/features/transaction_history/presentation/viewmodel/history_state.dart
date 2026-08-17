@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import 'package:spendly_app/features/transactions/domain/entities/transaction.dart';
+import 'history_filter.dart';
 
 sealed class HistoryState extends Equatable {
   const HistoryState();
@@ -14,12 +15,17 @@ class HistoryLoading extends HistoryState {
 }
 
 class HistoryLoaded extends HistoryState {
-  const HistoryLoaded(this.transactions, {this.searchQuery = ''});
+  const HistoryLoaded(
+    this.transactions, {
+    this.searchQuery = '',
+    this.filter = HistoryFilter.empty,
+  });
   final List<Transaction> transactions;
   final String searchQuery;
+  final HistoryFilter filter;
 
   @override
-  List<Object?> get props => [transactions, searchQuery];
+  List<Object?> get props => [transactions, searchQuery, filter];
 }
 
 class HistoryError extends HistoryState {

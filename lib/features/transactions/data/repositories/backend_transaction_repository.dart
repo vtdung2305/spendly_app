@@ -49,10 +49,15 @@ class BackendTransactionRepository implements ITransactionRepository {
           total: parseNum(row['total']),
         );
       }).toList();
-      // Mirrors Supabase-mode's rolling 14-day window for the bar chart.
-      final dailySpend = dailySpendAll.length > 14
-          ? dailySpendAll.sublist(dailySpendAll.length - 14)
-          : dailySpendAll;
+      // Mirrors Supabase-mode's rolling 14-day window ending today for the bar chart.
+      final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+      final now = DateTime.now();
+      final isCurrentMonth = month.year == now.year && month.month == now.month;
+      final lastBarDay = isCurrentMonth ? now.day : daysInMonth;
+      final firstBarDay = (lastBarDay - 13).clamp(1, daysInMonth);
+      final dailySpend = dailySpendAll
+          .where((p) => p.day >= firstBarDay && p.day <= lastBarDay)
+          .toList();
 
       final recentTransactions =
           (json['recentTransactions'] as List<dynamic>? ?? const []).map((r) {
@@ -93,14 +98,25 @@ class BackendTransactionRepository implements ITransactionRepository {
   Future<Either<Failure, List<Transaction>>> getTransactions({
     TransactionType? type,
     String? searchQuery,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+    double? minAmount,
   }) async {
     try {
       final models = await _dataSource.getTransactions(
         type: type,
         search:
             searchQuery?.trim().isEmpty ?? true ? null : searchQuery!.trim(),
+        dateFrom: dateFrom == null ? null : _dateOnly(dateFrom),
+        dateTo: dateTo == null ? null : _dateOnly(dateTo),
       );
-      return Right(models.map((m) => m.toEntity(m.embeddedCategory)).toList());
+      var transactions =
+          models.map((m) => m.toEntity(m.embeddedCategory)).toList();
+      if (minAmount != null) {
+        transactions =
+            transactions.where((t) => t.amount >= minAmount).toList();
+      }
+      return Right(transactions);
     } catch (e) {
       return Left(mapBackendError(e));
     }
@@ -120,8 +136,17 @@ class BackendTransactionRepository implements ITransactionRepository {
   Future<Either<Failure, ReportSummary>> getReportSummary(
       ReportPeriod period) async {
     try {
+      final now = DateTime.now();
+      final previousDate = switch (period) {
+        ReportPeriod.week => now.subtract(const Duration(days: 7)),
+        ReportPeriod.month => DateTime(now.year, now.month - 1, now.day),
+        ReportPeriod.year => DateTime(now.year - 1, now.month, now.day),
+      };
+
       final json = await _dataSource.getPeriodSummary(
-          period.name, _dateOnly(DateTime.now()));
+          period.name, _dateOnly(now));
+      final previousJson = await _dataSource.getPeriodSummary(
+          period.name, _dateOnly(previousDate));
       final categoryMap = await _categoryMap();
 
       final categoryBreakdown = _breakdownFromJson(
@@ -144,26 +169,41 @@ class BackendTransactionRepository implements ITransactionRepository {
           .map((v) => parseNum(v))
           .toList();
       final maxValue = values.fold<double>(0, (m, v) => v > m ? v : m);
-      final weekBars = [
+      final chartBars = [
         for (var i = 0; i < labels.length; i++)
-          WeekBar(
+          ChartBar(
             label: labels[i],
             percent: maxValue == 0 ? 0 : (values[i] / maxValue) * 100,
           ),
       ];
 
+      final totalIncome = parseNum(json['income']);
+      final totalExpense = parseNum(json['expense']);
+      final previousIncome = parseNum(previousJson['income']);
+      final previousExpense = parseNum(previousJson['expense']);
+
       return Right(ReportSummary(
+        totalIncome: totalIncome,
+        totalExpense: totalExpense,
+        incomeDeltaPercent: _deltaPercent(totalIncome, previousIncome),
+        expenseDeltaPercent: _deltaPercent(totalExpense, previousExpense),
         topCategory: topCategory,
         avgPerDay: parseNum(json['avgPerDay']),
         maxSpendDay: parseNum(highestSpendDay?['total']),
         savingsRatePercent:
             double.parse(parseNum(json['savingsRate']).toStringAsFixed(1)),
         categoryBreakdown: categoryBreakdown,
-        weekBars: weekBars,
+        chartBars: chartBars,
       ));
     } catch (e) {
       return Left(mapBackendError(e));
     }
+  }
+
+  double? _deltaPercent(double current, double previous) {
+    if (previous == 0) return null;
+    return double.parse(
+        ((current - previous) / previous * 100).toStringAsFixed(1));
   }
 
   @override

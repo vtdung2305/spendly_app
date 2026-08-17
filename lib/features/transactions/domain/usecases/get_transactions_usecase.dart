@@ -11,6 +11,15 @@ class GetTransactionsUseCase {
   Future<Either<Failure, List<Transaction>>> call({
     TransactionType? type,
     String? searchQuery,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+    double? minAmount,
   }) =>
-      _repository.getTransactions(type: type, searchQuery: searchQuery);
+      _repository.getTransactions(
+        type: type,
+        searchQuery: searchQuery,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        minAmount: minAmount,
+      );
 }

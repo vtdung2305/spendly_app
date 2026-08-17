@@ -556,7 +556,37 @@ class AppLocalizationsVi extends AppLocalizations {
   String get reportsPieCardTitle => 'Theo danh mục';
 
   @override
-  String get reportsWeeklyBarCardTitle => 'Chi tiêu theo tuần';
+  String get reportsChartTitleWeek => 'Chi tiêu theo ngày';
+
+  @override
+  String get reportsChartTitleMonth => 'Chi tiêu theo tuần';
+
+  @override
+  String get reportsChartTitleYear => 'Chi tiêu theo quý';
+
+  @override
+  String get reportsComparisonIncomeLabel => 'Thu nhập';
+
+  @override
+  String get reportsComparisonExpenseLabel => 'Chi tiêu';
+
+  @override
+  String reportsComparisonVsPrevious(String delta) {
+    return '$delta so với kỳ trước';
+  }
+
+  @override
+  String get reportsComparisonNoPreviousData => 'Chưa có dữ liệu kỳ trước';
+
+  @override
+  String reportsComparisonUsedPercent(String percent) {
+    return 'Đã dùng $percent% thu nhập';
+  }
+
+  @override
+  String reportsComparisonSavings(String amount) {
+    return 'Tiết kiệm $amount';
+  }
 
   @override
   String get budgetAddSavedSnackbar => 'Đã lưu ngân sách';
@@ -817,19 +847,28 @@ class AppLocalizationsVi extends AppLocalizations {
   String get historyEmptyMessage => 'Chưa có giao dịch nào';
 
   @override
-  String get historyFilterSectionLabel => 'Lọc theo';
+  String get historyFilterDateRangeLabel => 'Khoảng thời gian';
 
   @override
-  String get historyFilterChipThisWeek => 'Tuần này';
+  String get historyFilterFromLabel => 'Từ ngày';
 
   @override
-  String get historyFilterChipFoodDrink => 'Ăn uống';
+  String get historyFilterToLabel => 'Đến ngày';
+
+  @override
+  String get historyFilterQuickLabel => 'Lọc nhanh';
 
   @override
   String get historyFilterChipOver500k => 'Trên 500K';
 
   @override
   String get historyFilterChipExpenseOnly => 'Chỉ chi tiêu';
+
+  @override
+  String get historyFilterChipIncomeOnly => 'Chỉ thu nhập';
+
+  @override
+  String get historyClearFiltersButton => 'Xóa bộ lọc';
 
   @override
   String get historySearchHint => 'Tìm giao dịch...';

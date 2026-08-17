@@ -14,6 +14,7 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
     this._updateTransactionUseCase, {
     TransactionType initialTab = TransactionType.expense,
     Transaction? existingTransaction,
+    DateTime? initialDate,
   })  : _existingTransaction = existingTransaction,
         super(
           existingTransaction != null
@@ -24,7 +25,10 @@ class AddTransactionCubit extends Cubit<AddTransactionState> {
                   date: existingTransaction.date,
                   note: existingTransaction.note ?? '',
                 )
-              : AddTransactionState(type: initialTab, date: DateTime.now()),
+              : AddTransactionState(
+                  type: initialTab,
+                  date: initialDate ?? DateTime.now(),
+                ),
         );
 
   final GetCategoriesUseCase _getCategoriesUseCase;

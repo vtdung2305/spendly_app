@@ -44,8 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Environment secrets — never commit real Supabase credentials.
-# .env.example (template with placeholder values) stays tracked.
+# Environment secrets — never commit real Supabase/backend credentials.
+# .env.dev.example / .env.prod.example (templates with placeholder values)
+# stay tracked; the real .env.dev / .env.prod do not.
 .env
 .env.*
-!.env.example
+!.env.dev.example
+!.env.prod.example
