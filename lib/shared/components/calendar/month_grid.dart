@@ -80,7 +80,7 @@ class MonthGridDayCell extends StatelessWidget {
     super.key,
   });
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Color background;
   final Color? ringColor;
   final Widget child;

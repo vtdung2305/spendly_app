@@ -33,6 +33,7 @@ import 'package:spendly_app/features/profile/presentation/view/edit_profile_page
 import 'package:spendly_app/features/profile/presentation/view/profile_page.dart';
 import 'package:spendly_app/features/notification/presentation/view/notification_center_page.dart';
 import 'package:spendly_app/features/notification/presentation/viewmodel/notification_center_cubit.dart';
+import 'package:spendly_app/features/onboarding/presentation/view/onboarding_page.dart';
 import 'package:spendly_app/features/recurring_transaction/domain/entities/recurring_transaction.dart';
 import 'package:spendly_app/features/recurring_transaction/presentation/view/recurring_transaction_form_page.dart';
 import 'package:spendly_app/features/recurring_transaction/presentation/view/recurring_transaction_list_page.dart';
@@ -81,6 +82,11 @@ abstract class AppRouter {
         path: '/language-select',
         pageBuilder: (context, state) =>
             _fadePage(state, const LanguageSelectPage()),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const OnboardingPage()),
       ),
       GoRoute(
         path: '/login',
@@ -262,7 +268,7 @@ abstract class AppRouter {
         pageBuilder: (context, state) => _fadePage(
           state,
           BlocProvider(
-            create: (_) => HistoryCubit(getIt(), getIt()),
+            create: (_) => HistoryCubit(getIt(), getIt(), getIt()),
             child: const HistoryPage(),
           ),
         ),

@@ -158,6 +158,48 @@ abstract class AppLocalizations {
   /// **'CN'**
   String get weekdaySun;
 
+  /// No description provided for @historyGroupWeekdayMon.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thứ 2'**
+  String get historyGroupWeekdayMon;
+
+  /// No description provided for @historyGroupWeekdayTue.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thứ 3'**
+  String get historyGroupWeekdayTue;
+
+  /// No description provided for @historyGroupWeekdayWed.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thứ 4'**
+  String get historyGroupWeekdayWed;
+
+  /// No description provided for @historyGroupWeekdayThu.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thứ 5'**
+  String get historyGroupWeekdayThu;
+
+  /// No description provided for @historyGroupWeekdayFri.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thứ 6'**
+  String get historyGroupWeekdayFri;
+
+  /// No description provided for @historyGroupWeekdaySat.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thứ 7'**
+  String get historyGroupWeekdaySat;
+
+  /// No description provided for @historyGroupWeekdaySun.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chủ Nhật'**
+  String get historyGroupWeekdaySun;
+
   /// No description provided for @categoryFood.
   ///
   /// In vi, this message translates to:
@@ -313,6 +355,60 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Mất kết nối mạng. Kiểm tra Wi-Fi hoặc dữ liệu di động.'**
   String get splashOfflineMessage;
+
+  /// No description provided for @onboardingSkipButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bỏ qua'**
+  String get onboardingSkipButton;
+
+  /// No description provided for @onboardingContinueButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Tiếp tục'**
+  String get onboardingContinueButton;
+
+  /// No description provided for @onboardingStartButton.
+  ///
+  /// In vi, this message translates to:
+  /// **'Bắt đầu ngay'**
+  String get onboardingStartButton;
+
+  /// No description provided for @onboardingSlide1Title.
+  ///
+  /// In vi, this message translates to:
+  /// **'Theo dõi mọi khoản chi'**
+  String get onboardingSlide1Title;
+
+  /// No description provided for @onboardingSlide1Desc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ghi lại thu nhập và chi tiêu chỉ trong vài giây, mọi lúc mọi nơi.'**
+  String get onboardingSlide1Desc;
+
+  /// No description provided for @onboardingSlide2Title.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thấu hiểu dòng tiền'**
+  String get onboardingSlide2Title;
+
+  /// No description provided for @onboardingSlide2Desc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Biểu đồ trực quan giúp bạn biết tiền đi đâu, về đâu mỗi tháng.'**
+  String get onboardingSlide2Desc;
+
+  /// No description provided for @onboardingSlide3Title.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đạt mục tiêu tiết kiệm'**
+  String get onboardingSlide3Title;
+
+  /// No description provided for @onboardingSlide3Desc.
+  ///
+  /// In vi, this message translates to:
+  /// **'Đặt ngân sách, theo dõi tiến độ và tiết kiệm nhiều hơn mỗi ngày.'**
+  String get onboardingSlide3Desc;
 
   /// No description provided for @loginFeatureInDevelopmentSnackbar.
   ///
@@ -1651,6 +1747,60 @@ abstract class AppLocalizations {
   /// In vi, this message translates to:
   /// **'Tìm giao dịch...'**
   String get historySearchHint;
+
+  /// No description provided for @historyFilterCategoryLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh mục'**
+  String get historyFilterCategoryLabel;
+
+  /// No description provided for @historyTabList.
+  ///
+  /// In vi, this message translates to:
+  /// **'Danh sách'**
+  String get historyTabList;
+
+  /// No description provided for @historyTabChart.
+  ///
+  /// In vi, this message translates to:
+  /// **'Biểu đồ'**
+  String get historyTabChart;
+
+  /// No description provided for @historyChartEmptyMessage.
+  ///
+  /// In vi, this message translates to:
+  /// **'Không có dữ liệu để thống kê'**
+  String get historyChartEmptyMessage;
+
+  /// No description provided for @historyChartIncomeLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Thu'**
+  String get historyChartIncomeLabel;
+
+  /// No description provided for @historyChartExpenseLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chi'**
+  String get historyChartExpenseLabel;
+
+  /// No description provided for @historyChartNetLabel.
+  ///
+  /// In vi, this message translates to:
+  /// **'Ròng'**
+  String get historyChartNetLabel;
+
+  /// No description provided for @historyChartCategoryCardTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'Chi tiêu theo danh mục'**
+  String get historyChartCategoryCardTitle;
+
+  /// No description provided for @historyChartRecentCardTitle.
+  ///
+  /// In vi, this message translates to:
+  /// **'{count} giao dịch gần nhất'**
+  String historyChartRecentCardTitle(String count);
 
   /// No description provided for @profilePageTitle.
   ///

@@ -20,6 +20,14 @@
   @keyframes shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .spin { animation: spin 1s linear infinite; display: inline-flex; }
+  @keyframes obIconIn { 0% { transform: scale(.4) rotate(-12deg); opacity: 0; } 60% { transform: scale(1.08) rotate(4deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+  @keyframes obTextIn { 0% { transform: translateY(14px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+  @keyframes obFloat { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.04); } }
+  @keyframes obBlobDrift { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(14px,-18px) scale(1.08); } }
+  .ob-icon { animation: obIconIn .55s cubic-bezier(.34,1.56,.64,1) both, obFloat 3.2s ease-in-out .6s infinite; }
+  .ob-title { animation: obTextIn .5s ease .12s both; }
+  .ob-desc { animation: obTextIn .5s ease .2s both; }
+  .ob-blob { animation: obBlobDrift 7s ease-in-out infinite; }
   .skel { background: linear-gradient(90deg, rgba(148,163,184,0.15) 25%, rgba(148,163,184,0.32) 37%, rgba(148,163,184,0.15) 63%); background-size: 400px 100%; animation: shimmer 1.4s infinite linear; }
 </style>
 </helmet>
@@ -157,6 +165,47 @@
                 <div style="flex:1;"></div>
                 <button onclick="{{ confirmLanguage }}" style="{{ btnPrimary }}">Tiếp tục</button>
                 <div style="text-align:center;font-size:12px;color:{{ c.textTert }};margin-top:12px;">Bạn có thể thay đổi ngôn ngữ sau trong Cài đặt</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- 1c. ONBOARDING -->
+          <sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ false }}">
+            <div style="height:844px;background:linear-gradient(160deg,{{ c.primary }} 0%,{{ c.splashEnd }} 100%);display:flex;flex-direction:column;">
+              <div style="display:flex;justify-content:flex-end;padding:20px 20px 0;">
+                <button onclick="{{ onboardSkip }}" style="background:rgba(255,255,255,.16);border:none;border-radius:99px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;padding:9px 18px;">Bỏ qua</button>
+              </div>
+
+              <div style="flex:1;position:relative;overflow:hidden;">
+                <div class="ob-blob" style="position:absolute;top:8%;left:-40px;width:160px;height:160px;border-radius:999px;background:rgba(255,255,255,.10);filter:blur(2px);"></div>
+                <div class="ob-blob" style="position:absolute;bottom:6%;right:-50px;width:200px;height:200px;border-radius:999px;background:rgba(255,255,255,.08);animation-delay:-3s;"></div>
+                <sc-for list="{{ onboardSlides }}" as="ob" hint-placeholder-count="3">
+                  <div style="{{ ob.style }}">
+                    <sc-if value="{{ ob.active }}" hint-placeholder-val="{{ false }}">
+                      <div key="{{ ob.step }}" class="ob-icon" style="{{ ob.iconWrapStyle }}">
+                        <span class="msr" style="font-size:56px;color:#fff;">{{ ob.icon }}</span>
+                      </div>
+                      <div key="{{ ob.step }}t" class="ob-title" style="font-size:23px;font-weight:800;color:#fff;text-align:center;letter-spacing:-.01em;">{{ ob.title }}</div>
+                      <div key="{{ ob.step }}d" class="ob-desc" style="font-size:14px;color:rgba(255,255,255,.8);text-align:center;margin-top:10px;line-height:1.6;max-width:280px;">{{ ob.desc }}</div>
+                    </sc-if>
+                    <sc-if value="{{ ob.notActive }}" hint-placeholder-val="{{ true }}">
+                      <div style="{{ ob.iconWrapStyle }}">
+                        <span class="msr" style="font-size:56px;color:#fff;">{{ ob.icon }}</span>
+                      </div>
+                      <div style="font-size:23px;font-weight:800;color:#fff;text-align:center;letter-spacing:-.01em;">{{ ob.title }}</div>
+                      <div style="font-size:14px;color:rgba(255,255,255,.8);text-align:center;margin-top:10px;line-height:1.6;max-width:280px;">{{ ob.desc }}</div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="padding:20px 28px 40px;">
+                <div style="display:flex;justify-content:center;gap:7px;margin-bottom:26px;">
+                  <sc-for list="{{ onboardDots }}" as="od" hint-placeholder-count="3">
+                    <button onclick="{{ od.onClick }}" style="{{ od.style }}"></button>
+                  </sc-for>
+                </div>
+                <button onclick="{{ onboardNext }}" style="height:54px;border-radius:16px;border:none;background:#fff;color:{{ c.primary }};font-size:15px;font-weight:700;cursor:pointer;width:100%;">{{ onboardNextLabel }}</button>
               </div>
             </div>
           </sc-if>
@@ -1432,11 +1481,20 @@
           <!-- 11. TRANSACTION HISTORY -->
           <sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
             <div style="min-height:844px;background:{{ c.bg }};padding-bottom:96px;">
-              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;text-align:center;{{ headerBg }}">
-                <div style="font-size:19px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Lịch sử giao dịch</div>
+              <div style="position:sticky;top:0;z-index:50;padding:52px 16px 16px;display:flex;align-items:center;gap:12px;{{ headerBg }}">
+                <button onclick="{{ goDashboard }}" style="width:44px;height:44px;background:none;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <span class="msr" style="font-size:28px;color:{{ headerFg }};">chevron_left</span>
+                </button>
+                <div style="flex:1;text-align:center;font-size:19px;font-weight:800;color:{{ headerFg }};letter-spacing:-.01em;">Lịch sử giao dịch</div>
+                <div style="width:44px;"></div>
               </div>
               <div style="padding:16px;">
-              <div style="display:flex;gap:8px;margin-top:14px;">
+              <div style="display:flex;gap:4px;background:{{ c.surfaceAlt }};border-radius:12px;padding:4px;">
+                <button onclick="{{ setHistoryList }}" style="{{ histListBtnStyle }}">Danh sách</button>
+                <button onclick="{{ setHistoryChart }}" style="{{ histChartBtnStyle }}">Biểu đồ</button>
+              </div>
+
+              <div style="display:flex;gap:8px;margin-top:12px;">
                 <div style="flex:1;display:flex;align-items:center;gap:8px;background:{{ c.surface }};border:1.5px solid {{ c.border }};border-radius:14px;padding:0 14px;height:48px;">
                   <span class="msr" style="font-size:19px;color:{{ c.textSec }};">search</span>
                   <input value="{{ historySearch }}" oninput="{{ onHistorySearch }}" placeholder="Tìm giao dịch..." style="border:none;background:transparent;outline:none;font-size:14px;font-weight:500;color:{{ c.text }};width:100%;height:100%;"/>
@@ -1463,12 +1521,19 @@
                       <button onclick="{{ fc.onClick }}" style="{{ fc.style }}">{{ fc.label }}</button>
                     </sc-for>
                   </div>
+                  <div style="font-size:12px;font-weight:700;color:{{ c.textSec }};margin:14px 0 8px;">Danh mục</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                    <sc-for list="{{ historyCatChips }}" as="hc" hint-placeholder-count="6">
+                      <button onclick="{{ hc.onClick }}" style="{{ hc.style }}"><span class="msr" style="{{ hc.iconStyle }}">{{ hc.icon }}</span>{{ hc.label }}</button>
+                    </sc-for>
+                  </div>
                   <sc-if value="{{ hasActiveFilters }}" hint-placeholder-val="{{ false }}">
                     <button onclick="{{ clearFilters }}" style="margin-top:12px;background:none;border:none;color:{{ c.primary }};font-size:12.5px;font-weight:700;cursor:pointer;padding:0;">Xóa bộ lọc</button>
                   </sc-if>
                 </div>
               </sc-if>
 
+              <sc-if value="{{ isHistoryList }}" hint-placeholder-val="{{ true }}">
               <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
                 <div style="{{ emptyStyle }}">
                   <span class="msr" style="font-size:40px;color:{{ c.textTert }};">search_off</span>
@@ -1485,27 +1550,87 @@
                 </div>
               </sc-if>
               <sc-if value="{{ isNormal }}" hint-placeholder-val="{{ true }}">
-                <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
-                  <sc-for list="{{ historyRows }}" as="h" hint-placeholder-count="14">
-                    <div style="position:relative;border-radius:16px;overflow:hidden;">
-                      <sc-if value="{{ h.isSwiped }}" hint-placeholder-val="{{ false }}">
-                        <button onclick="{{ h.requestDelete }}" style="position:absolute;top:0;right:0;bottom:0;width:72px;background:{{ c.danger }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-                          <span class="msr" style="font-size:22px;color:#fff;">delete</span>
-                        </button>
-                      </sc-if>
-                      <div onPointerDown="{{ h.swipeStart }}" onPointerUp="{{ h.swipeEnd }}" style="{{ cardStyle }};padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:none;position:relative;background:{{ c.surface }};transform:translateX({{ h.swipeOffset }});transition:transform .2s ease;cursor:pointer;">
-                        <div style="width:40px;height:40px;border-radius:12px;background:{{ h.iconBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                          <span class="msr" style="font-size:19px;color:{{ h.iconColor }};">{{ h.icon }}</span>
-                        </div>
-                        <div style="flex:1;min-width:0;">
-                          <div style="font-size:13px;font-weight:600;color:{{ c.text }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ h.label }}</div>
-                          <div style="font-size:11px;color:{{ c.textTert }};margin-top:2px;">{{ h.catLabel }} · {{ h.date }}</div>
-                        </div>
-                        <div style="font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ h.amountColor }};">{{ h.amountStr }}</div>
+                <div style="display:flex;flex-direction:column;margin-top:6px;">
+                  <sc-for list="{{ historyGroups }}" as="grp" hint-placeholder-count="6">
+                    <div>
+                      <div style="position:sticky;top:112px;z-index:30;background:{{ c.bg }};padding:10px 2px 8px;font-size:12px;font-weight:700;color:{{ c.textSec }};">{{ grp.label }}</div>
+                      <div style="display:flex;flex-direction:column;gap:10px;padding-bottom:6px;">
+                        <sc-for list="{{ grp.rows }}" as="h" hint-placeholder-count="3">
+                          <div style="position:relative;border-radius:16px;overflow:hidden;">
+                            <sc-if value="{{ h.isSwiped }}" hint-placeholder-val="{{ false }}">
+                              <button onclick="{{ h.requestDelete }}" style="position:absolute;top:0;right:0;bottom:0;width:72px;background:{{ c.danger }};border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                                <span class="msr" style="font-size:22px;color:#fff;">delete</span>
+                              </button>
+                            </sc-if>
+                            <div onPointerDown="{{ h.swipeStart }}" onPointerUp="{{ h.swipeEnd }}" style="{{ cardStyle }};padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:none;position:relative;background:{{ c.surface }};transform:translateX({{ h.swipeOffset }});transition:transform .2s ease;cursor:pointer;">
+                              <div style="width:40px;height:40px;border-radius:12px;background:{{ h.iconBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <span class="msr" style="font-size:19px;color:{{ h.iconColor }};">{{ h.icon }}</span>
+                              </div>
+                              <div style="flex:1;min-width:0;">
+                                <div style="font-size:13px;font-weight:600;color:{{ c.text }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ h.label }}</div>
+                                <div style="font-size:11px;color:{{ c.textTert }};margin-top:2px;">{{ h.catLabel }} · {{ h.date }}</div>
+                              </div>
+                              <div style="font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ h.amountColor }};">{{ h.amountStr }}</div>
+                            </div>
+                          </div>
+                        </sc-for>
                       </div>
                     </div>
                   </sc-for>
                 </div>
+              </sc-if>
+              </sc-if>
+
+              <sc-if value="{{ isHistoryChart }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ histChartEmpty }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ emptyStyle }}">
+                    <span class="msr" style="font-size:40px;color:{{ c.textTert }};">bar_chart</span>
+                    <div style="font-size:14px;font-weight:600;color:{{ c.text }};margin-top:10px;">Không có dữ liệu để thống kê</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ histChartHasData }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;">
+                  <div style="display:flex;flex-direction:column;gap:8px;{{ cardStyle }};padding:14px 16px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                      <div style="{{ metaLabel }};margin-bottom:0;">Thu</div>
+                      <div style="font-size:14px;font-weight:800;color:{{ c.success }};font-family:'IBM Plex Mono',monospace;">{{ histTotalIncomeStr }}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                      <div style="{{ metaLabel }};margin-bottom:0;">Chi</div>
+                      <div style="font-size:14px;font-weight:800;color:{{ c.danger }};font-family:'IBM Plex Mono',monospace;">{{ histTotalExpenseStr }}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                      <div style="{{ metaLabel }};margin-bottom:0;">Ròng</div>
+                      <div style="font-size:14px;font-weight:800;color:{{ c.text }};font-family:'IBM Plex Mono',monospace;">{{ histNetStr }}</div>
+                    </div>
+                  </div>
+
+                  <div style="{{ cardStyle }};padding:16px;">
+                    <div style="font-size:14px;font-weight:700;color:{{ c.text }};">Chi tiêu theo danh mục</div>
+                    <div style="display:flex;align-items:center;gap:20px;margin-top:16px;">
+                      <div style="width:104px;height:104px;border-radius:999px;flex-shrink:0;background:conic-gradient({{ histConicStops }});"></div>
+                      <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+                        <sc-for list="{{ histPieList }}" as="hp" hint-placeholder-count="5">
+                          <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="width:8px;height:8px;border-radius:99px;background:{{ hp.color }};flex-shrink:0;"></div>
+                            <div style="flex:1;font-size:12px;color:{{ c.textSec }};">{{ hp.label }}</div>
+                            <div style="font-size:11.5px;font-weight:700;color:{{ c.text }};">{{ hp.pct }}%</div>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="{{ cardStyle }};padding:16px;">
+                    <div style="font-size:14px;font-weight:700;color:{{ c.text }};">{{ histCountStr }} gần nhất</div>
+                    <div style="display:flex;align-items:flex-end;gap:5px;height:80px;margin-top:16px;">
+                      <sc-for list="{{ histBars }}" as="hb" hint-placeholder-count="10">
+                        <div style="flex:1;height:{{ hb.h }};background:{{ hb.color }};border-radius:5px 5px 2px 2px;"></div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+                </sc-if>
               </sc-if>
               </div>
             </div>
@@ -1798,12 +1923,12 @@ class Component extends DCLogic {
     swipedRowId: null, deletedTxIds: [], deletedIncomeIds: [],
     calendarAmounts: [250000,850000,1200000,560000,1200000,320000,1450000,90000,700000,780000,210000,0,1900000,340000,60000,975000,510000,1250000,600000,175000,890000,40000,600000,620000,1050000,0,230000,1420000,80000,0,150000],
     snackbar: null, viewState: 'normal', historySearch: '', filterOpen: false,
-    historyFrom: '', historyTo: '', historyQuickFilter: null,
+    historyFrom: '', historyTo: '', historyQuickFilter: null, historyCatId: null, historyView: 'list',
     splashState: 'loading', selectedBudgetCategory: null, budgetAmount: '',
     language: 'vi', themeExpanded: false, langExpanded: false, authErr: false,
     editBudgetCat: null, editBudgetAmount: '', budgetOverrides: {}, deletedBudgetCats: [],
     categories: null, catFormId: null, catFormName: '', catFormIcon: 'restaurant', catFormColor: '#4F46E5', iconGroup: 'Ăn uống',
-    otp: '', scrollY: 0,
+    otp: '', scrollY: 0, onboardStep: 0,
     reminderSettings: {dailyExpense:true, budgetAlert:true, recurringAlert:false, dailyTime:'20:00'},
     profile: {ho:'Nguyễn', ten:'Minh Anh', phone:'0901234567', email:'minhanh@email.com', address:''},
     editProfileForm: {ho:'Nguyễn', ten:'Minh Anh', phone:'0901234567', email:'minhanh@email.com', address:''},
@@ -2177,7 +2302,10 @@ class Component extends DCLogic {
   prevMonth = () => this.setState(s => ({monthOffset: s.monthOffset - 1}));
   nextMonth = () => this.setState(s => ({monthOffset: s.monthOffset + 1}));
   selectOnboardingLanguage = (lang) => this.setState({language:lang});
-  confirmLanguage = () => this.setState({screen:'login'});
+  confirmLanguage = () => this.setState({screen:'onboarding', onboardStep:0});
+  onboardNext = () => this.setState(s => s.onboardStep>=2 ? {screen:'login'} : {onboardStep:s.onboardStep+1});
+  onboardSkip = () => this.setState({screen:'login'});
+  onboardGoto = (i) => this.setState({onboardStep:i});
   toggleThemeExpand = () => this.setState(s => ({themeExpanded:!s.themeExpanded, langExpanded:false}));
   toggleLangExpand = () => this.setState(s => ({langExpanded:!s.langExpanded, themeExpanded:false}));
   selectThemeOption = (isDark) => this.setState({dark:isDark, themeExpanded:false});
@@ -2191,7 +2319,9 @@ class Component extends DCLogic {
   onHistoryFrom = (e) => this.setState({historyFrom:e.target.value});
   onHistoryTo = (e) => this.setState({historyTo:e.target.value});
   setQuickFilter = (key) => this.setState(s=>({historyQuickFilter: s.historyQuickFilter===key?null:key}));
-  clearFilters = () => this.setState({historyFrom:'',historyTo:'',historyQuickFilter:null,historySearch:''});
+  setHistoryCat = (catId) => this.setState(s=>({historyCatId: s.historyCatId===catId?null:catId}));
+  setHistoryView = (v) => this.setState({historyView:v});
+  clearFilters = () => this.setState({historyFrom:'',historyTo:'',historyQuickFilter:null,historySearch:'',historyCatId:null});
   logout = () => this.setState({screen:'login', dark:this.state.dark});
 
   fmt(n){ return Math.round(n).toLocaleString('vi-VN'); }
@@ -2225,7 +2355,7 @@ class Component extends DCLogic {
     const c = this.theme(s.dark);
     const screen = s.screen;
     const isMainTab = ['dashboard','calendar','budget','reports','profile'].includes(screen);
-    const isAuthLike = ['splash','languageSelect','login','register','forgotPassword','otp'].includes(screen);
+    const isAuthLike = ['splash','languageSelect','onboarding','login','register','forgotPassword','otp'].includes(screen);
     const vs = s.viewState;
 
     const catStyle = (cg) => ({
@@ -2301,12 +2431,53 @@ class Component extends DCLogic {
       if (s.historyQuickFilter === 'expense' && tx.type !== 'expense') return false;
       if (s.historyQuickFilter === 'income' && tx.type !== 'income') return false;
       if (s.historyQuickFilter === 'big' && tx.amount < 500000) return false;
+      if (s.historyCatId && tx.cat !== s.historyCatId) return false;
       return true;
     });
-    const hasActiveFilters = !!(s.historyFrom || s.historyTo || s.historyQuickFilter || kw);
+    const hasActiveFilters = !!(s.historyFrom || s.historyTo || s.historyQuickFilter || s.historyCatId || kw);
+    const historyCatChips = this.categories.map(cg => ({
+      key: cg.id, label: cg.label, icon: cg.icon,
+      onClick: () => this.setHistoryCat(cg.id),
+      style: `display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border:1.5px solid ${s.historyCatId===cg.id?cg.color:c.border};cursor:pointer;border-radius:99px;padding:6px 12px 6px 8px;background:${s.historyCatId===cg.id?cg.color+'1a':c.surface};color:${s.historyCatId===cg.id?cg.color:c.textSec};`,
+      iconStyle: `font-size:15px;color:${s.historyCatId===cg.id?cg.color:c.textTert};`,
+    }));
+
+    const isHistoryChart = s.historyView === 'chart';
+    const histTotalExpense = filteredTxPool.filter(t=>t.type==='expense').reduce((a,t)=>a+t.amount,0);
+    const histTotalIncome = filteredTxPool.filter(t=>t.type==='income').reduce((a,t)=>a+t.amount,0);
+    const histCatAgg = {};
+    filteredTxPool.filter(t=>t.type==='expense').forEach(t=>{ histCatAgg[t.cat]=(histCatAgg[t.cat]||0)+t.amount; });
+    const histPie = Object.entries(histCatAgg).map(([catId,amt])=>({
+      cg: catMap[catId]||{label:'Khác',color:c.textTert}, amt, pct: histTotalExpense? Math.round(amt/histTotalExpense*100):0,
+    })).sort((a,b)=>b.amt-a.amt);
+    let histAcc=0;
+    const histConicStops = histPie.map(p=>{const start=histAcc; histAcc+=p.pct; return `${p.cg.color} ${start}% ${histAcc}%`;}).join(',') || `${c.surfaceAlt} 0% 100%`;
+    const histPieList = histPie.map(p=>({
+      label: p.cg.label, color: p.cg.color, pct: p.pct, amtStr: this.fmt(p.amt)+' ₫',
+    }));
+    const histMaxAmt = Math.max(...filteredTxPool.map(t=>t.amount), 1);
+    const histBars = filteredTxPool.slice(0,10).reverse().map(t=>({
+      h: Math.max(6, Math.round(t.amount/histMaxAmt*64))+'px',
+      color: t.type==='income'?c.success:c.danger,
+    }));
+    const histChartEmpty = filteredTxPool.length === 0;
+    const histChartHasData = !histChartEmpty;
+    const histNetStr = this.fmt(histTotalIncome - histTotalExpense) + ' ₫';
+    const histTotalExpenseStr = this.fmt(histTotalExpense) + ' ₫';
+    const histTotalIncomeStr = this.fmt(histTotalIncome) + ' ₫';
+    const histCountStr = `${filteredTxPool.length} giao dịch`;
     const historyRows = filteredTxPool.map(tx => {
       const base = mkTx(tx);
       return { ...base, ...makeSwipeRow(tx.id, () => this.editHistoryTx(tx), () => this.requestDeleteHistory(tx.id)) };
+    });
+    const WEEKDAYS = ['Chủ Nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'];
+    const historyGroups = [];
+    historyRows.forEach(row => {
+      const last = historyGroups[historyGroups.length-1];
+      if (last && last.key === row.date) { last.rows.push(row); return; }
+      const [dd,mm] = row.date.split('/').map(Number);
+      const wd = WEEKDAYS[new Date(2026, mm-1, dd).getDay()];
+      historyGroups.push({ key: row.date, label: `${wd}, ${row.date}`, rows: [row] });
     });
 
     const dailyBars = [40,65,30,80,55,20,90,45,60,35,75,50,25,68].map(h=>({h:h+'%', color: h>70? c.danger : h>45? c.primary : c.success}));
@@ -2559,6 +2730,7 @@ class Component extends DCLogic {
       {num:12,label:'Profile',key:'profile',icon:screenIcons.profile,go:this.goProfile},
       {num:13,label:'Settings',key:'settings',icon:screenIcons.settings,go:this.goSettings},
       {num:'1b',label:'Language Select',key:'languageSelect',icon:'language',go:()=>this.goTo('languageSelect')},
+      {num:'1c',label:'Onboarding',key:'onboarding',icon:'auto_awesome',go:()=>this.setState({screen:'onboarding',onboardStep:0})},
       {num:'3b',label:'Verify OTP',key:'otp',icon:'mark_email_read',go:this.goOtp},
       {num:'2b',label:'Forgot Password',key:'forgotPassword',icon:'lock_reset',go:this.goForgotPassword},
       {num:'9b',label:'Add Budget',key:'budgetAdd',icon:'add_circle',go:this.goBudgetAdd},
@@ -2572,6 +2744,22 @@ class Component extends DCLogic {
       style:`display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:12px;border:none;background:${screen===it.key?c.primaryLight:'transparent'};color:${screen===it.key?c.primary:c.text};font-size:13px;font-weight:600;cursor:pointer;text-align:left;`}));
 
     const metaKey = screen; const meta = this.screenMeta[metaKey] || {};
+
+    const ONBOARD_DATA = [
+      {icon:'travel_explore', title:'Theo dõi mọi khoản chi', desc:'Ghi lại thu nhập và chi tiêu chỉ trong vài giây, mọi lúc mọi nơi.'},
+      {icon:'donut_large', title:'Thấu hiểu dòng tiền', desc:'Biểu đồ trực quan giúp bạn biết tiền đi đâu, về đâu mỗi tháng.'},
+      {icon:'savings', title:'Đạt mục tiêu tiết kiệm', desc:'Đặt ngân sách, theo dõi tiến độ và tiết kiệm nhiều hơn mỗi ngày.'},
+    ];
+    const onboardStep = Math.min(s.onboardStep||0, 2);
+    const onboardSlides = ONBOARD_DATA.map((o,i) => ({
+      ...o, active: i===onboardStep, notActive: i!==onboardStep, step: i,
+      style: `position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 36px;transition:opacity .4s ease,transform .4s ease;opacity:${i===onboardStep?1:0};transform:translateX(${(i-onboardStep)*24}px);pointer-events:${i===onboardStep?'auto':'none'};`,
+      iconWrapStyle: `width:120px;height:120px;border-radius:32px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;margin-bottom:32px;`,
+    }));
+    const onboardDots = ONBOARD_DATA.map((_,i) => ({
+      key:i, onClick: () => this.onboardGoto(i),
+      style: `height:8px;border-radius:99px;border:none;cursor:pointer;background:${i===onboardStep?'#fff':'rgba(255,255,255,.35)'};width:${i===onboardStep?24:8}px;transition:width .3s ease,background .3s ease;`,
+    }));
 
     const scrolled = (s.scrollY||0) > 8;
     const headerBg = `background:linear-gradient(135deg,${c.primary},${c.splashEnd});box-shadow:${scrolled ? '0 4px 14px rgba(79,70,229,.22)' : 'none'};transition:box-shadow .35s ease;`;
@@ -2610,7 +2798,7 @@ class Component extends DCLogic {
       reportIncomeDeltaStr, reportExpenseDeltaStr, reportIncomeDeltaColor, reportExpenseDeltaColor,
       reportTopCat, reportHighestStr, reportLowestStr, reportAvgStr, reportSavingRate,
       reportBars, reportPieList, reportExpensePct,
-      transactions, historyRows, dailyBars, weekBars, weekdayLabels, calendarDays, calendarDaysPlain, calendarLeadBlanks,
+      transactions, historyRows, historyGroups, dailyBars, weekBars, weekdayLabels, calendarDays, calendarDaysPlain, calendarLeadBlanks,
       dayTransactions, budgetItems, incomeListRows, monthChips, filterChips, quickActions, reportTabs, profileMenu,
       settingsGeneral, settingsData, settingsSupport,
 
@@ -2696,6 +2884,8 @@ class Component extends DCLogic {
       saveBudgetEditDisabled,
       saveBudgetEditBtnStyle: `${btnPrimary};margin-top:20px;opacity:${saveBudgetEditDisabled?0.45:1};`,
       isLanguageSelect: screen==='languageSelect', languageOptions, confirmLanguage:this.confirmLanguage,
+      isOnboarding: screen==='onboarding', onboardSlides, onboardDots, onboardNext:this.onboardNext, onboardSkip:this.onboardSkip,
+      onboardNextLabel: s.onboardStep>=2 ? 'Bắt đầu ngay' : 'Tiếp tục', isOnboardLast: s.onboardStep>=2,
       isCategoryList: screen==='categoryList', isCategoryEdit: screen==='categoryEdit',
       goCategoryList:this.goCategoryList, goCategoryCreate:this.goCategoryCreate,
       onCatNameInput:this.onCatNameInput, saveCategory:this.saveCategory, requestDeleteCategory:this.requestDeleteCategory,
@@ -2749,7 +2939,11 @@ class Component extends DCLogic {
       onAmountInput:this.onAmountInput, onNoteInput:this.onNoteInput, closeDay:this.closeDay, openDay:this.openDay,
       onHistorySearch:this.onHistorySearch, toggleFilter:this.toggleFilter, logout:this.logout,
       onHistoryFrom:this.onHistoryFrom, onHistoryTo:this.onHistoryTo, clearFilters:this.clearFilters,
-      historyFrom: s.historyFrom, historyTo: s.historyTo, hasActiveFilters,
+      historyFrom: s.historyFrom, historyTo: s.historyTo, hasActiveFilters, historyCatChips,
+      isHistoryChart, isHistoryList: !isHistoryChart, setHistoryList: ()=>this.setHistoryView('list'), setHistoryChart: ()=>this.setHistoryView('chart'),
+      histListBtnStyle: `flex:1;height:38px;border-radius:10px;border:none;font-size:12.5px;font-weight:700;cursor:pointer;background:${!isHistoryChart?c.surface:'transparent'};color:${!isHistoryChart?c.primary:c.textSec};box-shadow:${!isHistoryChart?'0 2px 6px rgba(15,23,42,.10)':'none'};`,
+      histChartBtnStyle: `flex:1;height:38px;border-radius:10px;border:none;font-size:12.5px;font-weight:700;cursor:pointer;background:${isHistoryChart?c.surface:'transparent'};color:${isHistoryChart?c.primary:c.textSec};box-shadow:${isHistoryChart?'0 2px 6px rgba(15,23,42,.10)':'none'};`,
+      histConicStops, histPieList, histBars, histChartEmpty, histChartHasData, histNetStr, histTotalExpenseStr, histTotalIncomeStr, histCountStr,
       editDayTx:this.editDayTx, requestDeleteDayTx:this.requestDeleteDayTx, cancelDelete:this.cancelDelete,
       confirmDelete:this.confirmDelete, stopClick:this.stopClick,
       hasDayTx: dayTransactions.length>0, hasNoDayTx: dayTransactions.length===0,

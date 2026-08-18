@@ -30,5 +30,5 @@ flutter build ipa --release --dart-define=ENV=prod
 ## build only device id
 flutter run --release \
   -d 00008101-001A54C02112001E  \
-  --dart-define=ENV=staging
+  --dart-define=ENV=prod
 ```

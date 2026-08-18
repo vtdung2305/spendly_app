@@ -51,6 +51,13 @@ class SpendlyApp extends StatelessWidget {
                 localeResolutionCallback: (locale, supported) =>
                     locale ?? const Locale('vi'),
                 routerConfig: AppRouter.router,
+                builder: (context, child) {
+                  return GestureDetector(
+                    onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                    behavior: HitTestBehavior.translucent,
+                    child: child,
+                  );
+                },
               );
             },
           );

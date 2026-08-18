@@ -39,6 +39,27 @@ class AppLocalizationsVi extends AppLocalizations {
   String get weekdaySun => 'CN';
 
   @override
+  String get historyGroupWeekdayMon => 'Thứ 2';
+
+  @override
+  String get historyGroupWeekdayTue => 'Thứ 3';
+
+  @override
+  String get historyGroupWeekdayWed => 'Thứ 4';
+
+  @override
+  String get historyGroupWeekdayThu => 'Thứ 5';
+
+  @override
+  String get historyGroupWeekdayFri => 'Thứ 6';
+
+  @override
+  String get historyGroupWeekdaySat => 'Thứ 7';
+
+  @override
+  String get historyGroupWeekdaySun => 'Chủ Nhật';
+
+  @override
   String get categoryFood => 'Ăn uống';
 
   @override
@@ -121,6 +142,36 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get splashOfflineMessage =>
       'Mất kết nối mạng. Kiểm tra Wi-Fi hoặc dữ liệu di động.';
+
+  @override
+  String get onboardingSkipButton => 'Bỏ qua';
+
+  @override
+  String get onboardingContinueButton => 'Tiếp tục';
+
+  @override
+  String get onboardingStartButton => 'Bắt đầu ngay';
+
+  @override
+  String get onboardingSlide1Title => 'Theo dõi mọi khoản chi';
+
+  @override
+  String get onboardingSlide1Desc =>
+      'Ghi lại thu nhập và chi tiêu chỉ trong vài giây, mọi lúc mọi nơi.';
+
+  @override
+  String get onboardingSlide2Title => 'Thấu hiểu dòng tiền';
+
+  @override
+  String get onboardingSlide2Desc =>
+      'Biểu đồ trực quan giúp bạn biết tiền đi đâu, về đâu mỗi tháng.';
+
+  @override
+  String get onboardingSlide3Title => 'Đạt mục tiêu tiết kiệm';
+
+  @override
+  String get onboardingSlide3Desc =>
+      'Đặt ngân sách, theo dõi tiến độ và tiết kiệm nhiều hơn mỗi ngày.';
 
   @override
   String get loginFeatureInDevelopmentSnackbar =>
@@ -872,6 +923,35 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get historySearchHint => 'Tìm giao dịch...';
+
+  @override
+  String get historyFilterCategoryLabel => 'Danh mục';
+
+  @override
+  String get historyTabList => 'Danh sách';
+
+  @override
+  String get historyTabChart => 'Biểu đồ';
+
+  @override
+  String get historyChartEmptyMessage => 'Không có dữ liệu để thống kê';
+
+  @override
+  String get historyChartIncomeLabel => 'Thu';
+
+  @override
+  String get historyChartExpenseLabel => 'Chi';
+
+  @override
+  String get historyChartNetLabel => 'Ròng';
+
+  @override
+  String get historyChartCategoryCardTitle => 'Chi tiêu theo danh mục';
+
+  @override
+  String historyChartRecentCardTitle(String count) {
+    return '$count giao dịch gần nhất';
+  }
 
   @override
   String get profilePageTitle => 'Hồ sơ';

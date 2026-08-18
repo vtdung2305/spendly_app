@@ -101,6 +101,7 @@ class BackendTransactionRepository implements ITransactionRepository {
     DateTime? dateFrom,
     DateTime? dateTo,
     double? minAmount,
+    String? categoryId,
   }) async {
     try {
       final models = await _dataSource.getTransactions(
@@ -115,6 +116,10 @@ class BackendTransactionRepository implements ITransactionRepository {
       if (minAmount != null) {
         transactions =
             transactions.where((t) => t.amount >= minAmount).toList();
+      }
+      if (categoryId != null) {
+        transactions =
+            transactions.where((t) => t.category?.id == categoryId).toList();
       }
       return Right(transactions);
     } catch (e) {

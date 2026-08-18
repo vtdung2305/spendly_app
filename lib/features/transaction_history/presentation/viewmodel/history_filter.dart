@@ -12,6 +12,7 @@ class HistoryFilter extends Equatable {
     this.dateFrom,
     this.dateTo,
     this.quickFilter = HistoryQuickFilter.none,
+    this.categoryId,
   });
 
   static const empty = HistoryFilter();
@@ -19,9 +20,13 @@ class HistoryFilter extends Equatable {
   final DateTime? dateFrom;
   final DateTime? dateTo;
   final HistoryQuickFilter quickFilter;
+  final String? categoryId;
 
   bool get isActive =>
-      dateFrom != null || dateTo != null || quickFilter != HistoryQuickFilter.none;
+      dateFrom != null ||
+      dateTo != null ||
+      quickFilter != HistoryQuickFilter.none ||
+      categoryId != null;
 
   HistoryFilter copyWith({
     DateTime? dateFrom,
@@ -29,14 +34,17 @@ class HistoryFilter extends Equatable {
     DateTime? dateTo,
     bool clearDateTo = false,
     HistoryQuickFilter? quickFilter,
+    String? categoryId,
+    bool clearCategoryId = false,
   }) {
     return HistoryFilter(
       dateFrom: clearDateFrom ? null : (dateFrom ?? this.dateFrom),
       dateTo: clearDateTo ? null : (dateTo ?? this.dateTo),
       quickFilter: quickFilter ?? this.quickFilter,
+      categoryId: clearCategoryId ? null : (categoryId ?? this.categoryId),
     );
   }
 
   @override
-  List<Object?> get props => [dateFrom, dateTo, quickFilter];
+  List<Object?> get props => [dateFrom, dateTo, quickFilter, categoryId];
 }

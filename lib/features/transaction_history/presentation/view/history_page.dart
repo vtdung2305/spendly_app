@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:spendly_app/core/localization/app_localizations_x.dart';
 import 'package:spendly_app/core/theme/app_spacing.dart';
+import 'package:spendly_app/features/category_management/domain/entities/category.dart';
 import 'package:spendly_app/shared/components/dialogs/app_snackbar.dart';
 import 'package:spendly_app/shared/components/empty/app_empty_view.dart';
 import 'package:spendly_app/shared/components/error/app_error_view.dart';
@@ -18,7 +20,10 @@ import 'package:spendly_app/features/transaction_history/presentation/viewmodel/
 import 'package:spendly_app/features/transaction_history/presentation/viewmodel/history_filter.dart';
 import 'package:spendly_app/features/transaction_history/presentation/viewmodel/history_state.dart';
 import 'package:spendly_app/features/transaction_history/presentation/widgets/filter_chip_panel.dart';
+import 'package:spendly_app/features/transaction_history/presentation/widgets/history_chart_view.dart';
+import 'package:spendly_app/features/transaction_history/presentation/widgets/history_date_group_header.dart';
 import 'package:spendly_app/features/transaction_history/presentation/widgets/history_search_bar.dart';
+import 'package:spendly_app/features/transaction_history/presentation/widgets/history_view_tabs.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -32,6 +37,7 @@ class _HistoryPageState extends State<HistoryPage> {
   bool _filterOpen = false;
   String _searchQuery = '';
   HistoryFilter _filter = HistoryFilter.empty;
+  HistoryView _view = HistoryView.list;
 
   @override
   void initState() {
@@ -95,6 +101,11 @@ class _HistoryPageState extends State<HistoryPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: AppSpacing.mdLg),
+                        HistoryViewTabs(
+                          selected: _view,
+                          onChanged: (view) => setState(() => _view = view),
+                        ),
+                        const SizedBox(height: AppSpacing.smMd),
                         HistorySearchBar(
                           controller: _searchController,
                           onChanged: (query) {
@@ -105,31 +116,47 @@ class _HistoryPageState extends State<HistoryPage> {
                           onToggleFilter: () =>
                               setState(() => _filterOpen = !_filterOpen),
                         ),
-                        if (_filterOpen) ...[
-                          const SizedBox(height: AppSpacing.sm),
-                          FilterChipPanel(
-                            filter: _filter,
-                            hasActiveFilters:
-                                _filter.isActive || _searchQuery.isNotEmpty,
-                            onDateFromChanged: (date) {
-                              setState(
-                                  () => _filter = _filter.copyWith(
-                                      dateFrom: date, clearDateFrom: date == null));
-                              _reload();
-                            },
-                            onDateToChanged: (date) {
-                              setState(() => _filter = _filter.copyWith(
-                                  dateTo: date, clearDateTo: date == null));
-                              _reload();
-                            },
-                            onQuickFilterChanged: (quickFilter) {
-                              setState(() =>
-                                  _filter = _filter.copyWith(quickFilter: quickFilter));
-                              _reload();
-                            },
-                            onClearFilters: _clearFilters,
-                          ),
-                        ],
+                        BlocBuilder<HistoryCubit, HistoryState>(
+                          builder: (context, state) {
+                            final categories = state is HistoryLoaded
+                                ? state.categories
+                                : const <Category>[];
+                            if (!_filterOpen) return const SizedBox.shrink();
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.only(top: AppSpacing.sm),
+                              child: FilterChipPanel(
+                                filter: _filter,
+                                categories: categories,
+                                hasActiveFilters: _filter.isActive ||
+                                    _searchQuery.isNotEmpty,
+                                onDateFromChanged: (date) {
+                                  setState(() => _filter = _filter.copyWith(
+                                      dateFrom: date,
+                                      clearDateFrom: date == null));
+                                  _reload();
+                                },
+                                onDateToChanged: (date) {
+                                  setState(() => _filter = _filter.copyWith(
+                                      dateTo: date, clearDateTo: date == null));
+                                  _reload();
+                                },
+                                onQuickFilterChanged: (quickFilter) {
+                                  setState(() => _filter =
+                                      _filter.copyWith(quickFilter: quickFilter));
+                                  _reload();
+                                },
+                                onCategoryChanged: (categoryId) {
+                                  setState(() => _filter = _filter.copyWith(
+                                      categoryId: categoryId,
+                                      clearCategoryId: categoryId == null));
+                                  _reload();
+                                },
+                                onClearFilters: _clearFilters,
+                              ),
+                            );
+                          },
+                        ),
                         const SizedBox(height: AppSpacing.mdLg),
                         Expanded(
                           child: RefreshIndicator(
@@ -185,7 +212,8 @@ class _HistoryPageState extends State<HistoryPage> {
                                         ],
                                       ),
                                     ),
-                                  HistoryLoaded(transactions: []) =>
+                                  HistoryLoaded(transactions: [])
+                                      when _view == HistoryView.list =>
                                     LayoutBuilder(
                                       builder: (context, constraints) =>
                                           ListView(
@@ -204,26 +232,51 @@ class _HistoryPageState extends State<HistoryPage> {
                                         ],
                                       ),
                                     ),
-                                  HistoryLoaded(:final transactions) =>
+                                  HistoryLoaded(:final transactions)
+                                      when _view == HistoryView.chart =>
                                     ListView(
                                       padding: EdgeInsets.zero,
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
                                       children: [
-                                        for (final t in transactions) ...[
-                                          SwipeToDelete(
-                                            itemKey: ValueKey(t.id),
-                                            confirmTitle: context.l10n
-                                                .transactionDeleteConfirmTitle,
-                                            confirmDescription: context.l10n
-                                                .feedbackKitConfirmDialogDesc,
-                                            onTap: () =>
-                                                _editTransaction(context, t),
-                                            onDelete: () => _deleteTransaction(
-                                                context, t.id),
-                                            child:
-                                                TransactionRow(transaction: t),
+                                        HistoryChartView(
+                                            transactions: transactions),
+                                      ],
+                                    ),
+                                  HistoryLoaded(:final transactions) =>
+                                    CustomScrollView(
+                                      slivers: [
+                                        for (final group
+                                            in groupTransactionsByDate(
+                                                transactions))
+                                          SliverStickyHeader(
+                                            header: HistoryDateGroupHeader(
+                                                date: group.date),
+                                            sliver: SliverList.list(
+                                              children: [
+                                                for (final t
+                                                    in group.transactions) ...[
+                                                  SwipeToDelete(
+                                                    itemKey: ValueKey(t.id),
+                                                    confirmTitle: context.l10n
+                                                        .transactionDeleteConfirmTitle,
+                                                    confirmDescription: context
+                                                        .l10n
+                                                        .feedbackKitConfirmDialogDesc,
+                                                    onTap: () =>
+                                                        _editTransaction(
+                                                            context, t),
+                                                    onDelete: () =>
+                                                        _deleteTransaction(
+                                                            context, t.id),
+                                                    child: TransactionRow(
+                                                        transaction: t),
+                                                  ),
+                                                  const SizedBox(height: 12),
+                                                ],
+                                              ],
+                                            ),
                                           ),
-                                          const SizedBox(height: 12),
-                                        ],
                                       ],
                                     ),
                                 };

@@ -28,7 +28,7 @@ class _LanguageSelectPageState extends State<LanguageSelectPage> {
     await context.read<LocaleCubit>().setLocale(Locale(_selectedCode));
     if (!mounted) return;
     final authState = context.read<AuthCubit>().state;
-    context.go(authState is AuthAuthenticated ? '/dashboard' : '/login');
+    context.go(authState is AuthAuthenticated ? '/dashboard' : '/onboarding');
   }
 
   @override

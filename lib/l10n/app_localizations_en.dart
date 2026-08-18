@@ -39,6 +39,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weekdaySun => 'Sun';
 
   @override
+  String get historyGroupWeekdayMon => 'Monday';
+
+  @override
+  String get historyGroupWeekdayTue => 'Tuesday';
+
+  @override
+  String get historyGroupWeekdayWed => 'Wednesday';
+
+  @override
+  String get historyGroupWeekdayThu => 'Thursday';
+
+  @override
+  String get historyGroupWeekdayFri => 'Friday';
+
+  @override
+  String get historyGroupWeekdaySat => 'Saturday';
+
+  @override
+  String get historyGroupWeekdaySun => 'Sunday';
+
+  @override
   String get categoryFood => 'Food & Drink';
 
   @override
@@ -121,6 +142,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get splashOfflineMessage =>
       'No network connection. Check your Wi-Fi or mobile data.';
+
+  @override
+  String get onboardingSkipButton => 'Skip';
+
+  @override
+  String get onboardingContinueButton => 'Continue';
+
+  @override
+  String get onboardingStartButton => 'Get started';
+
+  @override
+  String get onboardingSlide1Title => 'Track every expense';
+
+  @override
+  String get onboardingSlide1Desc =>
+      'Log income and spending in seconds, anytime, anywhere.';
+
+  @override
+  String get onboardingSlide2Title => 'Understand your cash flow';
+
+  @override
+  String get onboardingSlide2Desc =>
+      'Visual charts show you where your money goes every month.';
+
+  @override
+  String get onboardingSlide3Title => 'Reach your savings goals';
+
+  @override
+  String get onboardingSlide3Desc =>
+      'Set budgets, track progress, and save more every day.';
 
   @override
   String get loginFeatureInDevelopmentSnackbar =>
@@ -872,6 +923,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historySearchHint => 'Search transactions...';
+
+  @override
+  String get historyFilterCategoryLabel => 'Category';
+
+  @override
+  String get historyTabList => 'List';
+
+  @override
+  String get historyTabChart => 'Chart';
+
+  @override
+  String get historyChartEmptyMessage => 'No data to show yet';
+
+  @override
+  String get historyChartIncomeLabel => 'Income';
+
+  @override
+  String get historyChartExpenseLabel => 'Expense';
+
+  @override
+  String get historyChartNetLabel => 'Net';
+
+  @override
+  String get historyChartCategoryCardTitle => 'Spending by category';
+
+  @override
+  String historyChartRecentCardTitle(String count) {
+    return '$count most recent';
+  }
 
   @override
   String get profilePageTitle => 'Profile';

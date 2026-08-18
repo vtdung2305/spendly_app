@@ -14,6 +14,7 @@ class GetTransactionsUseCase {
     DateTime? dateFrom,
     DateTime? dateTo,
     double? minAmount,
+    String? categoryId,
   }) =>
       _repository.getTransactions(
         type: type,
@@ -21,5 +22,6 @@ class GetTransactionsUseCase {
         dateFrom: dateFrom,
         dateTo: dateTo,
         minAmount: minAmount,
+        categoryId: categoryId,
       );
 }

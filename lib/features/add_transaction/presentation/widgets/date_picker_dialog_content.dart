@@ -12,9 +12,14 @@ import 'package:spendly_app/shared/components/calendar/month_grid.dart';
 /// the Calendar screen so both render the exact same month-grid layout and
 /// cell shape, per design handoff.
 class DatePickerDialogContent extends StatefulWidget {
-  const DatePickerDialogContent({required this.initialDate, super.key});
+  const DatePickerDialogContent(
+      {required this.initialDate, this.minSelectableDate, super.key});
 
   final DateTime initialDate;
+
+  /// When set, days on or before this date are disabled (greyed out,
+  /// untappable) — e.g. History's "Đến ngày" can't be on/before "Từ ngày".
+  final DateTime? minSelectableDate;
 
   @override
   State<DatePickerDialogContent> createState() =>
@@ -45,6 +50,14 @@ class _DatePickerDialogContentState extends State<DatePickerDialogContent> {
 
   int _daysInMonth() =>
       DateTime(_displayedMonth.year, _displayedMonth.month + 1, 0).day;
+
+  bool _isDisabled(int day) {
+    final minDate = widget.minSelectableDate;
+    if (minDate == null) return false;
+    final candidate = DateTime(_displayedMonth.year, _displayedMonth.month, day);
+    return !candidate.isAfter(
+        DateTime(minDate.year, minDate.month, minDate.day));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +97,7 @@ class _DatePickerDialogContentState extends State<DatePickerDialogContent> {
             isToday: now.year == _displayedMonth.year &&
                 now.month == _displayedMonth.month &&
                 now.day == day,
+            isDisabled: _isDisabled(day),
             onTap: () => _selectDay(day),
           ),
         ),
@@ -128,11 +142,13 @@ class _DayCell extends StatelessWidget {
     required this.isSelected,
     required this.isToday,
     required this.onTap,
+    this.isDisabled = false,
   });
 
   final int day;
   final bool isSelected;
   final bool isToday;
+  final bool isDisabled;
   final VoidCallback onTap;
 
   @override
@@ -141,14 +157,16 @@ class _DayCell extends StatelessWidget {
     final background = isSelected
         ? colors.primary
         : (isToday ? colors.primaryTint : colors.surfaceAlt);
-    final foreground = isSelected
-        ? Colors.white
-        : (isToday ? colors.primary : colors.textPrimary);
+    final foreground = isDisabled
+        ? colors.textTertiary
+        : (isSelected
+            ? Colors.white
+            : (isToday ? colors.primary : colors.textPrimary));
 
     return MonthGridDayCell(
-      onTap: onTap,
-      background: background,
-      ringColor: isToday && !isSelected ? colors.primary : null,
+      onTap: isDisabled ? null : onTap,
+      background: isDisabled ? colors.surfaceAlt : background,
+      ringColor: isToday && !isSelected && !isDisabled ? colors.primary : null,
       child: Text(
         '$day',
         style: Theme.of(context)

@@ -21,6 +21,7 @@ abstract class ITransactionRepository {
     DateTime? dateFrom,
     DateTime? dateTo,
     double? minAmount,
+    String? categoryId,
   });
 
   Future<Either<Failure, List<CalendarDay>>> getCalendarSummary(DateTime month);

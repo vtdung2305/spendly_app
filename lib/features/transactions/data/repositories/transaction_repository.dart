@@ -119,12 +119,17 @@ class TransactionRepository implements ITransactionRepository {
     DateTime? dateFrom,
     DateTime? dateTo,
     double? minAmount,
+    String? categoryId,
   }) async {
     try {
       final categoryMap = await _categoryMap();
       var transactions =
           await _resolve(await _dataSource.getAllTransactions(), categoryMap);
 
+      if (categoryId != null) {
+        transactions =
+            transactions.where((t) => t.category?.id == categoryId).toList();
+      }
       if (type != null) {
         transactions = transactions.where((t) => t.type == type).toList();
       }
